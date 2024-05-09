@@ -1,7 +1,17 @@
 /** 公共样式表 **/
 import React from 'react';
 import { Platform, StatusBar, View, Text } from 'react-native'
+import { RNStorage } from './RNStorage';
 export const GlobalStyle = {
+  nodataView: () => {
+    return (<View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'gray' }}>暂无数据</Text></View>)
+  },
+  sysBg: () => {
+    return RNStorage.isDark ? '#000' : '#FFF';
+  },
+  sysFont: () => {
+    return RNStorage.isDark ? '#FFF' : '#000';
+  },
 
   /** color **/
   // 常用颜色
@@ -234,7 +244,16 @@ export const GlobalStyle = {
   androidSafeArea3: {
     paddingTop: 0,
   },
-  nodataView: () => {
-    return (<View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'gray' }}>暂无数据</Text></View>)
+  title1: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: RNStorage.isDark ? '#FFFFFF' : '#000000',
+    lineHeight: 24,
+  },
+  title2: {
+    fontSize: 14,
+    color: RNStorage.isDark ? '#FFFFFF' : '#000000',
+    lineHeight: 22,
   }
+
 }

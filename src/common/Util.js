@@ -9,11 +9,26 @@ import moment from 'moment';
 
 export default class Util {
 
-    static DEVICE_ID = "DEVICE_ID";
-    static PAGE_SIZE = 20;
+    //----------------------------HTTP REQUEST
 
     static SITE_INFO = 'dsapp/siteInfo'; //检查手机号是否可用
     static CLIP_TYPE = 'dsapp/getClipType'; //分类
+    static CLIP_TYPE_DATA = 'dsapp/getClipTypeData'; //获取一部分分类及数据
+    static CLIP_DATA = 'dsapp/clipData'; //片库
+    static CLIP_KEY = 'dsapp/getRandByKey'; //关键字随机
+
+    //----------------------------HTTP REQUEST
+
+    static DEVICE_ID = "DEVICE_ID";
+    static PAGE_SIZE = 20;
+    static HEIGHT_RATIO = 0.53; //图片高度占宽度比例
+    
+    static iconList = {
+        "coin": require('../../assets/icon_coin3.png'),
+        "diamond": require('../../assets/icon_diamond3.png'),
+        'vip': require('../../assets/vip.png'),
+        'loading': require('../../assets/loading.png'),
+    }
 
     static msg(txt) {
         if (Platform.OS === 'web') {
@@ -247,11 +262,9 @@ export default class Util {
 
     static getThumb = (url) => {
         if (url == null || url.length == 0) {
-            return 'https://www.baidu.com/img/PCfb_5bf082d29588c07f842ccde3f97243ea.png';
+            return Util.iconList['loading'];
         } else if (url.indexOf('http') == 0) {
-            return url;
-        } else {
-            return RNStorage.thumbUrl + url
+            return { uri: url };
         }
     }
 
@@ -268,8 +281,8 @@ export default class Util {
     static isEmpty = (str) => {
         if (!str || str.trim() === '') {
             return true;
-          } else {
+        } else {
             return false;
-          }
+        }
     }
 }

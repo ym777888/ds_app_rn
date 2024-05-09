@@ -5798,6 +5798,11 @@ react-native-easy-app@^1.7.27:
   resolved "https://registry.npmjs.org/react-native-easy-app/-/react-native-easy-app-1.7.27.tgz"
   integrity sha512-gxQTVoc0TOwPdHaNNY+rne6YLlGbN3VjFs7990AjHSKtT84fRtEfDJKezWhBDJeTEqEVjybQpm4VCtCYOTcVGw==
 
+react-native-fast-image@^8.6.3:
+  version "8.6.3"
+  resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.6.3.tgz#6edc3f9190092a909d636d93eecbcc54a8822255"
+  integrity sha512-Sdw4ESidXCXOmQ9EcYguNY2swyoWmx53kym2zRsvi+VeFCHEdkO+WG1DK+6W81juot40bbfLNhkc63QnWtesNg==
+
 react-native-gesture-handler@^2.16.1:
   version "2.16.1"
   resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.16.1.tgz#a2b6828134988632a87f5444a2cc2caa34f16748"

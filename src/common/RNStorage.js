@@ -33,4 +33,6 @@ export const RNStorage = {// 持久化数据列表
     tags: '',
     isSms: true,
     gameUrl: '',
+    isDark: false,
+    info: {}, //站点信息
 };

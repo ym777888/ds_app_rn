@@ -51,6 +51,7 @@ function App() {
 
             // RNStorage.appid = Application.applicationId;
             RNStorage.baseUrl = BASE_URL;
+            RNStorage.isDark = isDarkMode;
 
         }, (sdata) => {
             console.log('持久化数据变更:');
