@@ -1,0 +1,866 @@
+diff --git a/node_modules/react-native-video-bilibili/lib/AnimatedComponent.js b/node_modules/react-native-video-bilibili/lib/AnimatedComponent.js
+index 17c548f..4f89cba 100644
+--- a/node_modules/react-native-video-bilibili/lib/AnimatedComponent.js
++++ b/node_modules/react-native-video-bilibili/lib/AnimatedComponent.js
+@@ -39,7 +39,7 @@ class AnimatedComponent extends React.PureComponent {
+         this.animateToggle.apply(this,arguments)
+     }
+ 
+-    animateStagger(delay=2000) {
++    animateStagger(delay=5000) {
+         Animated.stagger(delay,
+             [
+                 Animated.timing(
+@@ -48,6 +48,7 @@ class AnimatedComponent extends React.PureComponent {
+                         toValue: 1,
+                         duration: 300,
+                         easing: Easing.linear,
++                        useNativeDriver: true,
+                     }
+                 ),
+                 Animated.timing(
+@@ -56,13 +57,14 @@ class AnimatedComponent extends React.PureComponent {
+                         toValue: 0,
+                         duration: 300,
+                         easing: Easing.linear,
++                        useNativeDriver: true,
+                     }
+                 ),
+             ]
+         ).start()
+     }
+ 
+-    animateToggle(delay=2000){
++    animateToggle(delay=5000){
+         if(this.opacityAnimate._value===0){
+             this.animateStagger(delay);
+         }else {
+@@ -72,6 +74,7 @@ class AnimatedComponent extends React.PureComponent {
+                     toValue: 0,
+                     duration: 300,
+                     easing: Easing.linear,
++                    useNativeDriver: true,
+                 }
+             ).start()
+         }
+diff --git a/node_modules/react-native-video-bilibili/lib/ResponderView.js b/node_modules/react-native-video-bilibili/lib/ResponderView.js
+index d312ff0..1cc842b 100644
+--- a/node_modules/react-native-video-bilibili/lib/ResponderView.js
++++ b/node_modules/react-native-video-bilibili/lib/ResponderView.js
+@@ -1,4 +1,4 @@
+-import React from 'react'
++import React, {createRef} from 'react'
+ import {
+     View,
+     StyleSheet
+@@ -16,6 +16,7 @@ class ResponderView extends React.PureComponent {
+     };
+     constructor(props){
+         super(props);
++        this.touchViewRef = createRef();
+         this.state={
+             firstCoordinate:{x:0,y:0}, // for judging LeftAndRightMove
+             firstTimestamp:0,          // for preventing misoperation
+@@ -56,7 +57,7 @@ class ResponderView extends React.PureComponent {
+ 
+     render(){
+         return (
+-            <View ref={'touchView'}
++            <View ref={this.touchViewRef}
+                   {...this.props}
+                   style={[styles.touchView,this.props.style]}
+                   onStartShouldSetResponder={this._onStartShouldSetResponder}
+@@ -88,7 +89,7 @@ class ResponderView extends React.PureComponent {
+ 
+     _onResponderGrant=async (e)=>{
+         const {pageX,pageY,locationX,locationY,timestamp} = e.nativeEvent;
+-        this.refs.touchView.measure(async (ox, oy, width, height, px, py) => {
++        this.touchViewRef.current.measure(async (ox, oy, width, height, px, py) => {
+             await this.setState({
+                 firstCoordinate:{x:locationX,y:locationY},
+                 firstTimestamp:timestamp,
+@@ -108,7 +109,7 @@ class ResponderView extends React.PureComponent {
+ 
+             await this.setState({lastCoordinate:{x:pageX,y:pageY}});
+ 
+-            this.refs.touchView.measure(async (ox, oy, width, height, px, py) => {
++            this.touchViewRef.current.measure(async (ox, oy, width, height, px, py) => {
+ 
+                 if(moveEvent){
+                     if(moveEvent==='LeftAndRightMove'){
+diff --git a/node_modules/react-native-video-bilibili/videoPlayer.js b/node_modules/react-native-video-bilibili/videoPlayer.js
+index b2e1c01..7867416 100644
+--- a/node_modules/react-native-video-bilibili/videoPlayer.js
++++ b/node_modules/react-native-video-bilibili/videoPlayer.js
+@@ -1,85 +1,99 @@
+-import React from 'react'
++import React, { createRef } from 'react'
+ import {
+     View,
+     Text,
+     Image,
+     Animated,
+     Platform,
+-    ProgressBarAndroid,
+     ProgressViewIOS,
+-    Slider,
+     TouchableOpacity,
+-    Button
++    Button,
++    StyleSheet, 
++    Dimensions,
++    StatusBar
++
+ } from 'react-native'
+ import ResponderView from './lib/ResponderView'
+ import AnimatedComponent from './lib/AnimatedComponent'
+-import {formatTime,deepMergeStyle} from './lib/util'
++import { ProgressBar } from '@react-native-community/progress-bar-android'
++import Slider from '@react-native-community/slider'
++import { formatTime, deepMergeStyle } from './lib/util'
+ import Video from 'react-native-video'
+-import {styles as VideoPlayerStyles} from "./lib/style";
++import { styles as VideoPlayerStyles } from "./lib/style"
++import Orientation from 'react-native-orientation-locker'
+ 
+ const MenusContext = React.createContext({});
+ 
+ class VideoPlayer extends React.PureComponent {
+     static defaultProps = {
+-        onLoad:function(){},
+-        onError:function(){},
+-        onBuffer:function(){},
+-        onProgress:function(){},
+-        renderCenterMenus:null,
+-        renderTopMenus:null,
+-        renderBottomMenus:null,
+-        renderSeekTime:null,
+-        renderLoading:null,
+-        setFullScreen:function(){},
+-        setNavigator:function(){},
+-        setSetting:function(){},
+-        volume:1,
+-        paused:false,
+-        currentTime:0,
++        onLoad: function () { },
++        onError: function () { },
++        onBuffer: function () { },
++        onProgress: function () { },
++        renderCenterMenus: null,
++        renderTopMenus: null,
++        renderBottomMenus: null,
++        renderSeekTime: null,
++        renderLoading: null,
++        setFullScreen: function () { },
++        setNavigator: function () { },
++        setSetting: function () { },
++        volume: 1,
++        paused: false,
++        currentTime: 0,
+     };
+ 
+-    constructor(props){
++    constructor(props) {
+         super(props);
+-        this.state={
+-            orientation:'portrait',//landscape
++        this.topMenusRef = createRef();
++        this.bottomMenusRef = createRef();
++        this.seekTimeRef = createRef();
++        this.centerMenusRef = createRef();
++        this.state = {
++            orientation: 'portrait',//landscape
+ 
+-            pointerEvents:'none',
++            pointerEvents: 'none',
+ 
+             //shouldComponentUpdate
+-            sliderAutoEnable:true,
++            sliderAutoEnable: true,
+ 
+             //video props
+-            muted:this.props.muted,
+-            volume:this.props.volume,
+-            paused:this.props.paused,
+-            duration:0,
+-            playableDuration:0,
+-            currentTime:this.props.currentTime,
+-            currentTime_copy:0,
+-            isBuffering:true,
+-            error:undefined
++            muted: this.props.muted,
++            volume: this.props.volume,
++            paused: this.props.paused,
++            duration: 0,
++            playableDuration: 0,
++            currentTime: this.props.currentTime,
++            currentTime_copy: 0,
++            isBuffering: true,
++            error: undefined,
++            isFullScreen: false
+         };
+     }
+ 
++    componentDidMount() {
++        Orientation.lockToPortrait(); // 组件加载时锁定默认方向为'portrait'
++        this.setState({
++            orientation: 'portrait'
++        });
++    }
+ 
+-
+-
+-
+-
+-
+-
++    componentWillUnmount() {
++        Orientation.lockToPortrait();
++        StatusBar.setHidden(false);
++    }
+ 
+ 
+     /******************** responder event *******************/
+-    _handleSingleTouch=()=>{
++    _handleSingleTouch = () => {
+         this.toggleMenusComponent()
+     };
+ 
+-    _handleDoubleTouch=()=>{
++    _handleDoubleTouch = () => {
+         this.setPaused()
+     };
+ 
+-    _handleLeftAndRightMove=async (offset)=>{
++    _handleLeftAndRightMove = async (offset) => {
+ 
+         //show component when touch move
+         this.showSeekTimerComponent();
+@@ -89,36 +103,36 @@ class VideoPlayer extends React.PureComponent {
+         let duration = this.state.duration;
+         let currentTime = this.state.currentTime;
+ 
+-        currentTime+=offset;
+-        if(currentTime<0){
+-            await this.setState({currentTime:0});
+-        }else if(currentTime>duration){
+-            await this.setState({currentTime:duration});
+-        }else {
+-            await this.setState({currentTime:currentTime});
++        currentTime += offset;
++        if (currentTime < 0) {
++            await this.setState({ currentTime: 0 });
++        } else if (currentTime > duration) {
++            await this.setState({ currentTime: duration });
++        } else {
++            await this.setState({ currentTime: currentTime });
+         }
+ 
+         this.onCurrentTimeProgress(Math.floor(this.state.currentTime))
+ 
+     };
+ 
+-    _handleLeftAndRightMoveComplete=async ()=>{
++    _handleLeftAndRightMoveComplete = async () => {
+         await this.onSlidingComplete(this.state.currentTime)
+     };
+ 
+-    _handleUpAndDownMoveInLeft=(offset)=>{
+-        console.log('light control',offset)
++    _handleUpAndDownMoveInLeft = (offset) => {
++        console.log('light control', offset)
+     };
+ 
+-    _handleUpAndDownMoveInRight=(offset)=>{
++    _handleUpAndDownMoveInRight = (offset) => {
+         let volume = this.state.volume;
+-        volume+=offset/100;
+-        if(volume<=0){
+-            this.setState({volume:0,muted:true})
+-        }else if(volume>1){
+-            this.setState({volume:1,muted:false});
+-        }else {
+-            this.setState({volume:volume,muted:false})
++        volume += offset / 100;
++        if (volume <= 0) {
++            this.setState({ volume: 0, muted: true })
++        } else if (volume > 1) {
++            this.setState({ volume: 1, muted: false });
++        } else {
++            this.setState({ volume: volume, muted: false })
+         }
+     };
+ 
+@@ -127,143 +141,168 @@ class VideoPlayer extends React.PureComponent {
+ 
+ 
+     /******************** custom event *******************/
+-    showSeekTimerComponent=()=>{
+-        this.refs._seekTime.show();
++    showSeekTimerComponent = () => {
++        this.seekTimeRef.current.show();
+     };
+-    showMenusComponent=()=>{
+-        this.refs._topMenus.show();
+-        this.refs._bottomMenus.show();
++    showMenusComponent = () => {
++        this.topMenusRef.current.show();
++        this.bottomMenusRef.current.show();
+     };
+-    toggleMenusComponent=()=>{
+-        this.refs._topMenus.toggle();
+-        this.refs._bottomMenus.toggle();
++    toggleMenusComponent = () => {
++        this.topMenusRef.current.toggle();
++        this.bottomMenusRef.current.toggle();
+     };
+ 
++    toggleFullScreen = () => {
++        const { orientation } = this.state;
++        if (orientation === 'portrait') {
++            Orientation.lockToLandscape();
++            StatusBar.setHidden(true);
++            this.setState({ orientation: 'landscape', isFullScreen: true });
++        } else {
++            Orientation.lockToPortrait();
++            StatusBar.setHidden(false);
++            this.setState({ orientation: 'portrait', isFullScreen: false });
++        }
+ 
+-    render(){
+-        const {pointerEvents,isBuffering,paused} = this.state;
+-        const {children,controls} = this.props;
++    };
++
++    render() {
++        const { pointerEvents, isBuffering, paused, orientation,isFullScreen  } = this.state;
++        const { children, controls, title } = this.props;
++        const videoStyle = isFullScreen ? styles.full : styles.normal;
+         return (
+             <MenusContext.Provider value={{
+-                state:this.state,
+-                props:{
++                state: this.state,
++                props: {
+                     ...this.props,
+-                    onCurrentTimeProgress:this.onCurrentTimeProgress,
+-                    onSlidingComplete:this.onSlidingComplete,
+-                    setPaused:this.setPaused
++                    onCurrentTimeProgress: this.onCurrentTimeProgress,
++                    onSlidingComplete: this.onSlidingComplete,
++                    setPaused: this.setPaused,
++                    setFullScreen: this.toggleFullScreen,
++                    setNavigator: this.setNavigator,
+                 },
+-                styles:deepMergeStyle(VideoPlayerStyles,this.props.styles)
++                styles: deepMergeStyle(VideoPlayerStyles, this.props.styles)
+             }}>
+-            <View style={[VideoPlayerStyles.container,this.props.containerStyle]}>
+-                <Video
+-                    resizeMode={"contain"}
+-                    hideShutterView={false}
+-                    {...this.props}
+-                    children={undefined}
+-                    ref={c => {
+-                        this._root = c
+-                    }}
+-                    muted={this.state.muted}
+-                    volume={this.state.volume}
+-                    paused={this.state.paused}
+-                    onLoad={  this.onLoad }
+-                    onError={ this.onError }
+-                    onBuffer={ this.onBuffer }
+-                    onProgress={  this.onProgress }
+-                />
+-                {!controls&&<ResponderView
+-                    style={VideoPlayerStyles.touchView}
+-                    pointerEvents={pointerEvents}
+-                    handleSingleTouch={this._handleSingleTouch}
+-                    handleDoubleTouch={this._handleDoubleTouch}
+-                    handleLeftAndRightMove={this._handleLeftAndRightMove}
+-                    handleLeftAndRightMoveComplete={this._handleLeftAndRightMoveComplete}
+-                    handleUpAndDownMoveInLeft={this._handleUpAndDownMoveInLeft}
+-                    handleUpAndDownMoveInRight={this._handleUpAndDownMoveInRight}
+-                >
+-                    {/********** loading **********/}
+-
+-                        {isBuffering&&!paused&&<Loading />}
+-
+-                    {/********** center menus **********/}
+-
+-                        <CenterMenus volume={this.state.volume}/>
+-
+-                    {/********** top menus **********/}
+-
+-                        <TopMenus paused={this.state.paused} ref={'_topMenus'} />
+-
+-                    {/********** bottom menus **********/}
+-                    <View style={VideoPlayerStyles.bottomMenusContainer}>
+-                        <SeekTime ref={'_seekTime'} />
+-                        <BottomMenus paused={this.state.paused} ref={'_bottomMenus'} />
+-                    </View>
+-
+-                    {/********** custom view **********/}
+-                    {!!children&&<MenusContext.Consumer>
+-                        {children}
+-                    </MenusContext.Consumer>}
+-
+-                </ResponderView>}
+-            </View>
++                <View style={[VideoPlayerStyles.container, this.props.containerStyle]}>
++                    <Video
++                        resizeMode={"contain"}
++                        hideShutterView={false}
++                        {...this.props}
++                        children={undefined}
++                        ref={c => {
++                            this._root = c
++                        }}
++                        muted={this.state.muted}
++                        volume={this.state.volume}
++                        paused={this.state.paused}
++                        onLoad={this.onLoad}
++                        onError={this.onError}
++                        onBuffer={this.onBuffer}
++                        onProgress={this.onProgress}
++                        style={videoStyle}
++                    />
++                    {!controls && <ResponderView
++                        style={VideoPlayerStyles.touchView}
++                        pointerEvents={pointerEvents}
++                        handleSingleTouch={this._handleSingleTouch}
++                        handleDoubleTouch={this._handleDoubleTouch}
++                        handleLeftAndRightMove={this._handleLeftAndRightMove}
++                        handleLeftAndRightMoveComplete={this._handleLeftAndRightMoveComplete}
++                        handleUpAndDownMoveInLeft={this._handleUpAndDownMoveInLeft}
++                        handleUpAndDownMoveInRight={this._handleUpAndDownMoveInRight}
++                    >
++                        {/********** loading **********/}
++
++                        {isBuffering && !paused && <Loading />}
++
++                        {/********** center menus **********/}
++
++                        <CenterMenus volume={this.state.volume} ref={this.centerMenusRef} />
++
++                        {/********** top menus **********/}
++
++                        <TopMenus paused={this.state.paused} ref={this.topMenusRef} />
++
++                        {/********** bottom menus **********/}
++                        <View style={VideoPlayerStyles.bottomMenusContainer}>
++                            <SeekTime ref={this.seekTimeRef} />
++                            <BottomMenus paused={this.state.paused} ref={this.bottomMenusRef} />
++                        </View>
++
++                        {/********** custom view **********/}
++                        {!!children && <MenusContext.Consumer>
++                            {children}
++                        </MenusContext.Consumer>}
++
++                    </ResponderView>}
++                </View>
+             </MenusContext.Provider>
+         )
+     }
+ 
+     /******************** video event *******************/
+-    onLoad=(e)=>{
++    onLoad = (e) => {
++        // console.log('onLoad event:', e);
+         this.setState({
+-            duration:e.duration,
+-            orientation:e.naturalSize&&e.naturalSize.orientation
+-        },()=>{
+-            this.state.pointerEvents!=='auto'&&this.setState({pointerEvents:'auto'});
++            duration: e.duration,
++            orientation: 'portrait',
++        }, () => {
++            this.state.pointerEvents !== 'auto' && this.setState({ pointerEvents: 'auto' });
+         });
+-        if(this.props.onLoad){
++        if (this.props.onLoad) {
+             this.props.onLoad(e)
+         }
+     };
+ 
+-    onError=(e)=>{
+-        this.setState({error:e});
+-        if(this.props.onError){
++    onError = (e) => {
++        this.setState({ error: e });
++        if (this.props.onError) {
+             this.props.onError(e)
+         }
+     };
+ 
+-    onBuffer=(e)=>{
+-        this.setState({isBuffering:e.isBuffering,error:undefined});
+-        if(this.props.onBuffer){
++    onBuffer = (e) => {
++        this.setState({ isBuffering: e.isBuffering, error: undefined });
++        if (this.props.onBuffer) {
+             this.props.onBuffer(e)
+         }
+     };
+ 
+-    onProgress=(e)=>{
+-        this.state.sliderAutoEnable&&this.setState({currentTime:e.currentTime});
+-        this.setState({playableDuration:e.playableDuration,isBuffering:false,error:undefined});
+-        if(this.props.onProgress){
++    onProgress = (e) => {
++        this.state.sliderAutoEnable && this.setState({ currentTime: e.currentTime });
++        this.setState({ playableDuration: e.playableDuration, isBuffering: false, error: undefined });
++        if (this.props.onProgress) {
+             this.props.onProgress(e)
+         }
+     };
+ 
+-    setPaused=()=>{
++    setPaused = () => {
+         let paused = this.state.paused;
+-        this.setState({paused:!paused})
++        this.setState({ paused: !paused })
+     };
+ 
+-    onCurrentTimeProgress=(value)=>{
++    onCurrentTimeProgress = (value) => {
+         this.showMenusComponent();
+-        this.setState({sliderAutoEnable:false,currentTime_copy:value})
++        this.setState({ sliderAutoEnable: false, currentTime_copy: value })
+     };
+ 
+-    onSlidingComplete=async (value)=>{
+-        await this.setState({currentTime:value});
++    onSlidingComplete = async (value) => {
++        await this.setState({ currentTime: value });
+ 
+         //video seek appointed time
+         this._root.seek(value);
+ 
+-        setTimeout(()=>{
+-            this.setState({sliderAutoEnable:true})
+-        },0)
++        setTimeout(() => {
++            this.setState({ sliderAutoEnable: true })
++        }, 0)
++    };
++
++    setNavigator = () => {
++        const { navigation } = this.props;
++        if (navigation) {
++            navigation.goBack(); // 关闭当前页面
++        }
+     }
+ }
+ 
+@@ -273,42 +312,44 @@ class VideoPlayer extends React.PureComponent {
+  * **/
+ class CenterMenus extends AnimatedComponent {
+ 
+-    componentWillUpdate(nextProps, nextState, nextContext) {
++    componentDidUpdate(prevProps, prevState, snapshot) {
+         this.show()
+     }
+ 
+-    render(){
++
++
++    render() {
+         return (
+             <MenusContext.Consumer>
+-                {({state, props, styles}) =>
+-                    <Animated.View
+-                        style={[styles.centerMenusContainer,{opacity:this.opacityAnimate}]}>
+-                        {typeof props.renderCenterMenus === 'function' ?
+-
+-                            props.renderCenterMenus(state, props) :
+-
+-                            <View style={[styles.modal]}>
+-                                <View style={[styles.modal, {
+-                                    opacity: 0.5,
+-                                    position: 'absolute',
+-                                    backgroundColor: '#000000'
+-                                }]}/>
+-                                <Image source={state.muted?require('./assets/volume-off-outline.png'):require('./assets/volume-up-outline.png')} style={{width: 20, marginHorizontal: 10}}
+-                                       resizeMode={'contain'}/>
+-                                <View style={styles.progress}>
+-                                    {Platform.OS==='android'?
+-                                        <ProgressBarAndroid styleAttr="Horizontal" indeterminate={false} progress={state.volume} color={'pink'} style={{height:2}}/>
+-                                        :
+-                                        <ProgressViewIOS trackTintColor="#FFFFFF" progressTintColor="pink" progress={state.volume} style={{height:2}}/>
+-                                    }
++                {({ state, props, styles }) => {
++                    return (
++                        <Animated.View
++                            style={[styles.centerMenusContainer, { opacity: this.opacityAnimate }]}>
++                            {typeof props.renderCenterMenus === 'function' ? props.renderCenterMenus(state, props) :
++                                <View style={[styles.modal]}>
++                                    <View style={[styles.modal, {
++                                        opacity: 0.5,
++                                        position: 'absolute',
++                                        backgroundColor: '#000000'
++                                    }]} />
++                                    <Image source={state.muted ? require('./assets/volume-off-outline.png') : require('./assets/volume-up-outline.png')} style={{ width: 20, marginHorizontal: 10 }}
++                                        resizeMode={'contain'} />
++                                    <View style={styles.progress}>
++                                        {Platform.OS === 'android' ?
++                                            <ProgressBar styleAttr="Horizontal" indeterminate={false} progress={state.volume} color={'pink'} style={{ height: 2 }} />
++                                            :
++                                            <ProgressViewIOS trackTintColor="#FFFFFF" progressTintColor="pink" progress={state.volume} style={{ height: 2 }} />
++                                        }
++                                    </View>
+                                 </View>
+-                            </View>
+-                        }
+-                    </Animated.View>
+-                }
++                            }
++                        </Animated.View>
++                    );
++                }}
+             </MenusContext.Consumer>
+-        )
++        );
+     }
++
+ }
+ 
+ /**
+@@ -317,27 +358,30 @@ class CenterMenus extends AnimatedComponent {
+  * **/
+ class TopMenus extends AnimatedComponent {
+ 
+-    componentWillUpdate(nextProps, nextState, nextContext) {
++    componentDidUpdate(prevProps, prevState, snapshot) {
+         this.show()
+     }
+ 
+-    render(){
++    render() {
+         return (
+             <MenusContext.Consumer>
+-                {({state, props, styles}) =>
+-                    <Animated.View style={[this.slideDown,styles.topMenusContainer]}>
++                {({ state, props, styles }) =>
++                    <Animated.View style={[this.slideDown, styles.topMenusContainer]}>
+                         {typeof props.renderTopMenus === 'function' ?
+ 
+-                            props.renderTopMenus(state, props):
++                            props.renderTopMenus(state, props) :
+ 
+-                            <View style={{height:50,marginTop:-30,backgroundColor:'transparent',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+-                                    <TouchableOpacity style={{paddingHorizontal:20}} onPress={props.setNavigator}>
+-                                        <Image source={require('./assets/back.png')} />
+-                                    </TouchableOpacity>
+-                                    <TouchableOpacity style={{paddingHorizontal:20}} onPress={props.setSetting}>
+-                                        <Image source={require('./assets/dots.png')} />
+-                                    </TouchableOpacity>
+-                                <View style={{position:'absolute',width:'100%',height:'100%',backgroundColor:'black',opacity:0.5,zIndex:-1}}/>
++                            <View style={{ height: 50, marginTop: -30, backgroundColor: 'transparent', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
++                                <TouchableOpacity style={{ paddingLeft: 20 }} onPress={props.setNavigator}>
++                                    <Image source={require('./assets/back.png')} />
++                                </TouchableOpacity>
++                                <View style={{  marginHorizontal: 10,  flex: 1}}>
++                                    <Text style={{color:'#FFFFFF',fontSize: 12, overflow: 'hidden'}} numberOfLines={1}>{props.title}</Text>
++                                </View>
++                                {/* <TouchableOpacity style={{ paddingHorizontal: 20 }} onPress={props.setSetting}>
++                                    <Image source={require('./assets/dots.png')} />
++                                </TouchableOpacity> */}
++                                <View style={{ position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, zIndex: -1 }} />
+                             </View>
+                         }
+                     </Animated.View>
+@@ -353,72 +397,71 @@ class TopMenus extends AnimatedComponent {
+  * **/
+ class BottomMenus extends AnimatedComponent {
+ 
+-    componentWillUpdate(nextProps, nextState, nextContext) {
++    componentDidUpdate(prevProps, prevState, snapshot) {
+         this.show()
+     }
+ 
+-    render(){
++    render() {
+         return (
+             <MenusContext.Consumer>
+-                {({state, props, styles}) =>
++                {({ state, props, styles }) =>
+                     <React.Fragment>
+                         <Animated.View style={this.slideUp}>
+                             {typeof props.renderBottomMenus === 'function' ?
+ 
+-                                props.renderBottomMenus(state, props):
++                                props.renderBottomMenus(state, props) :
+ 
+-                                <View style={{height:50,backgroundColor:'transparent',flexDirection:'row',alignItems:'center'}}>
++                                <View style={{ height: 50, backgroundColor: 'transparent', flexDirection: 'row', alignItems: 'center' }}>
+ 
+-                                    <TouchableOpacity style={{paddingHorizontal:20}} onPress={props.setPaused}>
+-                                        <Image source={state.paused?require('./assets/play.png'):require('./assets/pause.png')} />
++                                    <TouchableOpacity style={{ paddingHorizontal: 20 }} onPress={props.setPaused}>
++                                        <Image source={state.paused ? require('./assets/play.png') : require('./assets/pause.png')} />
+                                     </TouchableOpacity>
+ 
+                                     {/********** seek bar **********/}
+-                                    <View style={{flex:1,justifyContent:'center',backgroundColor:'transparent'}}>
++                                    <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'transparent' }}>
+ 
+                                         {/********** playableDuration **********/}
+-                                        <Slider style={{width:'100%',position:'absolute'}}
+-                                                value={state.playableDuration}
+-                                                maximumValue={state.duration}
+-                                                minimumTrackTintColor={'gray'}
+-                                                maximumTrackTintColor={'transparent'}
+-                                                thumbTintColor={'transparent'}
+-                                                thumbImage={require('./assets/icon_empty.png')}
++                                        <Slider style={{ width: '100%', position: 'absolute' }}
++                                            value={state.playableDuration}
++                                            maximumValue={state.duration}
++                                            minimumTrackTintColor={'gray'}
++                                            maximumTrackTintColor={'transparent'}
++                                            thumbTintColor={'transparent'}
++                                            thumbImage={require('./assets/icon_empty.png')}
+                                         />
+ 
+                                         {/********** currentTime **********/}
+-                                        <Slider style={{flex:1}}
+-                                                // step={1}
+-                                                value={Math.floor(state.currentTime)}
+-                                                maximumValue={state.duration}
+-                                                minimumTrackTintColor={'pink'}
+-                                                maximumTrackTintColor={'white'}
+-                                                thumbTintColor={'pink'}
+-                                                thumbStyle={{backgroundColor:'red'}}
+-                                                thumbImage={require('./assets/icon_bilibili.png')}
+-                                                onSlidingComplete={props.onSlidingComplete}
+-                                                onValueChange={props.onCurrentTimeProgress}
++                                        <Slider style={{ flex: 1 }}
++                                            // step={1}
++                                            value={Math.floor(state.currentTime)}
++                                            maximumValue={state.duration}
++                                            minimumTrackTintColor={'pink'}
++                                            maximumTrackTintColor={'white'}
++                                            thumbTintColor={'pink'}
++                                            thumbStyle={{ backgroundColor: 'red' }}
++        
++                                            onSlidingComplete={props.onSlidingComplete}
++                                            onValueChange={props.onCurrentTimeProgress}
+                                         />
+                                     </View>
+ 
+-                                    <View style={{flexDirection:'row',alignItems:'center',}}>
+-                                        <Text style={{color:'white'}}>{formatTime(state.sliderAutoEnable?state.currentTime:state.currentTime_copy)}</Text>
+-                                        <Text style={{color:'white'}}>/</Text>
+-                                        <Text style={{color:'white'}}>{formatTime(state.duration)}</Text>
++                                    <View style={{ flexDirection: 'row', alignItems: 'center', }}>
++                                        <Text style={{ color: 'white' }}>{formatTime(state.sliderAutoEnable ? state.currentTime : state.currentTime_copy)}</Text>
++                                        <Text style={{ color: 'white' }}>/</Text>
++                                        <Text style={{ color: 'white' }}>{formatTime(state.duration)}</Text>
+                                     </View>
+-
+-                                    <TouchableOpacity style={{paddingHorizontal:20,backgroundColor:'transparent'}} onPress={props.setFullScreen}>
+-                                        <Image source={state.orientation==='portrait'?require('./assets/fullscreen.png'):require('./assets/fullscreen-exit.png')} />
++                                    <TouchableOpacity style={{ paddingHorizontal: 20, backgroundColor: 'transparent' }} onPress={props.setFullScreen}>
++                                        <Image source={state.orientation === 'portrait' ? require('./assets/fullscreen.png') : require('./assets/fullscreen-exit.png')} />
+                                     </TouchableOpacity>
+ 
+-                                    <View style={{position:'absolute',width:'100%',height:'100%',backgroundColor:'black',opacity:0.5,zIndex:-1}}/>
++                                    <View style={{ position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, zIndex: -1 }} />
+                                 </View>
+                             }
+                         </Animated.View>
+-                        {Platform.OS==='android'?
+-                            <ProgressBarAndroid styleAttr="Horizontal" indeterminate={false} progress={!!state.duration?state.currentTime/state.duration:0} color={'pink'} style={{height:3}}/>
++                        {Platform.OS === 'android' ?
++                            <ProgressBar styleAttr="Horizontal" indeterminate={false} progress={!!state.duration ? state.currentTime / state.duration : 0} color={'pink'} style={{ height: 3 }} />
+                             :
+-                            <ProgressViewIOS trackTintColor="#FFFFFF" progressTintColor="pink" progress={!!state.duration?state.currentTime/state.duration:0} style={{height:3}}/>
++                            <ProgressViewIOS trackTintColor="#FFFFFF" progressTintColor="pink" progress={!!state.duration ? state.currentTime / state.duration : 0} style={{ height: 3 }} />
+                         }
+                     </React.Fragment>
+                 }
+@@ -433,19 +476,19 @@ class BottomMenus extends AnimatedComponent {
+  * @props renderSeekTime
+  * **/
+ class SeekTime extends AnimatedComponent {
+-    render(){
++    render() {
+         return (
+             <MenusContext.Consumer>
+-                {({state, props, styles}) =>
+-                    <Animated.View style={{opacity:this.opacityAnimate}}>
++                {({ state, props, styles }) =>
++                    <Animated.View style={{ opacity: this.opacityAnimate }}>
+                         {typeof props.renderSeekTime === 'function' ?
+ 
+-                            props.renderSeekTime(state, props):
++                            props.renderSeekTime(state, props) :
+ 
+                             <View style={styles.seekTimeModal}>
+-                                <Text style={{color:'white'}}>{formatTime(state.currentTime)}</Text>
+-                                <Text style={{color:'white'}}>/</Text>
+-                                <Text style={{color:'white'}}>{formatTime(state.duration)}</Text>
++                                <Text style={{ color: 'white' }}>{formatTime(state.currentTime)}</Text>
++                                <Text style={{ color: 'white' }}>/</Text>
++                                <Text style={{ color: 'white' }}>{formatTime(state.duration)}</Text>
+                             </View>}
+                     </Animated.View>
+                 }
+@@ -461,29 +504,29 @@ class SeekTime extends AnimatedComponent {
+  * **/
+ class Loading extends React.PureComponent {
+ 
+-    onReplay(){
++    onReplay() {
+         // UNDO: How to replay when android error (video unavailable)? #930
+     }
+-    render(){
++    render() {
+         return (
+             <MenusContext.Consumer>
+-                {({state, props, styles}) =>
++                {({ state, props, styles }) =>
+                     <View style={styles.centerMenusContainer}>
+                         {typeof props.renderLoading === 'function' ?
+ 
+                             props.renderLoading(state, props) :
+ 
+-                            !!state.error?
++                            !!state.error ?
+                                 <React.Fragment>
+-                                    <Text style={{color: '#FFFFFF'}}>加载失败</Text>
+-                                    <Button title={"重试"} onPress={this.onReplay.bind(this)} color={'pink'}/>
++                                    <Text style={{ color: '#FFFFFF' }}>加载失败</Text>
++                                    <Button title={"退出"} onPress={props.setNavigator} color={'pink'} />
+                                 </React.Fragment>
+                                 :
+                                 <React.Fragment>
+-                                    <Image source={require('./assets/acfun.png')} resizeMode={'contain'}/>
+-                                    <Text style={{color: '#FFFFFF'}}>正在缓冲...</Text>
++                                    <Text style={{ color: '#FFFFFF' }}>正在缓冲...</Text>
+                                 </React.Fragment>
+                         }
++                        <View style={{ position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, zIndex: -1 }} />
+                     </View>
+                 }
+             </MenusContext.Consumer>
+@@ -492,4 +535,18 @@ class Loading extends React.PureComponent {
+ }
+ 
+ 
++const styles = StyleSheet.create({
++    normal: {
++        width: '100%',
++        height: Dimensions.get('window').width/1.77,
++        backgroundColor: 'black',
++    },
++    full: {
++        width: Dimensions.get('window').height,
++        height: Dimensions.get('window').width,
++        backgroundColor: 'black',
++
++    },
++});
++
+ export default VideoPlayer

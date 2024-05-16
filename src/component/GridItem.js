@@ -1,5 +1,4 @@
-import React, { useState,useCallback  } from 'react';
-import moment from 'moment';
+import React, { useState } from 'react';
 import { GlobalStyle } from '../common/GlobalStyle';
 import { Dimensions, Image, StyleSheet, Text, TouchableHighlight, TouchableWithoutFeedback, View, } from 'react-native';
 import FastImage from 'react-native-fast-image'
@@ -26,74 +25,42 @@ const priceBadge = (price) => {
     return <></>
 }
 
-const DailyItem = ({ data = {}, nav = {}, index, btn1Callback, btn2Callback }) => {
-
-    const handlePress = useCallback((itemData) => {
-        nav.navigate('Player', { data: itemData });
-    }, [nav]);
-
-    if (!data || !data.data) {
-        return null; // 处理 data 为空的情况
-    }
-
-    let arr = [];
-    for (var i = 0; i < 5; i++) {
-        const itemData = data.data[i];
-        arr.push(
-            <TouchableWithoutFeedback onPress={() => { handlePress(itemData) }} key={i}>
-                <View style={[styles.listItem, i === 0 ? { width: width } : { width: width * 0.5 - 4 }]}>
+const GridItem = ({ data = {}, nav = {}, index }) => {
+    const isRight = ((index - 1) % 2 === 0);
+    return (
+        <View style={ styles.rowContainerOdd }>
+            <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
+                <View style={[styles.listItem, { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
                     <View style={styles.box}>
                         <FastImage
                             style={[
                                 styles.img,
-                                { height: width * (i === 0 ? 1 : 0.5) * Util.HEIGHT_RATIO } // 计算高度
+                                { height: width *  0.5 * Util.HEIGHT_RATIO } // 计算高度
                             ]}
-                            source={Util.getThumb(data.data[i].thumb)}
+                            source={Util.getThumb(data.thumb)}
                             resizeMode={FastImage.resizeMode.cover}
                         />
-                        <Text style={GlobalStyle.title2} numberOfLines={2}>{data.data[i].title}</Text>
-                        {priceBadge(data.data[i].price)}
+                        <Text style={GlobalStyle.title2} numberOfLines={2}>{data.title}</Text>
+                        {priceBadge(data.price)}
                     </View>
                 </View>
             </TouchableWithoutFeedback>
-        )
-    }
-    return (
-        <View style={{ marginTop: GlobalStyle.marginTop }}>
-            <View style={styles.sectionHeader}>
-                <View>
-                    <Text style={GlobalStyle.title1}>{data.title}</Text>
-                </View>
-                <TouchableWithoutFeedback onPress={() => { btn1Callback(data.title) }}>
-                    <View>
-                        <Text style={styles.more}>更多 &gt;</Text>
-                    </View>
-                </TouchableWithoutFeedback>
-            </View>
-
-            <View style={styles.main}>
-                {arr}
-            </View>
-
-            <View style={styles.sectionFoot}>
-                <TouchableWithoutFeedback onPress={() => { btn1Callback(data.title) }}>
-                    <View style={styles.btn}>
-                        <Image tintColor="#aaaaaa" source={require('../../assets/icon_more.png')} style={styles.icon}></Image>
-                        <Text style={{ color: GlobalStyle.black }}>查看全部</Text>
-                    </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => { btn2Callback(data.title) }}>
-                    <View style={styles.btn}>
-                        <Image tintColor="#aaaaaa" source={require('../../assets/icon_refresh.png')} style={styles.icon}></Image>
-                        <Text style={{ color: GlobalStyle.black }}>换一批</Text>
-                    </View>
-                </TouchableWithoutFeedback>
-            </View>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    containerOdd: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
+    containerEven: {
+        flex: 1,
+        justifyContent: 'center',
+        marginBottom: 10,
+    },
     main: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -184,4 +151,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default React.memo(DailyItem);
+export default React.memo(GridItem);

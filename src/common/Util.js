@@ -26,7 +26,7 @@ export default class Util {
     static iconList = {
         "coin": require('../../assets/icon_coin3.png'),
         "diamond": require('../../assets/icon_diamond3.png'),
-        'vip': require('../../assets/vip.png'),
+        'vip': require('../../assets/icon_vip2.png'),
         'loading': require('../../assets/loading.png'),
     }
 
