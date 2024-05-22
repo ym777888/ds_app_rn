@@ -1,10 +1,12 @@
-import React, { createRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList } from 'react-native';
+import React, { createRef, useState } from 'react';
+import { View, Text, StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList, ImageBackground } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video-bilibili';
 import { GlobalStyle } from '../common/GlobalStyle';
 import GridItem from '../component/GridItem';
 import { RNStorage } from '../common/RNStorage';
+import HttpUtil from '../common/HttpUtil';
+import Util from "../common/Util";
 
 
 const testData = [
@@ -19,11 +21,84 @@ const Player = () => {
     const playerRef = createRef();
     const route = useRoute();
     const navigation = useNavigation();
+    const [canPlay, setCanPlay] = useState(false);
+    const [showPop, setShowPop] = useState(false);
+    const [clipUrl, setClipUrl] = useState('');
     const { data } = route.params; // 获取传递的数据
+    const [isFav, setIsFav] = useState(false);
+    const [isRecom, setIsRecom] = useState(false);
+
 
     const renderItem = ({ item, index }) => {
         return <GridItem data={item} nav={navigation} index={index} />
     };
+
+    const checkBuy = () => {
+        let req = {
+            clipKey: data.uuid,
+            price: data.price
+        }
+
+        HttpUtil.postReq(Util.CHECK_BUY, req, (msg, data) => {
+            setCanPlay(data.canPlay)
+            if (!data.canPlay) {
+                setShowPop(true)
+            } else {
+                setShowPop(false)
+                setClipUrl(data.url);
+                if (msg) {
+                    Util.showToast(msg, 1000);
+                }
+            }
+        })
+    }
+
+    const addFav = () => {
+        let req = {
+            clipKey: data.uuid,
+        }
+
+        
+
+        if(isFav){
+            HttpUtil.postReq(Util.DEL_FAV, req, (msg, data) => {
+
+            })
+            setIsFav(false);
+        }else{
+            HttpUtil.postReq(Util.ADD_FAV, req, (msg, data) => {
+
+            })
+            setIsFav(true);
+        }
+
+
+        
+    }
+
+    const addRecom = () => {
+        let req = {
+            clipKey: data.uuid,
+        }
+
+        
+
+        if(isRecom){
+            HttpUtil.postReq(Util.DEL_RECOM, req, (msg, data) => {
+
+            })
+            setIsRecom(false);
+        }else{
+            HttpUtil.postReq(Util.ADD_RECOM, req, (msg, data) => {
+
+            })
+            setIsRecom(true);
+        }
+
+
+
+        
+    }
 
     const HeaderComponent = () => (
         <View>
@@ -32,15 +107,15 @@ const Player = () => {
                 <Text numberOfLines={2} style={styles.title}>{data.title}</Text>
             </View>
             <View style={styles.row2}>
-                <TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={addRecom}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={require('../../assets/icon_heart.png')}></Image>
+                        <Image style={styles.btnImg} source={isRecom?require('../../assets/icon_heart2.png'):require('../../assets/icon_heart.png')}></Image>
                         <Text style={styles.btnTitle}>点赞</Text>
                     </View>
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={addFav}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={require('../../assets/icon_star.png')}></Image>
+                        <Image style={styles.btnImg} source={isFav?require('../../assets/icon_star2.png'):require('../../assets/icon_star.png')}></Image>
                         <Text style={styles.btnTitle}>收藏</Text>
                     </View>
                 </TouchableWithoutFeedback>
@@ -64,14 +139,17 @@ const Player = () => {
                 </TouchableWithoutFeedback>
             </View>
             <View style={styles.row}>
-                <TouchableWithoutFeedback>
-                    <View style={styles.btn1}><Text style={styles.btn1Title}>注册 | 登录</Text></View>
+                {!RNStorage.isLogin && (
+                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('Login', { data: {} }); }}>
+                        <View style={styles.btn1}><Text style={styles.btn1Title}>注册 | 登录</Text></View>
+                    </TouchableWithoutFeedback>
+                )}
+
+                <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
+                    <View style={styles.btn1}><Text style={styles.btn1Title}>购买钻石</Text></View>
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
-                    <View style={styles.btn1}><Text style={styles.btn1Title}>充值</Text></View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => { navigation.goBack() }}>
-                    <View style={styles.btn1}><Text style={styles.btn1Title}>返回</Text></View>
+                <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyVip', { data: {} }); }}>
+                    <View style={styles.btn1}><Text style={styles.btn1Title}>充值会员</Text></View>
                 </TouchableWithoutFeedback>
             </View>
             <View style={styles.row}>
@@ -83,17 +161,34 @@ const Player = () => {
 
     return (
         <View style={styles.topBox}>
-            <Video
-                ref={playerRef}
-                styles={{ container: [{ }] }}
-                source={{ uri: data.url1 }}
-                poster={data.thumb}
-                title={data.title}
-                navigation={navigation}
-            />
+            {canPlay && clipUrl ? (
+                <Video
+                    ref={playerRef}
+                    styles={{ container: [{ backgroundColor: 'black' }] }}
+                    source={{ uri: clipUrl }}
+                    poster={data.thumb}
+                    title={data.title}
+                    navigation={navigation}
+                />
+            ) : (
+
+                <View>
+                    <ImageBackground style={styles.normal} source={{ uri: data.thumb }}>
+                        <View style={styles.mask}>
+                            <TouchableWithoutFeedback onPress={() => { navigation.goBack() }}>
+                                <Image tintColor={'#FFFFFF'} resizeMode='contain' style={{ position: 'absolute', left: 10, top: 0, opacity: 0.5 }} source={require('../../assets/back.png')}></Image>
+                            </TouchableWithoutFeedback>
+                            <TouchableWithoutFeedback onPress={checkBuy}>
+                                <Image tintColor={'#FFFFFF'} resizeMode='contain' style={{ width: 120, height: 60, opacity: 0.5 }} source={require('../../assets/icon_clip.png')}></Image>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </ImageBackground>
+                </View>
+            )}
+
             <View style={styles.row}>
                 <View style={styles.badge}>
-                    <Image style={styles.coin} source={require('../../assets/icon_coin3.png')}></Image>
+                    <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')}></Image>
                     <Text style={styles.money}>{data.price}</Text>
                 </View>
                 <View style={styles.url}>
@@ -110,6 +205,28 @@ const Player = () => {
                 keyExtractor={(item, index) => index.toString()}
                 numColumns={2}
             />
+            {showPop && (
+                <View style={styles.modalBg}>
+                    <View style={styles.modal}>
+                        <TouchableWithoutFeedback onPress={() => { setShowPop(false) }}>
+                            <Image resizeMode='contain' style={{ width: 34, height: 34, opacity: 0.4, position: 'absolute', right: 0, top: 0 }} source={require('../../assets/icon_close.png')}></Image>
+                        </TouchableWithoutFeedback>
+                        <Text style={styles.tip}>您余额不足，请充值后观看:</Text>
+                        <Text style={styles.tip2}>本片价格 {data.price}钻石，会员全站免费</Text>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
+                            <View style={styles.btnBuy}>
+                                <Text style={styles.btnBuyTxt}>购买钻石</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
+                            <View style={[styles.btnBuy, { backgroundColor: '#FF9900' }]}>
+                                <Text style={styles.btnBuyTxt}>购买会员</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </View>
+            )}
+
         </View>
     );
 }
@@ -195,6 +312,58 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: GlobalStyle.sysFont(),
         fontWeight: 'bold'
+    },
+    normal: {
+        width: '100%',
+        height: Dimensions.get('window').width / 1.77,
+    },
+    mask: {
+        backgroundColor: '#00000099',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modalBg: {
+        position: 'absolute',
+        backgroundColor: '#00000033',
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    modal: {
+        backgroundColor: '#FFFFFF',
+        width: '65%',
+        height: 400,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    btnBuy: {
+        width: '70%',
+        height: 40,
+        backgroundColor: '#0099CC',
+        justifyContent: 'center',
+        marginVertical: 10,
+        alignItems: 'center',
+        borderRadius: 10
+    },
+    btnBuyTxt: {
+        color: '#FFFFFF',
+        fontWeight: 'bold'
+    },
+    tip: {
+        color: '#FF0000',
+        fontSize: 16,
+        width: '80%',
+        textAlign: 'center'
+    },
+    tip2: {
+        color: '#555555',
+        fontSize: 14,
+        width: '80%',
+        marginVertical: 10,
+        textAlign: 'center'
     }
 })
 

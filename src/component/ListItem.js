@@ -11,7 +11,7 @@ const priceBadge = (price) => {
     if (price > 0) {
         return (
             <View style={styles.badge}>
-                <Image style={styles.coin} source={require('../../assets/icon_coin3.png')}></Image>
+                <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')}></Image>
                 <Text style={styles.money}>{price}</Text>
             </View>
         )
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         color: '#FF0033',
         fontWeight: 'bold',
         fontSize: 14,
-        lineHeight: 16
+        lineHeight: 17
     },
     free: {
         color: '#ffffff',

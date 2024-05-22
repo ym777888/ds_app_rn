@@ -21,6 +21,13 @@ import Category from "./Category";
 import Player from "./Player";
 import Marquee from "../component/Marquee";
 import ClipList from "./ClipList";
+import Login from "./Login";
+import BuyDiamond from "./BuyDiamond";
+import BuyVip from "./BuyVip";
+import History from "./History";
+import Water from "./Water";
+import Transfer from "./Transfer";
+import Fav from "./Fav";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -113,6 +120,65 @@ function MyTopTabs() {
     );
 }
 
+//用户路由
+function ProfileStack() {
+
+    return (
+
+        <Stack.Navigator
+            initialRouteName="Profile"
+            screenOptions={{
+                headerMode: 'screen',
+                headerTintColor: 'white',
+                headerStyle: { backgroundColor: 'white' },
+                headerShown: false, // 隐藏顶部标题
+            }}
+        >
+            <Stack.Screen
+                name="Profile"
+                component={Profile}
+                options={{
+                    title: 'Profile',
+                }}
+            />
+
+            <Stack.Screen
+                name="History"
+                component={History}
+                options={{
+                    title: 'History',
+                }}
+            />
+
+            <Stack.Screen
+                name="Water"
+                component={Water}
+                options={{
+                    title: 'Water',
+                }}
+            />
+
+            <Stack.Screen
+                name="Transfer"
+                component={Transfer}
+                options={{
+                    title: 'Transfer',
+                }}
+            />
+
+            <Stack.Screen
+                name="Fav"
+                component={Fav}
+                options={{
+                    title: 'Fav',
+                }}
+            />
+
+        </Stack.Navigator>
+
+    );
+}
+
 //底部tab
 function MyTabs() {
 
@@ -185,8 +251,8 @@ function MyTabs() {
             )}
 
             <Tab.Screen
-                name="Profile"
-                component={Profile}
+                name="ProfileStack"
+                component={ProfileStack}
                 options={{
                     tabBarLabel: '我的',
                     tabBarIcon: ({ color, size }) => (
@@ -236,10 +302,33 @@ function MyStack() {
                     title: 'Player',
                 }}
             />
+            <Stack.Screen
+                name="Login"
+                component={Login}
+                options={{
+                    title: 'Login',
+                }}
+            />
+            <Stack.Screen
+                name="BuyDiamond"
+                component={BuyDiamond}
+                options={{
+                    title: 'BuyDiamond',
+                }}
+            />
+            <Stack.Screen
+                name="BuyVip"
+                component={BuyVip}
+                options={{
+                    title: 'BuyVip',
+                }}
+            />
         </Stack.Navigator>
 
     );
 }
+
+
 
 
 const styles = StyleSheet.create({

@@ -88,11 +88,24 @@ index d312ff0..1cc842b 100644
  
                  if(moveEvent){
                      if(moveEvent==='LeftAndRightMove'){
+diff --git a/node_modules/react-native-video-bilibili/lib/style/index.js b/node_modules/react-native-video-bilibili/lib/style/index.js
+index a0ec6bb..fbb0636 100644
+--- a/node_modules/react-native-video-bilibili/lib/style/index.js
++++ b/node_modules/react-native-video-bilibili/lib/style/index.js
+@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
+         width:'100%',
+         height:'100%',
+         justifyContent:'center',
+-        alignItems:'center'
++        alignItems:'center',
+     },
+     modal:{
+         alignSelf:'center',
 diff --git a/node_modules/react-native-video-bilibili/videoPlayer.js b/node_modules/react-native-video-bilibili/videoPlayer.js
-index b2e1c01..7867416 100644
+index b2e1c01..33567c9 100644
 --- a/node_modules/react-native-video-bilibili/videoPlayer.js
 +++ b/node_modules/react-native-video-bilibili/videoPlayer.js
-@@ -1,85 +1,99 @@
+@@ -1,85 +1,101 @@
 -import React from 'react'
 +import React, { createRef } from 'react'
  import {
@@ -104,10 +117,11 @@ index b2e1c01..7867416 100644
 -    ProgressBarAndroid,
      ProgressViewIOS,
 -    Slider,
++    TouchableWithoutFeedback,
      TouchableOpacity,
 -    Button
 +    Button,
-+    StyleSheet, 
++    StyleSheet,
 +    Dimensions,
 +    StatusBar
 +
@@ -168,6 +182,7 @@ index b2e1c01..7867416 100644
 +        this.bottomMenusRef = createRef();
 +        this.seekTimeRef = createRef();
 +        this.centerMenusRef = createRef();
++        this.loadingRef = createRef();
 +        this.state = {
 +            orientation: 'portrait',//landscape
  
@@ -236,7 +251,7 @@ index b2e1c01..7867416 100644
  
          //show component when touch move
          this.showSeekTimerComponent();
-@@ -89,36 +103,36 @@ class VideoPlayer extends React.PureComponent {
+@@ -89,36 +105,36 @@ class VideoPlayer extends React.PureComponent {
          let duration = this.state.duration;
          let currentTime = this.state.currentTime;
  
@@ -291,7 +306,7 @@ index b2e1c01..7867416 100644
          }
      };
  
-@@ -127,143 +141,168 @@ class VideoPlayer extends React.PureComponent {
+@@ -127,143 +143,167 @@ class VideoPlayer extends React.PureComponent {
  
  
      /******************** custom event *******************/
@@ -333,7 +348,7 @@ index b2e1c01..7867416 100644
 +    };
 +
 +    render() {
-+        const { pointerEvents, isBuffering, paused, orientation,isFullScreen  } = this.state;
++        const { pointerEvents, isBuffering, paused, orientation, isFullScreen } = this.state;
 +        const { children, controls, title } = this.props;
 +        const videoStyle = isFullScreen ? styles.full : styles.normal;
          return (
@@ -382,7 +397,25 @@ index b2e1c01..7867416 100644
 -                    handleUpAndDownMoveInLeft={this._handleUpAndDownMoveInLeft}
 -                    handleUpAndDownMoveInRight={this._handleUpAndDownMoveInRight}
 -                >
--                    {/********** loading **********/}
++                <View style={[VideoPlayerStyles.container, this.props.containerStyle]}>
++                    <Video
++                        resizeMode={"contain"}
++                        hideShutterView={false}
++                        {...this.props}
++                        children={undefined}
++                        ref={c => {
++                            this._root = c
++                        }}
++                        muted={this.state.muted}
++                        volume={this.state.volume}
++                        paused={this.state.paused}
++                        onLoad={this.onLoad}
++                        onError={this.onError}
++                        onBuffer={this.onBuffer}
++                        onProgress={this.onProgress}
++                        style={videoStyle}
++                    />
+                     {/********** loading **********/}
 -
 -                        {isBuffering&&!paused&&<Loading />}
 -
@@ -407,24 +440,7 @@ index b2e1c01..7867416 100644
 -
 -                </ResponderView>}
 -            </View>
-+                <View style={[VideoPlayerStyles.container, this.props.containerStyle]}>
-+                    <Video
-+                        resizeMode={"contain"}
-+                        hideShutterView={false}
-+                        {...this.props}
-+                        children={undefined}
-+                        ref={c => {
-+                            this._root = c
-+                        }}
-+                        muted={this.state.muted}
-+                        volume={this.state.volume}
-+                        paused={this.state.paused}
-+                        onLoad={this.onLoad}
-+                        onError={this.onError}
-+                        onBuffer={this.onBuffer}
-+                        onProgress={this.onProgress}
-+                        style={videoStyle}
-+                    />
++                    {isBuffering && !paused && <Loading ref={this.loadingRef} />}
 +                    {!controls && <ResponderView
 +                        style={VideoPlayerStyles.touchView}
 +                        pointerEvents={pointerEvents}
@@ -435,9 +451,6 @@ index b2e1c01..7867416 100644
 +                        handleUpAndDownMoveInLeft={this._handleUpAndDownMoveInLeft}
 +                        handleUpAndDownMoveInRight={this._handleUpAndDownMoveInRight}
 +                    >
-+                        {/********** loading **********/}
-+
-+                        {isBuffering && !paused && <Loading />}
 +
 +                        {/********** center menus **********/}
 +
@@ -554,7 +567,7 @@ index b2e1c01..7867416 100644
      }
  }
  
-@@ -273,42 +312,44 @@ class VideoPlayer extends React.PureComponent {
+@@ -273,42 +313,44 @@ class VideoPlayer extends React.PureComponent {
   * **/
  class CenterMenus extends AnimatedComponent {
  
@@ -627,7 +640,7 @@ index b2e1c01..7867416 100644
  }
  
  /**
-@@ -317,27 +358,30 @@ class CenterMenus extends AnimatedComponent {
+@@ -317,27 +359,30 @@ class CenterMenus extends AnimatedComponent {
   * **/
  class TopMenus extends AnimatedComponent {
  
@@ -661,8 +674,8 @@ index b2e1c01..7867416 100644
 +                                <TouchableOpacity style={{ paddingLeft: 20 }} onPress={props.setNavigator}>
 +                                    <Image source={require('./assets/back.png')} />
 +                                </TouchableOpacity>
-+                                <View style={{  marginHorizontal: 10,  flex: 1}}>
-+                                    <Text style={{color:'#FFFFFF',fontSize: 12, overflow: 'hidden'}} numberOfLines={1}>{props.title}</Text>
++                                <View style={{ marginHorizontal: 10, flex: 1 }}>
++                                    <Text style={{ color: '#FFFFFF', fontSize: 12, overflow: 'hidden' }} numberOfLines={1}>{props.title}</Text>
 +                                </View>
 +                                {/* <TouchableOpacity style={{ paddingHorizontal: 20 }} onPress={props.setSetting}>
 +                                    <Image source={require('./assets/dots.png')} />
@@ -671,7 +684,7 @@ index b2e1c01..7867416 100644
                              </View>
                          }
                      </Animated.View>
-@@ -353,72 +397,71 @@ class TopMenus extends AnimatedComponent {
+@@ -353,72 +398,71 @@ class TopMenus extends AnimatedComponent {
   * **/
  class BottomMenus extends AnimatedComponent {
  
@@ -743,7 +756,7 @@ index b2e1c01..7867416 100644
 +                                            maximumTrackTintColor={'white'}
 +                                            thumbTintColor={'pink'}
 +                                            thumbStyle={{ backgroundColor: 'red' }}
-+        
++
 +                                            onSlidingComplete={props.onSlidingComplete}
 +                                            onValueChange={props.onCurrentTimeProgress}
                                          />
@@ -780,7 +793,7 @@ index b2e1c01..7867416 100644
                          }
                      </React.Fragment>
                  }
-@@ -433,19 +476,19 @@ class BottomMenus extends AnimatedComponent {
+@@ -433,19 +477,19 @@ class BottomMenus extends AnimatedComponent {
   * @props renderSeekTime
   * **/
  class SeekTime extends AnimatedComponent {
@@ -807,13 +820,14 @@ index b2e1c01..7867416 100644
                              </View>}
                      </Animated.View>
                  }
-@@ -461,29 +504,29 @@ class SeekTime extends AnimatedComponent {
+@@ -461,29 +505,49 @@ class SeekTime extends AnimatedComponent {
   * **/
  class Loading extends React.PureComponent {
  
 -    onReplay(){
+-        // UNDO: How to replay when android error (video unavailable)? #930
 +    onReplay() {
-         // UNDO: How to replay when android error (video unavailable)? #930
++        this._root?.seek(0);
      }
 -    render(){
 +    render() {
@@ -831,28 +845,48 @@ index b2e1c01..7867416 100644
                                  <React.Fragment>
 -                                    <Text style={{color: '#FFFFFF'}}>加载失败</Text>
 -                                    <Button title={"重试"} onPress={this.onReplay.bind(this)} color={'pink'}/>
-+                                    <Text style={{ color: '#FFFFFF' }}>加载失败</Text>
-+                                    <Button title={"退出"} onPress={props.setNavigator} color={'pink'} />
++                                    <View style={{ backgroundColor: '#000000AA', flex: 1, width: '100%', }}>
++                                        <TouchableOpacity style={{ paddingLeft: 10, alignSelf: 'flex-start' }} onPress={props.setNavigator}>
++                                            <Image source={require('./assets/back.png')} />
++                                        </TouchableOpacity>
++                                        <View style={{ flexDirection: 'column', flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
++                                            <Text style={{ color: '#FFFFFF' }}>加载失败</Text>
++                                            <TouchableOpacity onPress={this.onReplay.bind(this)}>
++                                                <View style={{ backgroundColor: '#CC0033', width: 60, height: 24, justifyContent: 'center', alignItems: 'center', borderRadius: 5 }}>
++                                                    <Text style={{ color: '#FFFFFF' }}>重试</Text>
++                                                </View>
++                                            </TouchableOpacity>
++                                        </View>
++                                    </View>
                                  </React.Fragment>
                                  :
                                  <React.Fragment>
 -                                    <Image source={require('./assets/acfun.png')} resizeMode={'contain'}/>
 -                                    <Text style={{color: '#FFFFFF'}}>正在缓冲...</Text>
-+                                    <Text style={{ color: '#FFFFFF' }}>正在缓冲...</Text>
++                                    <View style={{ backgroundColor: '#000000AA', flex: 1, width: '100%', }}>
++                                        <TouchableOpacity style={{ paddingLeft: 10, alignSelf: 'flex-start' }} onPress={props.setNavigator}>
++                                            <Image source={require('./assets/back.png')} />
++                                        </TouchableOpacity>
++                                        <View style={{ flexDirection: 'column', flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
++                                            <Text style={{ color: '#FFFFFF' }}>正在缓冲...</Text>
++
++                                        </View>
++                                    </View>
++
                                  </React.Fragment>
                          }
 +                        <View style={{ position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, zIndex: -1 }} />
                      </View>
                  }
              </MenusContext.Consumer>
-@@ -492,4 +535,18 @@ class Loading extends React.PureComponent {
+@@ -492,4 +556,18 @@ class Loading extends React.PureComponent {
  }
  
  
 +const styles = StyleSheet.create({
 +    normal: {
 +        width: '100%',
-+        height: Dimensions.get('window').width/1.77,
++        height: Dimensions.get('window').width / 1.77,
 +        backgroundColor: 'black',
 +    },
 +    full: {

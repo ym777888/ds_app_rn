@@ -3,6 +3,9 @@ import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { XStorage, XHttpConfig } from 'react-native-easy-app';
+import Toast, { DURATION } from 'react-native-easy-toast'
+import EventEmitter from 'eventemitter3';
+
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Util from "./src/common/Util";
@@ -11,6 +14,8 @@ import { RNStorage } from './src/common/RNStorage'
 
 import Home from "./src/screen/Home";
 import { GlobalStyle } from './src/common/GlobalStyle';
+
+global.eventEmitter = new EventEmitter();
 
 function App() {
     const [isLoading, setIsLoading] = useState(true);
@@ -57,8 +62,9 @@ function App() {
             console.log('持久化数据变更:');
             sdata.map(([keyStr, value]) => {
                 let [, key] = keyStr.split('#');
-                console.log(key, '<=>', value);
+                console.log(key, ':', value);
             });
+            eventEmitter.emit('RNStorageUpdate', sdata);
         })
 
 
@@ -69,6 +75,8 @@ function App() {
 
     }, []);
 
+
+    let toastRef = null;
 
     if (isLoading) {
         return (
@@ -90,6 +98,7 @@ function App() {
                 <NavigationContainer>
                     <Home />
                 </NavigationContainer>
+                <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633'}} style={{ backgroundColor: '#CCFF99'}} />
             </>
         </SafeAreaProvider>
     );

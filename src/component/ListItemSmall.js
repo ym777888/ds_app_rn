@@ -25,27 +25,24 @@ const priceBadge = (price) => {
     return <></>
 }
 
-const GridItem = ({ data = {}, nav = {}, index }) => {
-    const isRight = ((index - 1) % 2 === 0);
+const ListItemSmall = ({ data = {}, nav = {}, index }) => {
     return (
-        <View style={ styles.rowContainerOdd }>
-            <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
-                <View style={[styles.listItem, { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
-                    <View style={styles.box}>
-                        <FastImage
-                            style={[
-                                styles.img,
-                                { height: width *  0.5 * Util.HEIGHT_RATIO } // 计算高度
-                            ]}
-                            source={Util.getThumb(data.thumb)}
-                            resizeMode={FastImage.resizeMode.cover}
-                        />
-                        <Text style={GlobalStyle.title2} numberOfLines={2}>{data.title}</Text>
-                        {priceBadge(data.price)}
+        <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: { thumb: data.clipThumb, title: data.clipTitle, uuid: data.clipKey, price: data.payDiamond } }) }} key={index}>
+            <View style={styles.listItem}>
+                <View style={styles.box}>
+                    <FastImage
+                        style={styles.img}
+                        source={Util.getThumb(data.clipThumb)}
+                        resizeMode='stretch'
+                    />
+                    <View style={styles.right}>
+                        <Text style={styles.title2} numberOfLines={2}>{data.clipTitle}</Text>
+                        <Text style={styles.date} numberOfLines={2}>{data.createTime}</Text>
                     </View>
+
                 </View>
-            </TouchableWithoutFeedback>
-        </View>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -70,14 +67,32 @@ const styles = StyleSheet.create({
     listItem: {
         flexDirection: 'column',
         backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
-        marginVertical: 8,
-        width: width * 0.5,
+        marginVertical: 4,
+
+        height: width * 0.3 * 0.6
     },
     box: {
         flex: 1,
+        flexDirection: 'row'
     },
     img: {
-
+        width: width * 0.3,
+        height: width * 0.3 * 0.6
+    },
+    right: {
+        padding: 8,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+    },
+    title2: {
+        fontSize: 14,
+        color: '#000000',
+        width: width * 0.6,
+        lineHeight: 20
+    },
+    date: {
+        color: '#999999',
+        fontSize: 12
     },
     sectionHeader: {
         flexDirection: 'row',
@@ -151,4 +166,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default React.memo(GridItem);
+export default React.memo(ListItemSmall);

@@ -16,6 +16,20 @@ export default class Util {
     static CLIP_TYPE_DATA = 'dsapp/getClipTypeData'; //获取一部分分类及数据
     static CLIP_DATA = 'dsapp/clipData'; //片库
     static CLIP_KEY = 'dsapp/getRandByKey'; //关键字随机
+    static LOGIN = 'dsapp/login'; //注册登录
+    static USER_INFO = 'dsapp/userInfo'; //用户信息
+    static CHECK_BUY = 'dsapp/checkBuy'; //是否购买
+    static PRODUCT_LIST = 'dsapp/getProductList'; //商品列表
+    static PAY_LIST = 'dsapp/getPayChannel'; //支付通道
+    static PAY_ORDER_NO = 'dsapp/getOrderNo'; //下单
+    static CHECK_ORDER_PAY = 'dsapp/checkOrder'; //订单支付状态
+    static HISTORY_LIST = 'dsapp/getHistoryList'; //购买历史
+    static ADD_FAV = 'dsapp/addFav'; //收藏
+    static DEL_FAV = 'dsapp/delFav'; //取消收藏
+    static FAV_LIST = 'dsapp/getFavList'; //收藏列表
+    static ADD_RECOM = 'dsapp/addRecom'; //点赞
+    static DEL_RECOM = 'dsapp/delRecom'; //点赞
+    static RECOM_LIST = 'dsapp/getRecomList'; //点赞列表
 
     //----------------------------HTTP REQUEST
 
@@ -212,14 +226,14 @@ export default class Util {
 
         if (time > cur) {
             if ((time - cur) >= 315360000000) { //10年以上
-                return '永久会员'
+                return '终身会员'
             } else {
                 let str = moment(parseInt(time)).format('YYYY-MM-DD')
-                return ' VIP会员 ' + str + '到期'
+                return str + ''
             }
 
         } else {
-            return '立即充值VIP 免费看片'
+            return '非会员'
         }
     }
 
@@ -285,4 +299,18 @@ export default class Util {
             return false;
         }
     }
+
+    static getNickName = (str) => {
+        if(str==null||str==""||str=="null"){
+            return "游客";
+        }
+        return str;
+    }
+
+    static showToast = (txt, duration = 500, callback) => {
+        //style={{ backgroundColor: '#009966' }} textStyle={{ color: 'white' }}
+        if (global.toastRef) {
+            global.toastRef.show(txt, duration, callback);
+        }
+    };
 }

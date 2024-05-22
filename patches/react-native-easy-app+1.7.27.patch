@@ -1,0 +1,119 @@
+diff --git a/node_modules/react-native-easy-app/lib/storage/XStorage.js b/node_modules/react-native-easy-app/lib/storage/XStorage.js
+index a36b4a8..6b55c57 100644
+--- a/node_modules/react-native-easy-app/lib/storage/XStorage.js
++++ b/node_modules/react-native-easy-app/lib/storage/XStorage.js
+@@ -1,6 +1,6 @@
+ import { isEmpty } from '../utils/XUtils'
+ 
+-const BoolSet = new Set([ 'true', 'false' ]);
++const BoolSet = new Set(['true', 'false']);
+ const persistTag = 'persistTag'; // Persistent binding markup
+ const Error = 'Error'; // error tag
+ const splitTag = '#'; // Version control delimiter
+@@ -22,15 +22,16 @@ export default class XStorage {
+       setTimeout(() => initCallback(), 100)
+     } else {
+       storageObj.persistTag = persistTag;
+-      generateAccessor(storageObj, version, dataChangedCallback); // add getter、setter
++      this.generateAccessor(storageObj, version, dataChangedCallback); // add getter、setter
+ 
+       const Keys = Object.keys(storageObj);
+       const StorageKeys = Keys.map(key => newKey(version, key));
+-
+       // When initialized, the data in Storage is read into memory at one time
++      console.log("Local Storage:")
+       this.Storage.multiGet(StorageKeys).then(keyValuePairs => {
+-        keyValuePairs.map(([ keyStr, value ]) => {
+-          let [ , key ] = keyStr.split(splitTag);
++        keyValuePairs.map(([keyStr, value]) => {
++          console.log(keyStr+":"+value)
++          let [, key] = keyStr.split(splitTag);
+           try {
+             storageObj[key] = JSON.parse(value)
+           } catch (error) {
+@@ -39,7 +40,7 @@ export default class XStorage {
+             } else {
+               storageObj[key] = value
+             }
+-            console.warn(error.message);
++            console.log("k:" + key + " v:" + value + ' ' + error.message);
+           }
+         });
+         setTimeout(() => initCallback(), 100)
+@@ -78,42 +79,44 @@ export default class XStorage {
+   static clear() {
+     return this.Storage.clear()
+   }
+-}
+ 
+-function generateAccessor(targetObj, Tag, dataChangedCallback) {// Generate the getter setter accessor property for targetObj
+-  Object.keys(targetObj).map(key => {
+-
+-    const keyStr = newKey(Tag, key);
+-    Object.defineProperty(targetObj, key, {
+-
+-      get: () => {
+-        return this[keyStr]
+-      },
+-
+-      set: (value) => {
+-        try {
+-          this[keyStr] = value;
+-          const valueStr = JSON.stringify(value);
+-          keyValuesPairs.push([ keyStr, valueStr + '' ])
+-        } catch (exception) {
+-          console.log(exception && exception.message);
+-        }
+-      },
+-    })
+-  });
+-
+-  setInterval(() => {
+-    if (!isEmpty(keyValuesPairs)) {
+-      let saveDataArray = [ ...keyValuesPairs ];
+-      keyValuesPairs = []; // Empty the array of original key-value pairs
+-      XStorage.Storage.multiSet(saveDataArray, () => {
+-        dataChangedCallback && dataChangedCallback(saveDataArray)
+-      });
+-    }
+-  }, 2500)
++  static generateAccessor(targetObj, Tag, dataChangedCallback) {// Generate the getter setter accessor property for targetObj
++    Object.keys(targetObj).map(key => {
++
++      const keyStr = newKey(Tag, key);
++      Object.defineProperty(targetObj, key, {
+ 
++        get: () => {
++          return this[keyStr]
++        },
++
++        set: (value) => {
++          try {
++            this[keyStr] = value;
++            const valueStr = JSON.stringify(value);
++            keyValuesPairs.push([keyStr, valueStr + ''])
++          } catch (exception) {
++            console.log(exception && exception.message);
++          }
++        },
++      })
++    });
++
++    setInterval(() => {
++      if (!isEmpty(keyValuesPairs)) {
++        let saveDataArray = [...keyValuesPairs];
++        keyValuesPairs = []; // Empty the array of original key-value pairs
++        XStorage.Storage.multiSet(saveDataArray, () => {
++          dataChangedCallback && dataChangedCallback(saveDataArray)
++        });
++      }
++    }, 2500)
++
++  }
+ }
+ 
++
++
+ export function newKey(tag, key) {
+   return tag + splitTag + key;
+ }
