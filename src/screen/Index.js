@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FlatList, Text, View, StyleSheet, RefreshControl, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Base64 } from 'js-base64';
@@ -59,15 +59,17 @@ const Index = () => {
             if (data.length > 0) {
                 setTypeData(data);
             }
+            setRefreshing(false);
         })
     }
 
     const onRefresh = () => {
         setRefreshing(true);
-        // 执行你的刷新操作，比如重新加载数据
+        setTypeData([]);
+        queryDataList();
         setTimeout(() => {
             setRefreshing(false);
-        }, 2000); // 模拟加载延迟，实际使用时删除
+        }, 10000);
     };
 
     const renderSectionHeader = ({ section }) => (

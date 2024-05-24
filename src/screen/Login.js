@@ -5,6 +5,7 @@ import { GlobalStyle } from '../common/GlobalStyle';
 import { RNStorage } from '../common/RNStorage';
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
+import NavTitle from '../component/NavTitle';
 
 const Login = () => {
     const navigation = useNavigation();
@@ -20,11 +21,28 @@ const Login = () => {
         if (isSubmitting) {
             return; // 防止重复提交
         }
-        setIsSubmitting(true);
-
+        
         if (phone == null || password == null) {
             return;
         }
+
+        if (phone.length != 11) {
+            Util.showToast('请输入正确手机号');
+            return;
+        }
+
+        if (password.length < 6 || password.length > 20) {
+            Util.showToast('请输入6-20位密码');
+            return;
+        }
+
+        if (password === '123456' || password === '12345678' || password === '111111' || password === '123123') {
+            Util.showToast('请勿使用简单密码!');
+            return;
+        }
+
+        setIsSubmitting(true);
+
 
         let req = {
             phone: phone,
@@ -47,11 +65,7 @@ const Login = () => {
 
     return (
         <View style={styles.row}>
-            <TouchableWithoutFeedback onPress={()=>{navigation.goBack()}}>
-                <View>
-                    <Image source={require('../../assets/icon_back.png')} style={{ width: 34, height: 34 }} tintColor="#888888" />
-                </View>
-            </TouchableWithoutFeedback>
+            <NavTitle nav={navigation} />
 
             <View style={{ justifyContent: 'center', alignItems: 'center', marginVertical: 10, }}>
                 <Image resizeMode='contain' source={require('../../assets/app_icon.png')} style={{ width: 54, height: 54, borderRadius: 90, borderWidth: 2, borderColor: 'white' }} />
@@ -67,7 +81,7 @@ const Login = () => {
             </View>
             <View style={styles.search}>
                 <Image source={require('../../assets/icon_lock.png')} style={{ width: 22, height: 22, borderRadius: 5 }} tintColor="#cccccc" />
-                <TextInput style={styles.searchTxt} placeholder="输入密码" secureTextEntry={true} numberOfLines={1} maxLength={20} value={password} onChangeText={setPassword} />
+                <TextInput style={styles.searchTxt} placeholder="输入密码" secureTextEntry={false} numberOfLines={1} maxLength={20} value={password} onChangeText={setPassword} />
             </View>
             <TouchableWithoutFeedback onPress={login}>
                 <View style={styles.btn}>

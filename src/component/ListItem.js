@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import FastImage from 'react-native-fast-image';
 import { GlobalStyle } from '../common/GlobalStyle';
-import { Dimensions, Image, StyleSheet, Text, TouchableHighlight, TouchableWithoutFeedback, View, } from 'react-native';
-import FastImage from 'react-native-fast-image'
 import Util from '../common/Util';
 import { RNStorage } from '../common/RNStorage';
 
@@ -11,32 +11,41 @@ const priceBadge = (price) => {
     if (price > 0) {
         return (
             <View style={styles.badge}>
-                <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')}></Image>
+                <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')} />
                 <Text style={styles.money}>{price}</Text>
             </View>
-        )
-    } else if (price == 0) {
+        );
+    } else if (price === 0) {
         return (
             <View style={styles.badge2}>
                 <Text style={styles.free}>免费</Text>
             </View>
-        )
+        );
     }
-    return <></>
-}
+    return null;
+};
 
-const ListItem = ({ data = {}, nav = {}, index }) => {
+const ListItem = React.memo(({ data = {}, nav = {}, index }) => {
     const isOddRow = index % 6 === 0;
     const isRight = !isOddRow && ((index - 1) % 2 === 0);
+
+    const handlePress = () => {
+        nav.navigate('Player', { data });
+    };
+
     return (
         <View style={isOddRow ? styles.rowContainerOdd : styles.rowContainerEven}>
-            <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
-                <View style={[styles.listItem, isOddRow ? { width: width } : { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
+            <TouchableWithoutFeedback onPress={handlePress} key={index}>
+                <View style={[
+                    styles.listItem,
+                    isOddRow ? { width: width } : { width: width * 0.5 - 4 },
+                    isRight ? { marginLeft: 8 } : { marginLeft: 0 }
+                ]}>
                     <View style={styles.box}>
                         <FastImage
                             style={[
                                 styles.img,
-                                { height: width * (isOddRow ? 1 : 0.5) * Util.HEIGHT_RATIO } // 计算高度
+                                { height: width * (isOddRow ? 1 : 0.5) * Util.HEIGHT_RATIO }
                             ]}
                             source={Util.getThumb(data.thumb)}
                             resizeMode={FastImage.resizeMode.cover}
@@ -48,7 +57,9 @@ const ListItem = ({ data = {}, nav = {}, index }) => {
             </TouchableWithoutFeedback>
         </View>
     );
-};
+}, (prevProps, nextProps) => {
+    return prevProps.data === nextProps.data && prevProps.index === nextProps.index;
+});
 
 const styles = StyleSheet.create({
     containerOdd: {
@@ -77,9 +88,7 @@ const styles = StyleSheet.create({
     box: {
         flex: 1,
     },
-    img: {
-
-    },
+    img: {},
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -121,7 +130,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-
     },
     badge2: {
         position: 'absolute',
@@ -152,4 +160,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default React.memo(ListItem);
+export default ListItem;

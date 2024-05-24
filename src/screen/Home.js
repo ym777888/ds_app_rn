@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Image, View, Text, StyleSheet, TextInput, ImageBackground } from 'react-native';
+import { Image, View, Text, StyleSheet, TextInput, ImageBackground, TouchableWithoutFeedback } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 import { GlobalStyle } from "../common/GlobalStyle";
 import { RNStorage } from "../common/RNStorage";
@@ -28,6 +29,10 @@ import History from "./History";
 import Water from "./Water";
 import Transfer from "./Transfer";
 import Fav from "./Fav";
+import Chat from "./Chat";
+import Search from "./Search";
+import Password from "./Password";
+import Address from "./Address";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -37,6 +42,7 @@ function loadSiteInfo() {
     const [isGame, setIsGame] = useState(false);
     const [isVIP, setIsVIP] = useState(false);
     const [dataFetched, setDataFetched] = useState(false);
+
 
     useEffect(() => {
         HttpUtil.postFetch(
@@ -59,6 +65,17 @@ function loadSiteInfo() {
 
 
 function MyTopTabs() {
+
+    const navigation = useNavigation();
+
+    const openChat = () => {
+        navigation.navigate('Chat');
+    };
+
+    const gotoSearch = () => {
+        navigation.navigate('Search');
+    };
+
     return (
         <>
             <View style={styles.topBox}>
@@ -74,19 +91,21 @@ function MyTopTabs() {
                     </View>
                     <View style={styles.search}>
                         <Image source={require('../../assets/icon_search.png')} style={{ width: 24, height: 24, borderRadius: 5 }} tintColor="#cccccc" />
-                        <TextInput style={styles.searchTxt} placeholder="搜索国产、日韩..." numberOfLines={1} />
+                        <TextInput style={styles.searchTxt} placeholder="搜索国产、日韩..." numberOfLines={1} onFocus={gotoSearch} />
                     </View>
                     <View style={styles.chat}>
                         <View style={styles.quick}>
                             <Image style={styles.quickBg} source={require('../../assets/icon_mail.png')} tintColor="#aaaaaa"></Image>
                         </View>
+                        <TouchableWithoutFeedback onPress={openChat}>
+                            <View style={styles.quick}>
 
-                        <View style={styles.quick}>
-                            <ImageBackground style={styles.quickBg} source={require('../../assets/icon_pencil.png')} tintColor="#aaaaaa">
-                                <Text style={styles.quickTxt}>客服</Text>
-                            </ImageBackground>
-                        </View>
+                                <ImageBackground style={styles.quickBg} source={require('../../assets/icon_pencil.png')} tintColor="#aaaaaa">
+                                    <Text style={styles.quickTxt}>客服</Text>
+                                </ImageBackground>
 
+                            </View>
+                        </TouchableWithoutFeedback>
                     </View>
                 </View>
 
@@ -114,7 +133,7 @@ function MyTopTabs() {
                 <Tab.Screen name="China" component={ClipList} options={{ tabBarLabel: '国产' }} initialParams={{ category: '国产' }} />
                 <Tab.Screen name="Japan" component={ClipList} options={{ tabBarLabel: '日韩' }} initialParams={{ category: '日韩' }} />
                 <Tab.Screen name="Europe" component={ClipList} options={{ tabBarLabel: '欧美' }} initialParams={{ category: '欧美' }} />
-                <Tab.Screen name="Category" component={Index} options={{ tabBarLabel: '全部' }} />
+                <Tab.Screen name="Category" component={Category} options={{ tabBarLabel: '全部' }} />
             </TopTab.Navigator>
         </>
     );
@@ -174,6 +193,23 @@ function ProfileStack() {
                 }}
             />
 
+            <Stack.Screen
+                name="Password"
+                component={Password}
+                options={{
+                    title: 'Password',
+                }}
+            />
+
+
+            <Stack.Screen
+                name="Address"
+                component={Address}
+                options={{
+                    title: 'Address',
+                }}
+            />
+
         </Stack.Navigator>
 
     );
@@ -210,7 +246,7 @@ function MyTabs() {
                 name="Category"
                 component={Category}
                 options={{
-                    tabBarLabel: '分类',
+                    tabBarLabel: '选片',
                     tabBarIcon: ({ color, size }) => (
                         <Image
                             source={require('../../assets/icon_novel.png')} // 替换为您的图片路径
@@ -323,6 +359,20 @@ function MyStack() {
                     title: 'BuyVip',
                 }}
             />
+            <Stack.Screen
+                name="Chat"
+                component={Chat}
+                options={{
+                    title: 'Chat',
+                }}
+            />
+            <Stack.Screen
+                name="Search"
+                component={Search}
+                options={{
+                    title: 'Search',
+                }}
+            />
         </Stack.Navigator>
 
     );
@@ -386,8 +436,8 @@ const styles = StyleSheet.create({
 
     },
     quickBg: {
-        width: 34,
-        height: 34,
+        width: 30,
+        height: 30,
         justifyContent: 'flex-end'
     },
     quickTxt: {

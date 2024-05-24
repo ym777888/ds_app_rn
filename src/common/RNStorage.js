@@ -35,4 +35,6 @@ export const RNStorage = {// 持久化数据列表
     gameUrl: '',
     isDark: false,
     info: {}, //站点信息
+    minPrice: 0,
+    maxPrice: 0
 };

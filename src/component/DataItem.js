@@ -1,91 +1,82 @@
 import React, { useCallback } from 'react';
 import { GlobalStyle } from '../common/GlobalStyle';
 import { Dimensions, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import FastImage from 'react-native-fast-image';
-import Util from '../common/Util';
 import { RNStorage } from '../common/RNStorage';
 
 const { width } = Dimensions.get('window');
 
-const ListItemSmall = React.memo(({ data = {}, nav = {}, index }) => {
-    const handlePress = useCallback(() => {
-        nav.navigate('Player', {
-            data: {
-                thumb: data.clipThumb,
-                title: data.clipTitle,
-                uuid: data.clipKey,
-                price: Util.getRandom(RNStorage.minPrice, RNStorage.maxPrice)
-            }
-        });
-    }, [nav, data.clipThumb, data.clipTitle, data.clipKey, data.payDiamond]);
+const DataItem = React.memo(({ data = {}, nav = {}, index }) => {
 
-    if (!data || !data.clipThumb || !data.clipTitle || !data.createTime) {
-        return null; // Handle case where data is invalid
+    if (!data || !data.remark) {
+        return null; // Handle case where data or data.remark is invalid
     }
 
+    const trader = data.remark.includes("入") ? data.fromPhone
+        : data.remark.includes("出") ? data.toPhone
+            : "商城";
+
     return (
-        <TouchableWithoutFeedback onPress={handlePress} key={index}>
-            <View style={styles.listItem}>
-                <View style={styles.box}>
-                    <FastImage
-                        style={styles.img}
-                        source={Util.getThumb(data.clipThumb)}
-                        resizeMode='stretch'
-                    />
-                    <View style={styles.right}>
-                        <Text style={styles.title2} numberOfLines={2}>{data.clipTitle}</Text>
-                        <Text style={styles.date} numberOfLines={2}>{data.createTime}</Text>
-                    </View>
+        <View style={styles.listItem}>
+            <View style={styles.box}>
+                <View style={styles.line}>
+                    <Text style={styles.title}>{data.remark}</Text>
+                    <Text style={styles.txt} numberOfLines={2}>{data.createTime}</Text>
+                </View>
+                <View style={styles.line}>
+                    <Text style={styles.title2}>交易方</Text>
+                    <Text style={styles.txt}>{trader}</Text>
+                </View>
+                <View style={styles.line}>
+                    <Text style={styles.title2}>金额</Text>
+                    <Text style={styles.txt}>{data.amount}</Text>
                 </View>
             </View>
-        </TouchableWithoutFeedback>
+        </View>
     );
 }, (prevProps, nextProps) => {
     return prevProps.data === nextProps.data && prevProps.index === nextProps.index;
 });
 
 const styles = StyleSheet.create({
-    containerOdd: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-    },
-    containerEven: {
-        flex: 1,
-        justifyContent: 'center',
-        marginBottom: 10,
-    },
     main: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
     },
     listItem: {
         flexDirection: 'column',
-        backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
         marginVertical: 4,
-        height: width * 0.3 * 0.6,
+        borderRadius: 5,
+        borderColor: '#888888',
+        borderWidth: 0.5,
+        flex: 1,
     },
     box: {
         flex: 1,
-        flexDirection: 'row',
+        flexDirection: 'column',
+        padding: 7,
     },
-    img: {
-        width: width * 0.3,
-        height: width * 0.3 * 0.6,
+    line: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     right: {
         padding: 8,
         flexDirection: 'column',
         justifyContent: 'flex-start',
     },
+    title: {
+        fontSize: 14,
+        color: '#000000',
+        fontWeight: 'bold',
+    },
     title2: {
         fontSize: 14,
         color: '#000000',
-        width: width * 0.6,
-        lineHeight: 20,
+    },
+    txt: {
+        fontSize: 14,
+        color: '#888888',
     },
     date: {
         color: '#999999',
@@ -162,4 +153,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ListItemSmall;
+export default DataItem;

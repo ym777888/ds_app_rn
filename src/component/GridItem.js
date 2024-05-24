@@ -28,7 +28,6 @@ const priceBadge = (price) => {
 const GridItem = ({ data = {}, nav = {}, index }) => {
     const isRight = ((index - 1) % 2 === 0);
     return (
-        <View style={ styles.rowContainerOdd }>
             <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
                 <View style={[styles.listItem, { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
                     <View style={styles.box}>
@@ -45,7 +44,6 @@ const GridItem = ({ data = {}, nav = {}, index }) => {
                     </View>
                 </View>
             </TouchableWithoutFeedback>
-        </View>
     );
 };
 

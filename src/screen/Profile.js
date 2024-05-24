@@ -1,18 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Image, StyleSheet, Dimensions, TouchableWithoutFeedback, TouchableOpacity, FlatList } from 'react-native';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { XStorage } from 'react-native-easy-app';
 import { GlobalStyle } from '../common/GlobalStyle';
 import { RNStorage } from '../common/RNStorage';
 import HttpUtil from '../common/HttpUtil';
 import Util from "../common/Util";
+import CellItem from '../component/CellItem';
 
 const { width } = Dimensions.get('window');
+const nouser = {
+    user: {
+        diamond: 0,
+        coin: 0,
+        phone: '游客',
+        nickname: '游客'
+    },
+    myFollow: 0,
+    followMe: 0
+}
+
+const configData = [
+    { id:1, name: '金币', tip: '金币可以免费观看', value: 99},
+    { id:2, name: '收货地址', nav: 'Address', value: ''},
+    { id:3, name: '修改密码', nav: 'Password'},
+    { id:3, name: '检查更新', value: '1.0'},
+
+]
 
 const Profile = () => {
     const navigation = useNavigation();
     const [isLogin, setIsLogin] = useState(RNStorage.isLogin);
     const [userInfo, setUserInfo] = useState({});
+    const subscription = useRef(null);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -22,15 +42,17 @@ const Profile = () => {
 
     useEffect(() => {
         // 订阅事件
-        const subscription = eventEmitter.on('RNStorageUpdate', (sdata) => {
-            console.log('接收到事件:', sdata);
-            setIsLogin(RNStorage.isLogin);
-        });
+        if (!subscription.current) {
+            subscription.current = eventEmitter.on('RNStorageUpdate', (sdata) => {
+                console.log('接收到事件:', sdata);
+                setIsLogin(RNStorage.isLogin);
+            });
+        }
 
         // 返回一个清理函数，在组件卸载时移除监听器
         return () => {
-            if (subscription && (typeof subscription.remove === "function")) {
-                subscription.remove();
+            if (subscription.current && (typeof subscription.current === "function")) {
+                subscription.current.remove();
             }
         };
 
@@ -39,12 +61,21 @@ const Profile = () => {
 
     const guestInfo = () => {
         let req = {
+            code: RNStorage.code ? RNStorage.code : ""
         }
 
         HttpUtil.postReq(Util.USER_INFO, req, (msg, data) => {
             setUserInfo(data);
             RNStorage.userInfo = data.user;
-        });
+            RNStorage.minPrice = data.minPrice;
+            RNStorage.maxPrice = data.maxPrice;
+        }, () => {
+            setUserInfo(nouser);
+            RNStorage.userInfo = nouser;
+            RNStorage.isLogin = false;
+            RNStorage.accessToken = '';
+            RNStorage.token = '';
+        }, true);
     }
 
     const login = () => {
@@ -58,142 +89,163 @@ const Profile = () => {
         setIsLogin(RNStorage.isLogin);
     }
 
+    const logout = () => {
+
+        let req = {
+            phone: RNStorage.userInfo.phone,
+            token: RNStorage.token
+        }
+
+        HttpUtil.postReq(Util.LOGOUT, req, (msg, data) => {
+            Util.showToast(msg);
+        }, (msg, data) => {
+            Util.showToast(msg);
+        }, true)
+
+        RNStorage.isLogin = false;
+        RNStorage.accessToken = '';
+        RNStorage.token = '';
+        RNStorage.userInfo = {};
+        setUserInfo(nouser);
+    }
+
+    const renderItem = ({ item, index }) => {
+        return <CellItem data={item} nav={navigation} index={index} />
+    };
+
+    const renderHeader = () => {
+        return (
+            <>
+                <View style={[styles.row1, { justifyContent: 'flex-end' }]}>
+                    <TouchableWithoutFeedback>
+                        <Image style={styles.corner} source={require('../../assets/icon_setting2.png')}></Image>
+                    </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback>
+                        <Image style={styles.corner} source={require('../../assets/icon_mail2.png')}></Image>
+                    </TouchableWithoutFeedback>
+                </View>
+                <View style={styles.row}>
+                    <View style={styles.avatar}>
+                        <Image resizeMode='contain' style={{ height: 50, width: 50, borderRadius: 90 }} source={require('../../assets/app_icon.png')} ></Image>
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 5 }}>
+                        <Text style={styles.name}>{Util.getNickName(userInfo?.user?.nickname)}</Text>
+                        <Text style={styles.name2}>账号:{Util.getNickName(userInfo?.user?.phone)}</Text>
+                    </View>
+                    {isLogin ? (
+
+                        <TouchableOpacity onPress={logout}>
+                            <View style={{ backgroundColor: '#FF6666', width: 100, height: 30, justifyContent: 'center', alignItems: 'center', borderRadius: 15 }}>
+                                <Text style={{ color: '#FFFFFF' }}>退出</Text>
+                            </View>
+                        </TouchableOpacity>
+                    ) : (
+
+                        <TouchableOpacity onPress={login}>
+                            <View style={{ backgroundColor: '#FF6666', width: 100, height: 30, justifyContent: 'center', alignItems: 'center', borderRadius: 15 }}>
+                                <Text style={{ color: '#FFFFFF' }}>注册 | 登录</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+
+
+                </View>
+                <View style={styles.row2}>
+                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
+                        <View style={styles.btn}>
+                            <Image style={styles.btnImg} source={require('../../assets/icon_diamond3.png')}></Image>
+                            <View style={styles.btnTitle}>
+                                <Text style={styles.bigTitle}>钻石余额</Text>
+                                <Text style={styles.subTitle}>{userInfo?.user?.diamond}</Text>
+                            </View>
+                            <Image tintColor='#FF9933' style={styles.btnArrow} source={require('../../assets/icon_arrow.png')}></Image>
+                        </View>
+                    </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyVip', { data: {} }); }}>
+                        <View style={styles.btn}>
+                            <Image style={styles.btnImg} source={require('../../assets/icon_vip2.png')}></Image>
+                            <View style={styles.btnTitle}>
+                                <Text style={styles.bigTitle}>VIP有效期</Text>
+                                <Text style={styles.subTitle}>{Util.getVip(userInfo?.user?.vipTime)}</Text>
+                            </View>
+                            <Image tintColor='#FF9933' style={styles.btnArrow} source={require('../../assets/icon_arrow.png')}></Image>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </View>
+                <View style={styles.col}>
+
+                    <View style={styles.row}>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn2Img} source={require('../../assets/icon_jewelry.png')}></Image>
+                                <Text style={styles.btn2Title}>充值</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('Transfer', { data: {} }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn2Img} source={require('../../assets/icon_payment.png')}></Image>
+                                <Text style={styles.btn2Title}>转账</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('Water', { data: {} }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn2Img} source={require('../../assets/icon_statistics.png')}></Image>
+                                <Text style={styles.btn2Title}>流水</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('Chat', { data: {} }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn2Img} source={require('../../assets/icon_user.png')}></Image>
+                                <Text style={styles.btn2Title}>客服</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+
+                </View>
+                <View style={styles.col}>
+
+                    <View style={styles.row}>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'pay', title: '已购' }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn3Img} source={require('../../assets/icon_cart.png')}></Image>
+                                <Text style={styles.btn2Title}>已购</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'history', title: '历史' }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn3Img} source={require('../../assets/icon_history.png')}></Image>
+                                <Text style={styles.btn2Title}>历史</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'recom', title: '点赞' }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn3Img} source={require('../../assets/icon_heart.png')}></Image>
+                                <Text style={styles.btn2Title}>点赞</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'fav', title: '收藏' }); }}>
+                            <View style={styles.btn2}>
+                                <Image style={styles.btn3Img} source={require('../../assets/icon_star.png')}></Image>
+                                <Text style={styles.btn2Title}>收藏</Text>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+
+                </View>
+            </>
+        );
+    };
+
     return (
         <View style={styles.topBox}>
-            <View style={[styles.row1, { justifyContent: 'flex-end' }]}>
-                <TouchableWithoutFeedback>
-                    <Image style={styles.corner} source={require('../../assets/icon_setting2.png')}></Image>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
-                    <Image style={styles.corner} source={require('../../assets/icon_bell2.png')}></Image>
-                </TouchableWithoutFeedback>
-            </View>
-            <View style={styles.row}>
-                <View style={styles.avatar}>
-                    <Image resizeMode='contain' style={{ height: 50, width: 50, borderRadius: 90 }} source={require('../../assets/app_icon.png')} ></Image>
-                </View>
-                <View style={{ flex: 1, marginLeft: 5 }}>
-                    <Text style={styles.name}>{Util.getNickName(userInfo.user?.nickname)}</Text>
-                    <Text style={styles.name2}>账号:{Util.getNickName(userInfo.user?.phone)}</Text>
-                </View>
-                <TouchableOpacity onPress={login}>
-                    <View style={{ backgroundColor: '#FF6666', width: 100, height: 30, justifyContent: 'center', alignItems: 'center', borderRadius: 15 }}>
-                        {isLogin ? (<Text style={{ color: '#FFFFFF' }}>退出</Text>) : (<Text style={{ color: '#FFFFFF' }}>注册 | 登录</Text>)}
-                    </View>
-                </TouchableOpacity>
-            </View>
-            <View style={[styles.row, { justifyContent: 'space-between', marginHorizontal: 20 }]}>
-                <View style={styles.item}>
-                    <Text style={styles.itemNum}>{userInfo.user?.diamond}</Text>
-                    <Text style={styles.itemLabel}>钻石</Text>
-                </View>
-                <View style={styles.item}>
-                    <Text style={styles.itemNum}>{userInfo.user?.coin}</Text>
-                    <Text style={styles.itemLabel}>金币</Text>
-                </View>
-
-                <View style={styles.item}>
-                    <Text style={styles.itemNum}>{userInfo.myFollow}</Text>
-                    <Text style={styles.itemLabel}>关注</Text>
-                </View>
-                <View style={styles.item}>
-                    <Text style={styles.itemNum}>{userInfo.followMe}</Text>
-                    <Text style={styles.itemLabel}>粉丝</Text>
-                </View>
-            </View>
-            <View style={styles.row2}>
-                <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
-                    <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={require('../../assets/icon_diamond3.png')}></Image>
-                        <View style={styles.btnTitle}>
-                            <Text style={styles.bigTitle}>钻石余额</Text>
-                            <Text style={styles.subTitle}>{userInfo.user?.diamond}</Text>
-                        </View>
-                        <Image tintColor='#FF9933' style={styles.btnArrow} source={require('../../assets/icon_arrow.png')}></Image>
-                    </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyVip', { data: {} }); }}>
-                    <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={require('../../assets/icon_vip2.png')}></Image>
-                        <View style={styles.btnTitle}>
-                            <Text style={styles.bigTitle}>VIP有效期</Text>
-                            <Text style={styles.subTitle}>{Util.getVip(userInfo.user?.vipTime)}</Text>
-                        </View>
-                        <Image tintColor='#FF9933' style={styles.btnArrow} source={require('../../assets/icon_arrow.png')}></Image>
-                    </View>
-                </TouchableWithoutFeedback>
-            </View>
-            <View style={styles.col}>
-
-                <View style={styles.row}>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn2Img} source={require('../../assets/icon_jewelry.png')}></Image>
-                            <Text style={styles.btn2Title}>充值</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('Transfer', { data: {} }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn2Img} source={require('../../assets/icon_payment.png')}></Image>
-                            <Text style={styles.btn2Title}>转账</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('Water', { data: {} }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn2Img} source={require('../../assets/icon_statistics.png')}></Image>
-                            <Text style={styles.btn2Title}>流水</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-
-                    <TouchableWithoutFeedback>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn2Img} source={require('../../assets/icon_user.png')}></Image>
-                            <Text style={styles.btn2Title}>客服</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </View>
-
-            </View>
-            <View style={styles.col}>
-
-                <View style={styles.row}>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'pay' }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn3Img} source={require('../../assets/icon_cart.png')}></Image>
-                            <Text style={styles.btn2Title}>已购</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'history' }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn3Img} source={require('../../assets/icon_history.png')}></Image>
-                            <Text style={styles.btn2Title}>历史</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'recom' }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn3Img} source={require('../../assets/icon_heart.png')}></Image>
-                            <Text style={styles.btn2Title}>点赞</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'fav' }); }}>
-                        <View style={styles.btn2}>
-                            <Image style={styles.btn3Img} source={require('../../assets/icon_star.png')}></Image>
-                            <Text style={styles.btn2Title}>收藏</Text>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </View>
-
-            </View>
-            <View style={styles.col}>
-                <View style={styles.line}>
-                    <Text style={styles.lineTitle}>收货地址</Text>
-                    <Image tintColor={'#CCCCCC'} style={styles.btn3Img} source={require('../../assets/icon_arrow.png')}></Image>
-                </View>
-                <View style={[styles.line, { borderBottomWidth: 0 }]}>
-                    <Text style={styles.lineTitle}>收货地址</Text>
-                    <Image tintColor={'#CCCCCC'} style={styles.btn3Img} source={require('../../assets/icon_arrow.png')}></Image>
-                </View>
-            </View>
+            <FlatList
+                style={{ flex: 1 }}
+                data={configData}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => index.toString()}
+                ListHeaderComponent={renderHeader}
+            />
         </View>
     );
 };
@@ -320,21 +372,6 @@ const styles = StyleSheet.create({
         height: 26,
         marginRight: 10
     },
-    line: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderBottomColor: '#EEEEEE',
-        borderBottomWidth: 0.4,
-        height: 40,
-        lineHeight: 40,
-        marginLeft: 10,
-        marginRight: 10
-    },
 
-    lineTitle: {
-        fontSize: 14,
-        color: '#000000',
-    }
 })
 export default Profile;

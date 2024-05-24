@@ -12,7 +12,7 @@ export const BASE_URL = __DEV__ ? DEV_URL : DIST_URL;
 
 export default class HttpUtil {
 
-    static postReq = (reqUrl, req, callback, failCallback, isMute) => {
+    static postReq = (reqUrl, req={}, callback=null, failCallback=null, isMute=false) => {
         let params = req;
         let tm = new Date().getTime();
         params.t = tm;

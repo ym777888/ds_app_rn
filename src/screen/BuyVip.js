@@ -194,7 +194,7 @@ const BuyVip = () => {
     }
 
     const openChat = () => {
-
+        navigation.navigate('Chat', { data: {} });
     }
 
     return (

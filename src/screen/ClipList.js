@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FlatList, Text, View, StyleSheet, RefreshControl, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Base64 } from 'js-base64';
@@ -19,17 +19,20 @@ const data = [
 const ClipList = () => {
     const [refreshing, setRefreshing] = useState(false);
     const [typeData, setTypeData] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1); // 当前页数
     const [data, setData] = useState([]); // 初始数据
+    const [dataEnd, setDataEnd] = useState(false);
+    const [isOnEndReachedEnabled, setIsOnEndReachedEnabled] = useState(false);//自动更多开关
     const navigation = useNavigation();
     const route = useRoute(); // 使用 useRoute 钩子获取路由参数
+    const currentPageRef = useRef(1);
+    const pageArr = useRef([]);
+    const flatListRef = useRef(null);
 
     // 从路由参数中获取 category
     const { category } = route.params;
 
     useEffect(() => {
-        // 在组件挂载时加载数据
-        queryDataList();
+        getMaxPage();
     }, []);
 
     useEffect(() => {
@@ -38,31 +41,65 @@ const ClipList = () => {
         }
     }, [typeData]);
 
+
+    const getMaxPage = () => {
+        let req = {
+            k: category,
+            pageSize: Util.PAGE_SIZE
+        };
+
+        HttpUtil.postReq(Util.CLIP_MAX_PAGE, req, (msg, data) => {
+            pageArr.current = shuffleArray(data);
+            queryDataList();
+        })
+    }
+
+    //打乱数组
+    const shuffleArray = (maxPage) => {
+        const array = Array.from({ length: maxPage }, (_, i) => i + 1);
+
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+        }
+
+        return array;
+    }
+
     const queryDataList = () => {
         let req = {
             k: category,
-            p: currentPage, // 根据当前页数加载数据
+            p: pageArr.current[currentPageRef.current],
             pageSize: 10
         };
-    
+
         HttpUtil.postReq(Util.CLIP_DATA, req, (msg, newData) => {
             if (newData.length > 0) {
                 setTypeData(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
+            } else {
+                setDataEnd(true);
             }
+            setRefreshing(false);
+            setIsOnEndReachedEnabled(true);
         })
     }
 
     const loadMoreData = () => {
-        setCurrentPage(prevPage => prevPage + 1); // 加载下一页数据
+        if (dataEnd || !isOnEndReachedEnabled) {
+            return;
+        }
+        currentPageRef.current += 1;
         queryDataList();
     };
 
     const onRefresh = () => {
         setRefreshing(true);
-        // 执行你的刷新操作，比如重新加载数据
+        currentPageRef.current = 1; // 加载下一页数据
+        setTypeData([]);
+        queryDataList();
         setTimeout(() => {
             setRefreshing(false);
-        }, 2000); // 模拟加载延迟，实际使用时删除
+        }, 10000);
     };
 
     const renderItem = ({ item, index }) => {

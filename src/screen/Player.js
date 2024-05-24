@@ -1,4 +1,4 @@
-import React, { createRef, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList, ImageBackground } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video-bilibili';
@@ -27,7 +27,12 @@ const Player = () => {
     const { data } = route.params; // 获取传递的数据
     const [isFav, setIsFav] = useState(false);
     const [isRecom, setIsRecom] = useState(false);
+    const [dataList, setDataList] = useState([]);
 
+    useEffect(() => {
+        getMoreList();
+        checkFavRecom();
+    }, [])
 
     const renderItem = ({ item, index }) => {
         return <GridItem data={item} nav={navigation} index={index} />
@@ -53,19 +58,44 @@ const Player = () => {
         })
     }
 
+    //推荐
+    const getMoreList = () => {
+        let req = {
+            title: data.title,
+            num: Util.PAGE_SIZE,
+            code: RNStorage.code ? RNStorage.code : ""
+        }
+
+        HttpUtil.postReq(Util.MORE_LIST, req, (msg, data) => {
+            setDataList(data);
+        })
+    }
+
+    const checkFavRecom = () => {
+        let req = {
+            clipKey: data.uuid,
+        }
+
+        HttpUtil.postReq(Util.CHECK_FAV_RECOM, req, (msg, data) => {
+            setIsFav(data.fav);
+            setIsRecom(data.recom);
+        })
+    }
+
+
     const addFav = () => {
         let req = {
             clipKey: data.uuid,
         }
 
-        
 
-        if(isFav){
+
+        if (isFav) {
             HttpUtil.postReq(Util.DEL_FAV, req, (msg, data) => {
 
             })
             setIsFav(false);
-        }else{
+        } else {
             HttpUtil.postReq(Util.ADD_FAV, req, (msg, data) => {
 
             })
@@ -73,7 +103,7 @@ const Player = () => {
         }
 
 
-        
+
     }
 
     const addRecom = () => {
@@ -81,23 +111,24 @@ const Player = () => {
             clipKey: data.uuid,
         }
 
-        
 
-        if(isRecom){
+
+        if (isRecom) {
             HttpUtil.postReq(Util.DEL_RECOM, req, (msg, data) => {
 
             })
             setIsRecom(false);
-        }else{
+        } else {
             HttpUtil.postReq(Util.ADD_RECOM, req, (msg, data) => {
 
             })
             setIsRecom(true);
         }
 
+    }
 
-
-        
+    const openChat = () => {
+        navigation.navigate('Chat', { data: {} });
     }
 
     const HeaderComponent = () => (
@@ -109,13 +140,13 @@ const Player = () => {
             <View style={styles.row2}>
                 <TouchableWithoutFeedback onPress={addRecom}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={isRecom?require('../../assets/icon_heart2.png'):require('../../assets/icon_heart.png')}></Image>
+                        <Image style={styles.btnImg} source={isRecom ? require('../../assets/icon_heart2.png') : require('../../assets/icon_heart.png')}></Image>
                         <Text style={styles.btnTitle}>点赞</Text>
                     </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={addFav}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={isFav?require('../../assets/icon_star2.png'):require('../../assets/icon_star.png')}></Image>
+                        <Image style={styles.btnImg} source={isFav ? require('../../assets/icon_star2.png') : require('../../assets/icon_star.png')}></Image>
                         <Text style={styles.btnTitle}>收藏</Text>
                     </View>
                 </TouchableWithoutFeedback>
@@ -125,13 +156,13 @@ const Player = () => {
                         <Text style={styles.btnTitle}>分享</Text>
                     </View>
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
+                {/* <TouchableWithoutFeedback>
                     <View style={styles.btn}>
                         <Image style={styles.btnImg} source={require('../../assets/icon_write.png')}></Image>
                         <Text style={styles.btnTitle}>退款</Text>
                     </View>
-                </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
+                </TouchableWithoutFeedback> */}
+                <TouchableWithoutFeedback onPress={openChat}>
                     <View style={styles.btn}>
                         <Image style={styles.btnImg} source={require('../../assets/icon_service.png')}></Image>
                         <Text style={styles.btnTitle}>客服</Text>
@@ -199,7 +230,7 @@ const Player = () => {
 
             <FlatList
                 style={{ backgroundColor: GlobalStyle.sysBg() }}
-                data={testData}
+                data={dataList}
                 renderItem={renderItem}
                 ListHeaderComponent={<HeaderComponent />}
                 keyExtractor={(item, index) => index.toString()}
@@ -212,13 +243,13 @@ const Player = () => {
                             <Image resizeMode='contain' style={{ width: 34, height: 34, opacity: 0.4, position: 'absolute', right: 0, top: 0 }} source={require('../../assets/icon_close.png')}></Image>
                         </TouchableWithoutFeedback>
                         <Text style={styles.tip}>您余额不足，请充值后观看:</Text>
-                        <Text style={styles.tip2}>本片价格 {data.price}钻石，会员全站免费</Text>
+                        <Text style={styles.tip2}>本片价格<Text style={{ color: 'red' }}>{data.price}</Text>钻石，会员全站免费</Text>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
                             <View style={styles.btnBuy}>
                                 <Text style={styles.btnBuyTxt}>购买钻石</Text>
                             </View>
                         </TouchableWithoutFeedback>
-                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyVip', { data: {} }); }}>
                             <View style={[styles.btnBuy, { backgroundColor: '#FF9900' }]}>
                                 <Text style={styles.btnBuyTxt}>购买会员</Text>
                             </View>

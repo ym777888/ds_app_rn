@@ -16,8 +16,11 @@ export default class Util {
     static CLIP_TYPE_DATA = 'dsapp/getClipTypeData'; //获取一部分分类及数据
     static CLIP_DATA = 'dsapp/clipData'; //片库
     static CLIP_KEY = 'dsapp/getRandByKey'; //关键字随机
+    static CLIP_MAX_PAGE = 'dsapp/getClipPageMax'; //最大页数
     static LOGIN = 'dsapp/login'; //注册登录
+    static LOGOUT = 'dsapp/logout'; //退出
     static USER_INFO = 'dsapp/userInfo'; //用户信息
+    static USER_PASSWORD = 'dsapp/updatePassword'; //修改密码
     static CHECK_BUY = 'dsapp/checkBuy'; //是否购买
     static PRODUCT_LIST = 'dsapp/getProductList'; //商品列表
     static PAY_LIST = 'dsapp/getPayChannel'; //支付通道
@@ -26,17 +29,25 @@ export default class Util {
     static HISTORY_LIST = 'dsapp/getHistoryList'; //购买历史
     static ADD_FAV = 'dsapp/addFav'; //收藏
     static DEL_FAV = 'dsapp/delFav'; //取消收藏
+    static CLEAR_FAV = 'dsapp/clearFav'; //清除收藏
     static FAV_LIST = 'dsapp/getFavList'; //收藏列表
     static ADD_RECOM = 'dsapp/addRecom'; //点赞
     static DEL_RECOM = 'dsapp/delRecom'; //点赞
+    static CLEAR_RECOM = 'dsapp/clearRecom'; //清除点赞
     static RECOM_LIST = 'dsapp/getRecomList'; //点赞列表
+    static CHECK_FAV_RECOM = 'dsapp/checkFavRecom'; //检测点赞收藏
+    static MORE_LIST = 'dsapp/getMoreList'; //推荐播放
+    static TRANS_DIAMOND = 'dsapp/transDiamond'; //转账钻石
+    static WATER_LIST = 'dsapp/getWaterList'; //钻石流水
+
+
 
     //----------------------------HTTP REQUEST
 
     static DEVICE_ID = "DEVICE_ID";
-    static PAGE_SIZE = 20;
+    static PAGE_SIZE = 10;
     static HEIGHT_RATIO = 0.53; //图片高度占宽度比例
-    
+
     static iconList = {
         "coin": require('../../assets/icon_coin3.png'),
         "diamond": require('../../assets/icon_diamond3.png'),
@@ -79,34 +90,6 @@ export default class Util {
             })
 
         }, 1000);
-    }
-
-    static showToast(root, txt, countdown) {
-        if (countdown == null) {
-            countdown = 1000;
-        }
-        let mv = (
-            <Modal onRequestClose={() => { }} transparent visible={true}>
-                <View style={commonStyle.modalBox}>
-                    <View style={commonStyle.modalStyle2}>
-                        <Text style={commonStyle.indicatorTxt}>{txt != null ? txt : ''}</Text>
-                    </View>
-                </View>
-            </Modal>
-        )
-
-        root.setState({
-            modalView: mv
-        })
-        this.timer = setTimeout(() => {
-            if (root == null) {
-                clearTimeout(this.timer);
-                return;
-            }
-            root.setState({
-                modalView: <View />
-            })
-        }, countdown);
     }
 
     static showIndicator(root, txt, countdown) {
@@ -301,7 +284,7 @@ export default class Util {
     }
 
     static getNickName = (str) => {
-        if(str==null||str==""||str=="null"){
+        if (str == null || str == "" || str == "null") {
             return "游客";
         }
         return str;
@@ -313,4 +296,12 @@ export default class Util {
             global.toastRef.show(txt, duration, callback);
         }
     };
+
+    static getRandom = (min, max) => {
+        // 确保 min 和 max 是整数
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        // 生成一个介于 min 和 max 之间的随机整数（包括 min 和 max）
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 }

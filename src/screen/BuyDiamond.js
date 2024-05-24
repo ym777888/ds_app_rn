@@ -185,7 +185,9 @@ const BuyDiamond = () => {
         );
     }
 
-    const openChat = () => {}
+    const openChat = () => {
+        navigation.navigate('Chat', { data: {} });
+    }
 
     return (
         <View style={styles.box}>
@@ -202,7 +204,7 @@ const BuyDiamond = () => {
                         <Text style={{ color: 'white' }}>钻石余额</Text>
                     </View>
                     <View>
-                        <Text style={{ color: 'white', fontSize: 12 }}>消费明细 &gt;</Text>
+                        {/* <Text style={{ color: 'white', fontSize: 12 }}>消费明细 &gt;</Text> */}
                     </View>
                 </View>
                 <Text style={styles.num}>{userInfo != null ? userInfo.diamond : RNStorage.userInfo.diamond}</Text>

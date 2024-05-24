@@ -7,35 +7,11 @@ import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
 import NavTitle from '../component/NavTitle';
 
-const Address = () => {
+const Password = () => {
     const navigation = useNavigation();
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const [phone, setPhone] = useState(null);
-    const [address, setAddress] = useState(null);
-    const [name, setName] = useState(null);
-    const [userInfo, setUserInfo] = useState({});
-
-    const back = () => {
-        navigation.goBack();
-    }
-
-    useEffect(() => {
-
-        guestInfo();
-
-    }, []);
-
-    const guestInfo = () => {
-        let req = {
-        }
-
-        HttpUtil.postReq(Util.USER_INFO, req, (msg, data) => {
-            setUserInfo(data);
-        }, (msg) => {
-            Util.showToast(msg);
-        }, true);
-    }
+    const [password1, setPassword1] = useState(null);
+    const [password2, setPassword2] = useState(null);
 
 
     const save = () => {
@@ -43,69 +19,53 @@ const Address = () => {
             return; // 防止重复提交
         }
 
-        if (phone == null) {
+        if (password1 == null || password2 == null) {
             return;
         }
 
-        if (amount == null || amount <= 0) {
+        if (password2.length < 6 || password2.length > 20) {
+            Util.showToast('请输入6-20位密码');
             return;
         }
 
-        if (userInfo.user.diamond < 0 || userInfo.user.diamond < amount) {
-            Util.showToast("余额不足");
+        if (password2 === '123456' || password2 === '12345678' || password2 === '111111' || password2 === '123123') {
+            Util.showToast('请勿使用简单密码!');
             return;
         }
-
 
         setIsSubmitting(true);
 
-
         let req = {
-            phone: phone,
-            amount: amount,
+            password1: password1,
+            password2: password2,
         }
 
-        HttpUtil.postReq(Util.TRANS_DIAMOND, req, (msg, data) => {
+        HttpUtil.postReq(Util.USER_PASSWORD, req, (msg, data) => {
             setIsSubmitting(false);
-            guestInfo();
-            Util.showToast(msg);
-            setAmount('0');
-        }, (msg, data) => {
+            Util.showToast('保存成功');
+        }, (msg) => {
             setIsSubmitting(false);
             Util.showToast(msg);
-        }, true)
-    }
+        },true);
 
-    const showhand = () => {
-        console.log('userInfo.user.diamond', userInfo);
-        setAmount(userInfo ? String(userInfo.user.diamond) : '0');
+
+
     }
 
     return (
         <View style={styles.row}>
-            <NavTitle nav={navigation} title={'收货地址'} />
-            <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row'}}>
-                <Text style={{ color: '#993333', fontSize: 12}}>兑换奖品将发往此地址</Text>
-            </View>
+            <NavTitle nav={navigation} title={'修改密码'} />
             <View style={styles.search}>
                 <Text>
-                    地址
+                    旧密码
                 </Text>
-                <TextInput style={styles.searchTxt} placeholder="输入快递地址" numberOfLines={1} maxLength={20} value={address} onChangeText={setAddress} />
+                <TextInput style={styles.searchTxt} placeholder="输入旧密码" numberOfLines={1} maxLength={20} value={password1} onChangeText={setPassword1} />
             </View>
             <View style={styles.search}>
-                <Text>
-                    收件人
-                </Text>
-                <TextInput style={styles.searchTxt} placeholder="输入收件人" numberOfLines={1} maxLength={20} value={name} onChangeText={setName} />
+                <Text>新密码</Text>
+                <TextInput style={styles.searchTxt} placeholder="输入新密码" secureTextEntry={false} numberOfLines={1} maxLength={20} value={password2} onChangeText={setPassword2} />
+
             </View>
-            <View style={styles.search}>
-                <Text>
-                    手机号
-                </Text>
-                <TextInput style={styles.searchTxt} placeholder="输入收件人手机号" numberOfLines={1} maxLength={20} value={phone} onChangeText={setPhone} />
-            </View>
-            
             <TouchableWithoutFeedback onPress={save}>
                 <View style={styles.btn}>
                     <Text style={styles.btnTxt}>保存</Text>
@@ -115,7 +75,7 @@ const Address = () => {
     );
 };
 
-export default Address;
+export default Password;
 
 
 const styles = StyleSheet.create({

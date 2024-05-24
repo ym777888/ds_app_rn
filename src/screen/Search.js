@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useReducer } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, FlatList, RefreshControl, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, FlatList, RefreshControl, Image,TextInput } from 'react-native';
 import { GlobalStyle } from '../common/GlobalStyle';
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
@@ -9,22 +9,33 @@ import NavTitle from '../component/NavTitle';
 import { RNStorage } from '../common/RNStorage';
 
 
-const Category = () => {
+
+const Search = () => {
     const [clipType, setClipType] = useState([]);
     const navigation = useNavigation();
     const [dataEnd, setDataEnd] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [dataList, setDataList] = useState([]); // 初始数据
-    const [isOnEndReachedEnabled, setIsOnEndReachedEnabled] = useState(false);//自动更多开关
+    const [text, setText] = useState('');
     const route = useRoute(); // 使用 useRoute 钩子获取路由参数
     const currentPageRef = useRef(1);
     const pageArr = useRef([]);
     const flatListRef = useRef(null);
     const keyword = useRef(null);
+    const inputRef = useRef(null);
+
+
 
     useEffect(() => {
-        getMaxPage('');
+        handleFocus();
     }, []);
+
+
+    const handleFocus = () => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
 
 
     //打乱数组
@@ -43,32 +54,9 @@ const Category = () => {
         return <GridItem data={item} nav={navigation} index={index} />
     };
 
-    const renderHeader = () => {
-        const arr = RNStorage.info.clipType.split(',');
-        let btnBox = [];
-        for (let i = 0; i < arr.length; i++) {
-            btnBox.push(
-                <TouchableWithoutFeedback onPress={() => { clickKey(arr[i]) }} key={i}>
-                    <View style={arr[i] === keyword.current ? styles.btnActive : styles.btn}>
-                        <Text style={{ color: 'black' }}>{arr[i]}</Text>
-                    </View>
-                </TouchableWithoutFeedback>
-            )
-        }
-        return (
-            <View style={styles.btnBox}>
-                <TouchableWithoutFeedback onPress={resetKeyword}>
-                    <View style={keyword.current === "" ? styles.btnActive : styles.btn}>
-                        <Text style={{ color: 'black' }}>全部</Text>
-                    </View>
-                </TouchableWithoutFeedback>
-                {btnBox}
-            </View>
-        );
-    };
-
     const loadMoreData = () => {
-        if (dataEnd || !isOnEndReachedEnabled) {
+        console.log('loadMoreData');
+        if (dataEnd) {
             return;
         }
         currentPageRef.current += 1;
@@ -85,23 +73,10 @@ const Category = () => {
         }, 10000);
     };
 
-    const getMaxPage = (key) => {
-        keyword.current = key;
-        let req = {
-            k: keyword.current,
-            pageSize: Util.PAGE_SIZE
-        };
-
-        HttpUtil.postReq(Util.CLIP_MAX_PAGE, req, (msg, data) => {
-            pageArr.current = shuffleArray(data);
-            queryDataList();
-        })
-    }
-
     const queryDataList = () => {
         let req = {
             k: keyword.current,
-            p: pageArr.current[currentPageRef.current],
+            p: currentPageRef.current,
             pageSize: Util.PAGE_SIZE
         };
 
@@ -112,7 +87,6 @@ const Category = () => {
                 setDataEnd(true);
             }
             setRefreshing(false);
-            setIsOnEndReachedEnabled(true);
         })
     }
 
@@ -130,12 +104,25 @@ const Category = () => {
         currentPageRef.current = 1;
         setDataList([]);
         setDataEnd(false);
-        getMaxPage(keyword.current);
+        queryDataList();
     }
 
     return (
         <View style={styles.row}>
-
+            <View style={styles.navBox}>
+                <TouchableWithoutFeedback onPress={()=>{ navigation.goBack()}}>
+                <Image source={require('../../assets/icon_back.png')} style={styles.back} tintColor="#888888" />
+                </TouchableWithoutFeedback>
+                <View style={styles.search}>
+                    <Image source={require('../../assets/icon_search.png')} style={{ width: 24, height: 24, borderRadius: 5 }} tintColor="#cccccc" />
+                    <TextInput style={styles.searchTxt} placeholder="搜索国产、日韩..." numberOfLines={1} onChangeText={setText} ref={inputRef} />
+                </View>
+                <TouchableWithoutFeedback onPress={()=>{clickKey(text)}}>
+                <View style={styles.right}>
+                    <Text style={{ fontSize: 14, color: 'white' }}>搜索</Text>
+                </View>
+                </TouchableWithoutFeedback>
+            </View>
             <FlatList
                 ref={flatListRef}
                 style={{ backgroundColor: GlobalStyle.sysBg(), }}
@@ -151,7 +138,6 @@ const Category = () => {
                 onEndReached={loadMoreData} // 当滚动到列表底部时触发加载下一页数据的函数
                 onEndReachedThreshold={0.1} // 距离列表底部多少比例触发 onEndReached 函数
                 numColumns={2}
-                ListHeaderComponent={renderHeader}
             />
             <TouchableWithoutFeedback onPress={goTop}>
                 <View style={styles.btnTop}>
@@ -162,7 +148,7 @@ const Category = () => {
     );
 }
 
-export default Category;
+export default Search;
 
 const styles = StyleSheet.create({
     row: {
@@ -201,5 +187,43 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 10,
         flexDirection: 'row'
-    }
+    },
+    back: {
+        width: 34,
+        height: 34,
+    },
+    navBox: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    right: {
+        width: 80,
+        height: 34,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#CC0033',
+        marginRight: 10,
+        borderRadius: 15
+    },
+    search: {
+        flex: 3,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        marginHorizontal: 10,
+    },
+    searchTxt: {
+        flex: 1,
+        height: 30,
+        lineHeight: 30,
+
+        marginLeft: 5,
+        padding: 0,
+
+    },
 });
