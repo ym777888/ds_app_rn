@@ -15,6 +15,9 @@ const Fav = () => {
     const [dataList, setDataList] = useState([]); // 初始数据
     const route = useRoute(); // 使用 useRoute 钩子获取路由参数
     const currentPageRef = useRef(1);
+    const [isOnEndReachedEnabled, setIsOnEndReachedEnabled] = useState(false);//自动更多开关
+
+    const { type, title } = route.params;
 
     useEffect(() => {
         queryDataList();
@@ -27,20 +30,20 @@ const Fav = () => {
     const renderHeader = () => {
         return (
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 12, color: '#993333' }}>保留100条记录</Text>
+                <Text style={{ fontSize: 12, color: '#993333' }}>保留30条记录</Text>
             </View>
         );
     };
 
     const loadMoreData = () => {
-        if (dataEnd) {
+        if(dataEnd || !isOnEndReachedEnabled){
             return;
         }
         currentPageRef.current += 1;
         queryDataList();
     };
 
-    const { type, title } = route.params;
+
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -65,12 +68,14 @@ const Fav = () => {
                 if (newData.length > 0) {
                     setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
                 }
+                setIsOnEndReachedEnabled(true);
             })
         } else if (type == "recom") {
             HttpUtil.postReq(Util.RECOM_LIST, req, (msg, newData) => {
                 if (newData.length > 0) {
                     setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
                 }
+                setIsOnEndReachedEnabled(true);
             })
         }
 

@@ -19,11 +19,9 @@ const Search = () => {
     const [text, setText] = useState('');
     const route = useRoute(); // 使用 useRoute 钩子获取路由参数
     const currentPageRef = useRef(1);
-    const pageArr = useRef([]);
     const flatListRef = useRef(null);
     const keyword = useRef(null);
     const inputRef = useRef(null);
-
 
 
     useEffect(() => {
@@ -36,19 +34,6 @@ const Search = () => {
             inputRef.current.focus();
         }
     };
-
-
-    //打乱数组
-    const shuffleArray = (maxPage) => {
-        const array = Array.from({ length: maxPage }, (_, i) => i + 1);
-
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-        }
-
-        return array;
-    }
 
     const renderItem = ({ item, index }) => {
         return <GridItem data={item} nav={navigation} index={index} />

@@ -169,7 +169,7 @@ const Player = () => {
                     </View>
                 </TouchableWithoutFeedback>
             </View>
-            <View style={styles.row}>
+            <View style={[styles.row,{ justifyContent: 'center'}]}>
                 {!RNStorage.isLogin && (
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate('Login', { data: {} }); }}>
                         <View style={styles.btn1}><Text style={styles.btn1Title}>注册 | 登录</Text></View>
@@ -278,11 +278,12 @@ const styles = StyleSheet.create({
     },
     btn1: {
         backgroundColor: '#993333',
-        width: 120,
+        width: 110,
         height: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 5
+        borderRadius: 5,
+        marginHorizontal: 8
     },
     btn1Title: {
         color: 'white',

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useReducer } from 'react';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, FlatList, RefreshControl, Image } from 'react-native';
 import { GlobalStyle } from '../common/GlobalStyle';
 import HttpUtil from "../common/HttpUtil";
@@ -20,11 +20,20 @@ const Category = () => {
     const currentPageRef = useRef(1);
     const pageArr = useRef([]);
     const flatListRef = useRef(null);
-    const keyword = useRef(null);
+    const keyword = useRef('');
+    const hasInit = useRef(false);
 
-    useEffect(() => {
-        getMaxPage('');
-    }, []);
+    const { title = '', hideButton = false } = route.params || {};
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!hasInit.current) {
+                hasInit.current = true;
+                getMaxPage(title);
+            }
+        }, [])
+    );
+
 
 
     //打乱数组
@@ -42,6 +51,13 @@ const Category = () => {
     const renderItem = ({ item, index }) => {
         return <GridItem data={item} nav={navigation} index={index} />
     };
+
+    const renderHeader2 = () => {
+        return (
+            <></>
+        )
+    }
+
 
     const renderHeader = () => {
         const arr = RNStorage.info.clipType.split(',');
@@ -77,7 +93,7 @@ const Category = () => {
 
     const onRefresh = () => {
         setRefreshing(true);
-        currentPageRef.current = 1; // 加载下一页数据
+        currentPageRef.current = 0; // 加载下一页数据
         setDataList([]);
         queryDataList();
         setTimeout(() => {
@@ -98,10 +114,17 @@ const Category = () => {
         })
     }
 
+    const getNextPage = () => {
+        if (currentPageRef.current == pageArr.current.length) {
+            currentPageRef.current = 0;
+        }
+        return pageArr.current[currentPageRef.current];
+    }
+
     const queryDataList = () => {
         let req = {
             k: keyword.current,
-            p: pageArr.current[currentPageRef.current],
+            p: getNextPage(),
             pageSize: Util.PAGE_SIZE
         };
 
@@ -127,7 +150,7 @@ const Category = () => {
     const clickKey = (txt) => {
         goTop();
         keyword.current = txt;
-        currentPageRef.current = 1;
+        currentPageRef.current = 0;
         setDataList([]);
         setDataEnd(false);
         getMaxPage(keyword.current);
@@ -135,7 +158,7 @@ const Category = () => {
 
     return (
         <View style={styles.row}>
-
+            {hideButton && (<NavTitle nav={navigation} title={title} />)}
             <FlatList
                 ref={flatListRef}
                 style={{ backgroundColor: GlobalStyle.sysBg(), }}
@@ -149,9 +172,9 @@ const Category = () => {
                     />
                 }
                 onEndReached={loadMoreData} // 当滚动到列表底部时触发加载下一页数据的函数
-                onEndReachedThreshold={0.1} // 距离列表底部多少比例触发 onEndReached 函数
+                onEndReachedThreshold={0.2} // 距离列表底部多少比例触发 onEndReached 函数
                 numColumns={2}
-                ListHeaderComponent={renderHeader}
+                ListHeaderComponent={hideButton ? renderHeader2 : renderHeader}
             />
             <TouchableWithoutFeedback onPress={goTop}>
                 <View style={styles.btnTop}>

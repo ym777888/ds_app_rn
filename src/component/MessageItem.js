@@ -5,35 +5,20 @@ import { RNStorage } from '../common/RNStorage';
 
 const { width } = Dimensions.get('window');
 
-const DataItem = React.memo(({ data = {}, nav = {}, index }) => {
+const MessageItem = React.memo(({ data = {}, nav = {}, index }) => {
 
-    if (!data || !data.remark) {
+    if (!data) {
         return null; // Handle case where data or data.remark is invalid
     }
-
-    const trader = data.remark.includes("入") ? data.fromPhone
-        : data.remark.includes("出") ? data.toPhone
-            : "商城";
-    const sign = data.remark.includes("出") ? "-" : "+";
 
     return (
         <View style={styles.listItem}>
             <View style={styles.box}>
                 <View style={styles.line}>
-                    <Text style={styles.title}>{data.remark}</Text>
+                    <Text style={styles.title}>{data.content}</Text>
+                </View>
+                <View style={[styles.line,{ justifyContent: 'flex-end'}]}>
                     <Text style={styles.txt} numberOfLines={2}>{data.createTime}</Text>
-                </View>
-                <View style={styles.line}>
-                    <Text style={styles.title2}>交易方</Text>
-                    <Text style={styles.txt}>{trader}</Text>
-                </View>
-                <View style={styles.line}>
-                    <Text style={styles.title2}>数量</Text>
-                    <Text style={sign === "+" ? styles.txt1 : styles.txt2}>{sign}{data.amount}</Text>
-                </View>
-                <View style={styles.line}>
-                    <Text style={styles.title2}>剩余</Text>
-                    <Text style={styles.txt3}>{data.balanceAfter}</Text>
                 </View>
             </View>
         </View>
@@ -43,11 +28,7 @@ const DataItem = React.memo(({ data = {}, nav = {}, index }) => {
 });
 
 const styles = StyleSheet.create({
-    main: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
+
     listItem: {
         flexDirection: 'column',
         marginVertical: 4,
@@ -73,7 +54,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 14,
         color: '#000000',
-        fontWeight: 'bold',
+        lineHeight: 22
     },
     title2: {
         fontSize: 14,
@@ -82,18 +63,6 @@ const styles = StyleSheet.create({
     txt: {
         fontSize: 14,
         color: '#888888',
-    },
-    txt1: {
-        fontSize: 14,
-        color: '#336633',
-    },
-    txt2: {
-        fontSize: 14,
-        color: '#993333',
-    },
-    txt3: {
-        fontSize: 14,
-        color: '#003399',
     },
     date: {
         color: '#999999',
@@ -170,4 +139,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DataItem;
+export default MessageItem;

@@ -9,24 +9,6 @@ import Util from "../common/Util";
 import CellItem from '../component/CellItem';
 
 const { width } = Dimensions.get('window');
-const nouser = {
-    user: {
-        diamond: 0,
-        coin: 0,
-        phone: '游客',
-        nickname: '游客'
-    },
-    myFollow: 0,
-    followMe: 0
-}
-
-const configData = [
-    { id:1, name: '金币', tip: '金币可以免费观看', value: 99},
-    { id:2, name: '收货地址', nav: 'Address', value: ''},
-    { id:3, name: '修改密码', nav: 'Password'},
-    { id:3, name: '检查更新', value: '1.0'},
-
-]
 
 const Profile = () => {
     const navigation = useNavigation();
@@ -58,6 +40,12 @@ const Profile = () => {
 
     }, []);
 
+    const configData = [
+        { id: 1, name: '金币', tip: '免费观看' + userInfo?.user?.coin + '次', value: userInfo?.user?.coin },
+        { id: 2, name: '收货地址', nav: 'Address', value: '' },
+        { id: 3, name: '修改密码', nav: 'Password' },
+        { id: 3, name: '当前版本', value: '1.0' },
+    ]
 
     const guestInfo = () => {
         let req = {
@@ -70,8 +58,8 @@ const Profile = () => {
             RNStorage.minPrice = data.minPrice;
             RNStorage.maxPrice = data.maxPrice;
         }, () => {
-            setUserInfo(nouser);
-            RNStorage.userInfo = nouser;
+            setUserInfo(Util.nouser());
+            RNStorage.userInfo = Util.nouser();
             RNStorage.isLogin = false;
             RNStorage.accessToken = '';
             RNStorage.token = '';
@@ -106,7 +94,8 @@ const Profile = () => {
         RNStorage.accessToken = '';
         RNStorage.token = '';
         RNStorage.userInfo = {};
-        setUserInfo(nouser);
+        setUserInfo(Util.nouser());
+        setIsLogin(false);
     }
 
     const renderItem = ({ item, index }) => {
@@ -117,11 +106,17 @@ const Profile = () => {
         return (
             <>
                 <View style={[styles.row1, { justifyContent: 'flex-end' }]}>
-                    <TouchableWithoutFeedback>
-                        <Image style={styles.corner} source={require('../../assets/icon_setting2.png')}></Image>
-                    </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback>
-                        <Image style={styles.corner} source={require('../../assets/icon_mail2.png')}></Image>
+                    <TouchableWithoutFeedback onPress={() => { navigation.navigate("Message") }}>
+                        <View style={{ width: 30, height: 30 }}>
+                            <Image tintColor={'#999999'} style={styles.corner} source={require('../../assets/icon_mail2.png')}></Image>
+                            {userInfo.newMsg ? (
+                                <View style={styles.dot}></View>
+                            ) : (
+                                <></>
+                            )}
+
+                        </View>
+
                     </TouchableWithoutFeedback>
                 </View>
                 <View style={styles.row}>
@@ -372,6 +367,15 @@ const styles = StyleSheet.create({
         height: 26,
         marginRight: 10
     },
+    dot: {
+        width: 12,
+        height: 12,
+        backgroundColor: '#FF6666',
+        borderRadius: 90,
+        position: 'absolute',
+        right: 0,
+        top: 0,
+    }
 
 })
 export default Profile;

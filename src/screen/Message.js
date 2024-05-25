@@ -1,46 +1,44 @@
-import React,{ useState, useEffect,useRef }  from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Image, RefreshControl, FlatList } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { GlobalStyle } from '../common/GlobalStyle';
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
-import ListItemSmall from '../component/ListItemSmall';
+import MessageItem from '../component/MessageItem';
 import NavTitle from '../component/NavTitle';
 
-const History = () => {
+const Message = () => {
     const navigation = useNavigation();
     const [dataEnd, setDataEnd] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [dataList, setDataList] = useState([]); // 初始数据
     const route = useRoute(); // 使用 useRoute 钩子获取路由参数
     const currentPageRef = useRef(1);
-    const [isOnEndReachedEnabled, setIsOnEndReachedEnabled] = useState(false);//自动更多开关
 
     useEffect(() => {
         queryDataList();
+        readAll();
     }, []);
 
     const renderItem = ({ item, index }) => {
-        return <ListItemSmall data={item} nav={navigation} index={index} />
+        return <MessageItem data={item} nav={navigation} index={index} />
     };
 
     const renderHeader = () => {
         return (
-            <View style={{ justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{ fontSize: 12, color: '#993333'}}>{type==='pay'?('已购保留24小时'):('保留30条历史记录')}</Text>
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 12, color: '#993333' }}>记录保留3天</Text>
             </View>
         );
     };
 
     const loadMoreData = () => {
-        if(dataEnd || !isOnEndReachedEnabled){
+        if (dataEnd) {
             return;
         }
         currentPageRef.current += 1;
         queryDataList();
     };
-
-    const { type,title } = route.params;
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -52,30 +50,34 @@ const History = () => {
         }, 10000);
     };
 
+    const readAll = () => {
+        HttpUtil.postReq(Util.READ_ALL_MESSAGE)
+    }
 
-    
     const queryDataList = () => {
         let req = {
-            type: type,
-            p: currentPageRef.current,
+            p: currentPageRef.current, // 根据当前页数加载数据
             pageSize: 10
         };
-    
-        HttpUtil.postReq(Util.HISTORY_LIST, req, (msg, newData) => {
+
+        HttpUtil.postReq(Util.MESSAGE_LIST, req, (msg, newData) => {
             if (newData.length > 0) {
                 setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
-            }else{
-                setDataEnd(true);
             }
-            setRefreshing(false);
-            setIsOnEndReachedEnabled(true);
         })
+
+        setRefreshing(false);
     }
 
 
+    const doClear = () => {
+        setDataList([]);
+        HttpUtil.postReq(Util.CLEAR_MESSAGE);
+    }
+
     return (
         <View style={styles.row}>
-            <NavTitle nav={navigation} title={title} />
+            <NavTitle nav={navigation} title={'消息'} rightTxt={'清除'} rightAction={doClear} />
             <FlatList
                 style={{ backgroundColor: GlobalStyle.sysBg(), }}
                 data={dataList}
@@ -96,7 +98,7 @@ const History = () => {
     );
 };
 
-export default History;
+export default Message;
 
 const styles = StyleSheet.create({
     row: {
@@ -106,4 +108,5 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: GlobalStyle.sysBg(),
     },
+
 });

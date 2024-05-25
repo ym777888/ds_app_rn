@@ -80,7 +80,7 @@ const Index = () => {
 
     //查看更多
     const btn1Click = (key) => {
-        
+        navigation.navigate("All", { title: key, hideButton: true });
     }
 
 

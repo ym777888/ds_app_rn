@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Text, View, StyleSheet, RefreshControl, Image, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import FastImage from 'react-native-fast-image';
+import Util from "../common/Util";
 import { GlobalStyle } from '../common/GlobalStyle';
-import { Dimensions, Image, StyleSheet, Text, TouchableHighlight, TouchableWithoutFeedback, View, } from 'react-native';
-import FastImage from 'react-native-fast-image'
-import Util from '../common/Util';
 import { RNStorage } from '../common/RNStorage';
 
 const { width } = Dimensions.get('window');
@@ -11,60 +11,45 @@ const priceBadge = (price) => {
     if (price > 0) {
         return (
             <View style={styles.badge}>
-                <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')}></Image>
+                <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')} />
                 <Text style={styles.money}>{price}</Text>
             </View>
-        )
-    } else if (price == 0) {
+        );
+    } else if (price === 0) {
         return (
             <View style={styles.badge2}>
                 <Text style={styles.free}>免费</Text>
             </View>
-        )
+        );
     }
-    return <></>
-}
+    return null;
+};
 
 const GridItem = ({ data = {}, nav = {}, index }) => {
-    const isRight = ((index - 1) % 2 === 0);
+    const isRight = (index % 2 !== 0);
+
     return (
-            <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
-                <View style={[styles.listItem, { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
-                    <View style={styles.box}>
-                        <FastImage
-                            style={[
-                                styles.img,
-                                { height: width *  0.5 * Util.HEIGHT_RATIO } // 计算高度
-                            ]}
-                            source={Util.getThumb(data.thumb)}
-                            resizeMode={FastImage.resizeMode.cover}
-                        />
-                        <Text style={GlobalStyle.title2} numberOfLines={2}>{data.title}</Text>
-                        {priceBadge(data.price)}
-                    </View>
+        <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
+            <View style={[styles.listItem, { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
+                <View style={styles.box}>
+                    <FastImage
+                        style={[
+                            styles.img,
+                            { height: width * 0.5 * Util.HEIGHT_RATIO } // 计算高度
+                        ]}
+                        source={Util.getThumb(data.thumb)}
+                        resizeMode={FastImage.resizeMode.cover}
+                    />
+                    <Text style={GlobalStyle.title2} numberOfLines={2}>{data.title}</Text>
+                    {priceBadge(data.price)}
                 </View>
-            </TouchableWithoutFeedback>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 
 const styles = StyleSheet.create({
-    containerOdd: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-    },
-    containerEven: {
-        flex: 1,
-        justifyContent: 'center',
-        marginBottom: 10,
-    },
-    main: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
-    },
+
     listItem: {
         flexDirection: 'column',
         backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
@@ -75,23 +60,9 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     img: {
+        width: '100%',
+    },
 
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignContent: 'center',
-        alignItems: 'center'
-    },
-    sectionFoot: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginVertical: 10,
-    },
-    more: {
-        color: GlobalStyle.gray,
-        paddingRight: 10,
-    },
     icon: {
         width: 14,
         height: 14,
@@ -118,7 +89,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-
     },
     badge2: {
         position: 'absolute',
@@ -149,4 +119,8 @@ const styles = StyleSheet.create({
     }
 });
 
-export default React.memo(GridItem);
+const areEqual = (prevProps, nextProps) => {
+    return prevProps.data === nextProps.data && prevProps.index === nextProps.index;
+};
+
+export default React.memo(GridItem, areEqual);

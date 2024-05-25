@@ -87,7 +87,7 @@ const DailyItem = React.memo(({ data = {}, nav = {}, index, btn1Callback, btn2Ca
         </View>
     );
 }, (prevProps, nextProps) => {
-    return prevProps.data === nextProps.data && prevProps.index === nextProps.index;
+    return false;
 });
 
 const styles = StyleSheet.create({

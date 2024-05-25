@@ -22,16 +22,21 @@ const Address = () => {
 
     useEffect(() => {
 
-        guestInfo();
+        getAddress();
 
     }, []);
 
-    const guestInfo = () => {
+    const getAddress = () => {
         let req = {
         }
 
-        HttpUtil.postReq(Util.USER_INFO, req, (msg, data) => {
-            setUserInfo(data);
+        HttpUtil.postReq(Util.USER_ADDRESS, req, (msg, data) => {
+            if (data) {
+                setAddress(data.address);
+                setName(data.guestName);
+                setPhone(data.phone);
+            }
+
         }, (msg) => {
             Util.showToast(msg);
         }, true);
@@ -43,55 +48,38 @@ const Address = () => {
             return; // 防止重复提交
         }
 
-        if (phone == null) {
+        if (address == null || phone == null || name == null) {
             return;
         }
-
-        if (amount == null || amount <= 0) {
-            return;
-        }
-
-        if (userInfo.user.diamond < 0 || userInfo.user.diamond < amount) {
-            Util.showToast("余额不足");
-            return;
-        }
-
 
         setIsSubmitting(true);
 
-
         let req = {
             phone: phone,
-            amount: amount,
+            address: address,
+            name: name
         }
 
-        HttpUtil.postReq(Util.TRANS_DIAMOND, req, (msg, data) => {
+        HttpUtil.postReq(Util.UPDATE_ADDRESS, req, (msg, data) => {
             setIsSubmitting(false);
-            guestInfo();
             Util.showToast(msg);
-            setAmount('0');
-        }, (msg, data) => {
+        }, (msg, code) => {
             setIsSubmitting(false);
             Util.showToast(msg);
         }, true)
     }
 
-    const showhand = () => {
-        console.log('userInfo.user.diamond', userInfo);
-        setAmount(userInfo ? String(userInfo.user.diamond) : '0');
-    }
-
     return (
         <View style={styles.row}>
             <NavTitle nav={navigation} title={'收货地址'} />
-            <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row'}}>
-                <Text style={{ color: '#993333', fontSize: 12}}>兑换奖品将发往此地址</Text>
+            <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row' }}>
+                <Text style={{ color: '#993333', fontSize: 12 }}>兑换奖品将发往此地址</Text>
             </View>
             <View style={styles.search}>
                 <Text>
                     地址
                 </Text>
-                <TextInput style={styles.searchTxt} placeholder="输入快递地址" numberOfLines={1} maxLength={20} value={address} onChangeText={setAddress} />
+                <TextInput style={styles.searchTxt} placeholder="输入快递地址" numberOfLines={1} maxLength={200} value={address} onChangeText={setAddress} />
             </View>
             <View style={styles.search}>
                 <Text>
@@ -105,7 +93,7 @@ const Address = () => {
                 </Text>
                 <TextInput style={styles.searchTxt} placeholder="输入收件人手机号" numberOfLines={1} maxLength={20} value={phone} onChangeText={setPhone} />
             </View>
-            
+
             <TouchableWithoutFeedback onPress={save}>
                 <View style={styles.btn}>
                     <Text style={styles.btnTxt}>保存</Text>

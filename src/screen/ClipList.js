@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback} from 'react';
 import { FlatList, Text, View, StyleSheet, RefreshControl, Image } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect  } from '@react-navigation/native';
 import { Base64 } from 'js-base64';
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
@@ -25,15 +25,21 @@ const ClipList = () => {
     const navigation = useNavigation();
     const route = useRoute(); // 使用 useRoute 钩子获取路由参数
     const currentPageRef = useRef(1);
+    const hasInit = useRef(false);
     const pageArr = useRef([]);
     const flatListRef = useRef(null);
 
     // 从路由参数中获取 category
     const { category } = route.params;
 
-    useEffect(() => {
-        getMaxPage();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            if(!hasInit.current){
+                hasInit.current = true;
+                getMaxPage();
+            }
+        }, [])
+    );
 
     useEffect(() => {
         if (typeData) {

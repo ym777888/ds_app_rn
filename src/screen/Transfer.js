@@ -13,6 +13,7 @@ const Transfer = () => {
     const [amount, setAmount] = useState('0');
     const [phone, setPhone] = useState(0);
     const [userInfo, setUserInfo] = useState({});
+    const [message, setMessage] = useState(null);
 
     const back = () => {
         navigation.goBack();
@@ -61,6 +62,7 @@ const Transfer = () => {
         let req = {
             phone: phone,
             amount: amount,
+            message: message
         }
 
         HttpUtil.postReq(Util.TRANS_DIAMOND, req, (msg, data) => {
@@ -68,6 +70,8 @@ const Transfer = () => {
             guestInfo();
             Util.showToast(msg);
             setAmount('0');
+            setMessage('');
+            setPhone('');
         }, (msg, data) => {
             setIsSubmitting(false);
             Util.showToast(msg);
@@ -82,8 +86,8 @@ const Transfer = () => {
     return (
         <View style={styles.row}>
             <NavTitle nav={navigation} title={'转账'} />
-            <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row'}}>
-                <Text style={{ color: '#993333', fontSize: 12}}>将钻石转给其他用户</Text>
+            <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row' }}>
+                <Text style={{ color: '#993333', fontSize: 12 }}>将钻石转给其他用户</Text>
             </View>
             <View style={styles.search}>
                 <Text>
@@ -100,8 +104,14 @@ const Transfer = () => {
                     </View>
                 </TouchableWithoutFeedback>
             </View>
+            <View style={styles.search}>
+                <Text>
+                    备注留言
+                </Text>
+                <TextInput style={styles.searchTxt} placeholder="输入备注" numberOfLines={1} maxLength={200} value={message} onChangeText={setMessage} />
+            </View>
             <View style={styles.balance}>
-                <Text>钻石余额: <Text style={{ color: '#993333'}}>{userInfo?.user?.diamond}</Text></Text>
+                <Text>钻石余额: <Text style={{ color: '#993333' }}>{userInfo?.user?.diamond}</Text></Text>
             </View>
             <TouchableWithoutFeedback onPress={trans}>
                 <View style={styles.btn}>

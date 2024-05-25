@@ -45,10 +45,12 @@ const styles = StyleSheet.create({
     right: {
         width: 34,
         height: 34,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     rightBtn: {
         fontSize: 14,
-        color: 'black'
+        color: '#777777'
     }
 });
 

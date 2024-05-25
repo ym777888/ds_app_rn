@@ -21,6 +21,8 @@ export default class Util {
     static LOGOUT = 'dsapp/logout'; //退出
     static USER_INFO = 'dsapp/userInfo'; //用户信息
     static USER_PASSWORD = 'dsapp/updatePassword'; //修改密码
+    static USER_ADDRESS = 'dsapp/getAddress'; //用户地址
+    static UPDATE_ADDRESS = 'dsapp/updateAddress'; //修改用户地址
     static CHECK_BUY = 'dsapp/checkBuy'; //是否购买
     static PRODUCT_LIST = 'dsapp/getProductList'; //商品列表
     static PAY_LIST = 'dsapp/getPayChannel'; //支付通道
@@ -39,6 +41,10 @@ export default class Util {
     static MORE_LIST = 'dsapp/getMoreList'; //推荐播放
     static TRANS_DIAMOND = 'dsapp/transDiamond'; //转账钻石
     static WATER_LIST = 'dsapp/getWaterList'; //钻石流水
+    static MESSAGE_LIST = 'dsapp/getMessageList'; //消息列表
+    static CLEAR_MESSAGE = 'dsapp/clearMessage'; //清除消息列表
+    static READ_ALL_MESSAGE = 'dsapp/readAllMessage'; //全部已读
+    
 
 
 
@@ -204,7 +210,10 @@ export default class Util {
     }
 
     static getVip = (time) => {
+        
         let cur = new Date().getTime()
+        console.log("getVip",time);
+        console.log("cur",cur);
         time = time || 0
 
         if (time > cur) {
@@ -303,5 +312,17 @@ export default class Util {
         max = Math.floor(max);
         // 生成一个介于 min 和 max 之间的随机整数（包括 min 和 max）
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    static nouser = () => {
+        return {
+            user: {
+                diamond: 0,
+                coin: 0,
+                phone: '游客',
+                nickname: '游客'
+            },
+            newMsg: false
+        }
     }
 }

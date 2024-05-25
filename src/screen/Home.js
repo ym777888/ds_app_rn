@@ -33,6 +33,7 @@ import Chat from "./Chat";
 import Search from "./Search";
 import Password from "./Password";
 import Address from "./Address";
+import Message from "./Message";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -58,16 +59,17 @@ function loadSiteInfo() {
             true
         );
 
+
     }, []);
 
     return { isGame, isVIP, dataFetched };
 }
 
 
+//顶部Tab
 function MyTopTabs() {
 
     const navigation = useNavigation();
-
     const openChat = () => {
         navigation.navigate('Chat');
     };
@@ -94,9 +96,6 @@ function MyTopTabs() {
                         <TextInput style={styles.searchTxt} placeholder="搜索国产、日韩..." numberOfLines={1} onFocus={gotoSearch} />
                     </View>
                     <View style={styles.chat}>
-                        <View style={styles.quick}>
-                            <Image style={styles.quickBg} source={require('../../assets/icon_mail.png')} tintColor="#aaaaaa"></Image>
-                        </View>
                         <TouchableWithoutFeedback onPress={openChat}>
                             <View style={styles.quick}>
 
@@ -373,6 +372,21 @@ function MyStack() {
                     title: 'Search',
                 }}
             />
+            <Stack.Screen
+                name="Message"
+                component={Message}
+                options={{
+                    title: 'Message',
+                }}
+            />
+
+            <Stack.Screen
+                name="All"
+                component={Category}
+                options={{
+                    title: 'All',
+                }}
+            />
         </Stack.Navigator>
 
     );
@@ -397,7 +411,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     row: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginTop: 3
     },
     search: {
         flex: 3,
@@ -455,6 +470,20 @@ const styles = StyleSheet.create({
     marqueeItem: {
         flex: 1,
         height: 22,
+    },
+    corner: {
+        width: 26,
+        height: 26,
+        marginRight: 10
+    },
+    dot: {
+        width: 12,
+        height: 12,
+        backgroundColor: '#FF6666',
+        borderRadius: 90,
+        position: 'absolute',
+        right: 0,
+        top: 0,
     }
 });
 
