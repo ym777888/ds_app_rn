@@ -6,6 +6,7 @@ import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
 import ListItemSmall from '../component/ListItemSmall';
 import NavTitle from '../component/NavTitle';
+import { RNStorage } from '../common/RNStorage';
 
 const History = () => {
     const navigation = useNavigation();
@@ -69,7 +70,9 @@ const History = () => {
             }
             setRefreshing(false);
             setIsOnEndReachedEnabled(true);
-        })
+        },(msg,data)=>{
+            Util.showToast(msg);
+        },true)
     }
 
 
@@ -77,7 +80,7 @@ const History = () => {
         <View style={styles.row}>
             <NavTitle nav={navigation} title={title} />
             <FlatList
-                style={{ backgroundColor: GlobalStyle.sysBg(), }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
                 data={dataList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -100,10 +103,8 @@ export default History;
 
 const styles = StyleSheet.create({
     row: {
-        padding: GlobalStyle.marginTop,
-        paddingTop: 0,
         flexDirection: 'column',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
     },
 });

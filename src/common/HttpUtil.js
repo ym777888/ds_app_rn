@@ -5,8 +5,8 @@ import Util from './Util'
 import * as Base64 from 'js-base64'
 import { XHttp } from 'react-native-easy-app';
 
-const DEV_URL = "http://192.168.100.24/api/";
-const DIST_URL = "http://app1.buyaodawoledage.com/api/";
+const DEV_URL = "http://192.168.100.24/api";
+const DIST_URL = "http://api.jmyx01.com/api";
 
 export const BASE_URL = __DEV__ ? DEV_URL : DIST_URL;
 

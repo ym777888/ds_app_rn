@@ -6,6 +6,7 @@ import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
 import MessageItem from '../component/MessageItem';
 import NavTitle from '../component/NavTitle';
+import { RNStorage } from '../common/RNStorage';
 
 const Message = () => {
     const navigation = useNavigation();
@@ -64,7 +65,9 @@ const Message = () => {
             if (newData.length > 0) {
                 setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
             }
-        })
+        },(msg,data)=>{
+            Util.showToast(msg);
+        },true)
 
         setRefreshing(false);
     }
@@ -79,7 +82,7 @@ const Message = () => {
         <View style={styles.row}>
             <NavTitle nav={navigation} title={'消息'} rightTxt={'清除'} rightAction={doClear} />
             <FlatList
-                style={{ backgroundColor: GlobalStyle.sysBg(), }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
                 data={dataList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -102,11 +105,9 @@ export default Message;
 
 const styles = StyleSheet.create({
     row: {
-        padding: GlobalStyle.marginTop,
-        paddingTop: 0,
         flexDirection: 'column',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
     },
 
 });

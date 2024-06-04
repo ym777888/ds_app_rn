@@ -69,14 +69,18 @@ const Fav = () => {
                     setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
                 }
                 setIsOnEndReachedEnabled(true);
-            })
+            },(msg,data)=>{
+                Util.showToast(msg);
+            },true)
         } else if (type == "recom") {
             HttpUtil.postReq(Util.RECOM_LIST, req, (msg, newData) => {
                 if (newData.length > 0) {
                     setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
                 }
                 setIsOnEndReachedEnabled(true);
-            })
+            },(msg,data)=>{
+                Util.showToast(msg);
+            },true)
         }
 
         setRefreshing(false);
@@ -96,7 +100,7 @@ const Fav = () => {
         <View style={styles.row}>
             <NavTitle nav={navigation} title={title} rightTxt={'清除'} rightAction={doClear} />
             <FlatList
-                style={{ backgroundColor: GlobalStyle.sysBg(), }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
                 data={dataList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -119,11 +123,9 @@ export default Fav;
 
 const styles = StyleSheet.create({
     row: {
-        padding: GlobalStyle.marginTop,
-        paddingTop: 0,
         flexDirection: 'column',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
     },
 
 });

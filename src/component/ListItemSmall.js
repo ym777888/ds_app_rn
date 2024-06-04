@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     listItem: {
         flexDirection: 'column',
         backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
-        marginVertical: 4,
+        margin: 10,
         height: width * 0.3 * 0.6,
     },
     box: {

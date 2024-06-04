@@ -55,7 +55,9 @@ const Player = () => {
                     Util.showToast(msg, 1000);
                 }
             }
-        })
+        }, (msg, data) => {
+            Util.showToast(msg);
+        }, true)
     }
 
     //推荐
@@ -93,17 +95,25 @@ const Player = () => {
         if (isFav) {
             HttpUtil.postReq(Util.DEL_FAV, req, (msg, data) => {
 
-            })
+            }, (msg, data) => {
+                Util.showToast(msg);
+            }, true)
             setIsFav(false);
         } else {
             HttpUtil.postReq(Util.ADD_FAV, req, (msg, data) => {
 
-            })
+            }, (msg, data) => {
+                Util.showToast(msg);
+            }, true)
             setIsFav(true);
         }
 
 
 
+    }
+
+    const share = () => {
+        navigation.navigate("Share");
     }
 
     const addRecom = () => {
@@ -116,12 +126,16 @@ const Player = () => {
         if (isRecom) {
             HttpUtil.postReq(Util.DEL_RECOM, req, (msg, data) => {
 
-            })
+            }, (msg, data) => {
+                Util.showToast(msg);
+            }, true)
             setIsRecom(false);
         } else {
             HttpUtil.postReq(Util.ADD_RECOM, req, (msg, data) => {
 
-            })
+            }, (msg, data) => {
+                Util.showToast(msg);
+            }, true)
             setIsRecom(true);
         }
 
@@ -140,19 +154,19 @@ const Player = () => {
             <View style={styles.row2}>
                 <TouchableWithoutFeedback onPress={addRecom}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={isRecom ? require('../../assets/icon_heart2.png') : require('../../assets/icon_heart.png')}></Image>
+                        <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={isRecom ? require('../../assets/icon_heart2.png') : require('../../assets/icon_heart.png')}></Image>
                         <Text style={styles.btnTitle}>点赞</Text>
                     </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={addFav}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={isFav ? require('../../assets/icon_star2.png') : require('../../assets/icon_star.png')}></Image>
+                        <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={isFav ? require('../../assets/icon_star2.png') : require('../../assets/icon_star.png')}></Image>
                         <Text style={styles.btnTitle}>收藏</Text>
                     </View>
                 </TouchableWithoutFeedback>
-                <TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={share}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={require('../../assets/icon_share.png')}></Image>
+                        <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={require('../../assets/icon_share.png')}></Image>
                         <Text style={styles.btnTitle}>分享</Text>
                     </View>
                 </TouchableWithoutFeedback>
@@ -164,7 +178,7 @@ const Player = () => {
                 </TouchableWithoutFeedback> */}
                 <TouchableWithoutFeedback onPress={openChat}>
                     <View style={styles.btn}>
-                        <Image style={styles.btnImg} source={require('../../assets/icon_service.png')}></Image>
+                        <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={require('../../assets/icon_service.png')}></Image>
                         <Text style={styles.btnTitle}>客服</Text>
                     </View>
                 </TouchableWithoutFeedback>
@@ -229,7 +243,7 @@ const Player = () => {
             </View>
 
             <FlatList
-                style={{ backgroundColor: GlobalStyle.sysBg() }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }}
                 data={dataList}
                 renderItem={renderItem}
                 ListHeaderComponent={<HeaderComponent />}
@@ -307,7 +321,7 @@ const styles = StyleSheet.create({
     },
     topBox: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.sysBg(),
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         flex: 1,
     },
     coin: {
@@ -338,7 +352,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     title: {
-        overflow: 'hidden', color: '#000000', fontSize: 14, flex: 1, marginHorizontal: 10, lineHeight: 22
+        overflow: 'hidden', color: GlobalStyle.sysFont(), fontSize: 14, flex: 1, marginHorizontal: 10, lineHeight: 22
     },
     small: {
         fontSize: 14,

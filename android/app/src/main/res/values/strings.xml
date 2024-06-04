@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">草莓</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">DkVyWDx1hlCflxc8KeTYo92brg074ksvOXqog</string>
+    <string moduleConfig="true" name="CodePushServerUrl">http://update1.jmyx01.com:3000</string>
 </resources>

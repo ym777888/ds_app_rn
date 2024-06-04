@@ -32,6 +32,42 @@ const BuyVip = () => {
             return require('../../assets/icon_wx.png')
         } else if (icon == "2") {
             return require('../../assets/icon_alipay.png')
+        } else if (icon == "3") {
+            return require('../../assets/icon_union.png')
+        } else if (icon == "4") {
+            return require('../../assets/icon_manual.png')
+        }
+    }
+
+    const getBtn = (icon) => {
+        if (icon == "1") {
+            return (
+                <View style={styles.pay1}>
+                    <Image style={styles.iconPay} source={getImg(icon)}></Image>
+                    <Text style={{ color: 'black', fontSize: 14 }}>微信支付</Text>
+                </View>
+            )
+        } else if (icon == "2") {
+            return (
+                <View style={styles.pay1}>
+                    <Image style={styles.iconPay} source={getImg(icon)}></Image>
+                    <Text style={{ color: 'black', fontSize: 14 }}>支付宝支付</Text>
+                </View>
+            )
+        } else if (icon == "3") {
+            return (
+                <View style={styles.pay1}>
+                    <Image style={styles.iconPay} source={getImg(icon)}></Image>
+                    <Text style={{ color: 'black', fontSize: 14 }}>银联支付</Text>
+                </View>
+            )
+        } else if (icon == "4") {
+            return (
+                <View style={styles.pay2}>
+                    <Image style={styles.iconPay} source={getImg(icon)}></Image>
+                    <Text style={{ color: 'white', fontSize: 14 }}>人工充值</Text>
+                </View>
+            )
         }
     }
 
@@ -85,7 +121,9 @@ const BuyVip = () => {
             if (data.payUrl) {
                 openLink(data.payUrl);
             }
-        })
+        },(msg,data)=>{
+            Util.showToast(msg);
+        },true)
     }
 
     const checkOrder = () => {
@@ -155,7 +193,7 @@ const BuyVip = () => {
         return (
             <View style={styles.headerContainer}>
                 <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
-                <Text style={{ fontSize: 16, color: 'black', fontWeight: 'bold', marginLeft: 8 }}>购买会员</Text>
+                <Text style={{ fontSize: 16, color: GlobalStyle.sysFont(), fontWeight: 'bold', marginLeft: 8 }}>购买会员</Text>
             </View>
         );
     };
@@ -185,10 +223,7 @@ const BuyVip = () => {
     const renderPayItem = ({ item, index }) => {
         return (
             <TouchableWithoutFeedback onPress={() => { getOrderNo(item.id) }}>
-                <View style={item.icon == "1" ? styles.wx : styles.ali}>
-                    <Image style={styles.iconPay} source={getImg(item.icon)}></Image>
-                    <Text style={{ color: 'white', fontSize: 14 }}>{item.icon == "1" ? '微信' : '支付宝'}支付{index + 1}</Text>
-                </View>
+                {getBtn(item.icon)}
             </TouchableWithoutFeedback>
         );
     }
@@ -218,7 +253,7 @@ const BuyVip = () => {
                 <Text style={styles.num}>{userInfo != null ? Util.getVip(userInfo.vipTime) : Util.getVip(RNStorage.userInfo.vipTime)}</Text>
             </View>
             <FlatList
-                style={{ backgroundColor: GlobalStyle.sysBg() }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }}
                 data={listData}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -236,7 +271,7 @@ const BuyVip = () => {
                         </TouchableWithoutFeedback>
                         <View style={styles.popTitle}><Text style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}>选择支付方式:</Text></View>
                         <FlatList
-                            style={{ backgroundColor: GlobalStyle.sysBg(), marginTop: 20 }}
+                            style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), marginTop: 20 }}
                             data={payListData}
                             renderItem={renderPayItem}
                             keyExtractor={(item, index) => index.toString()}
@@ -260,7 +295,7 @@ const styles = StyleSheet.create({
     box: {
         flex: 1,
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.sysBg()
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark)
     },
     row: {
         margin: GlobalStyle.marginTop,
@@ -393,5 +428,25 @@ const styles = StyleSheet.create({
     tip: {
         color: '#FF6666',
         fontSize: 14
+    },
+    pay1: {
+        flexDirection: 'row',
+        backgroundColor: '#ffffff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '47%',
+        borderRadius: 45,
+        height: 34,
+        borderColor: '#000000',
+        borderWidth: 1,
+    },
+    pay2: {
+        flexDirection: 'row',
+        backgroundColor: '#cc3333',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '47%',
+        borderRadius: 45,
+        height: 34,
     }
 });

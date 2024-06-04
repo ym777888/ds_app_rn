@@ -60,7 +60,7 @@ const Category = () => {
 
 
     const renderHeader = () => {
-        const arr = RNStorage.info.clipType.split(',');
+        const arr = RNStorage.info?.clipType?.split(',');
         let btnBox = [];
         for (let i = 0; i < arr.length; i++) {
             btnBox.push(
@@ -161,7 +161,7 @@ const Category = () => {
             {hideButton && (<NavTitle nav={navigation} title={title} />)}
             <FlatList
                 ref={flatListRef}
-                style={{ backgroundColor: GlobalStyle.sysBg(), }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
                 data={dataList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
         padding: 0,
         flexDirection: 'column',
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     btn: {
         backgroundColor: '#dddddd',

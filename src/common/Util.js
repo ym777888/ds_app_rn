@@ -11,41 +11,46 @@ export default class Util {
 
     //----------------------------HTTP REQUEST
 
-    static SITE_INFO = 'dsapp/siteInfo'; //检查手机号是否可用
-    static CLIP_TYPE = 'dsapp/getClipType'; //分类
-    static CLIP_TYPE_DATA = 'dsapp/getClipTypeData'; //获取一部分分类及数据
-    static CLIP_DATA = 'dsapp/clipData'; //片库
-    static CLIP_KEY = 'dsapp/getRandByKey'; //关键字随机
-    static CLIP_MAX_PAGE = 'dsapp/getClipPageMax'; //最大页数
-    static LOGIN = 'dsapp/login'; //注册登录
-    static LOGOUT = 'dsapp/logout'; //退出
-    static USER_INFO = 'dsapp/userInfo'; //用户信息
-    static USER_PASSWORD = 'dsapp/updatePassword'; //修改密码
-    static USER_ADDRESS = 'dsapp/getAddress'; //用户地址
-    static UPDATE_ADDRESS = 'dsapp/updateAddress'; //修改用户地址
-    static CHECK_BUY = 'dsapp/checkBuy'; //是否购买
-    static PRODUCT_LIST = 'dsapp/getProductList'; //商品列表
-    static PAY_LIST = 'dsapp/getPayChannel'; //支付通道
-    static PAY_ORDER_NO = 'dsapp/getOrderNo'; //下单
-    static CHECK_ORDER_PAY = 'dsapp/checkOrder'; //订单支付状态
-    static HISTORY_LIST = 'dsapp/getHistoryList'; //购买历史
-    static ADD_FAV = 'dsapp/addFav'; //收藏
-    static DEL_FAV = 'dsapp/delFav'; //取消收藏
-    static CLEAR_FAV = 'dsapp/clearFav'; //清除收藏
-    static FAV_LIST = 'dsapp/getFavList'; //收藏列表
-    static ADD_RECOM = 'dsapp/addRecom'; //点赞
-    static DEL_RECOM = 'dsapp/delRecom'; //点赞
-    static CLEAR_RECOM = 'dsapp/clearRecom'; //清除点赞
-    static RECOM_LIST = 'dsapp/getRecomList'; //点赞列表
-    static CHECK_FAV_RECOM = 'dsapp/checkFavRecom'; //检测点赞收藏
-    static MORE_LIST = 'dsapp/getMoreList'; //推荐播放
-    static TRANS_DIAMOND = 'dsapp/transDiamond'; //转账钻石
-    static WATER_LIST = 'dsapp/getWaterList'; //钻石流水
-    static MESSAGE_LIST = 'dsapp/getMessageList'; //消息列表
-    static CLEAR_MESSAGE = 'dsapp/clearMessage'; //清除消息列表
-    static READ_ALL_MESSAGE = 'dsapp/readAllMessage'; //全部已读
-    
-
+    static SITE_INFO = '/dsapp/siteInfo'; //检查手机号是否可用
+    static CLIP_TYPE = '/dsapp/getClipType'; //分类
+    static CLIP_TYPE_DATA = '/dsapp/getClipTypeData'; //获取一部分分类及数据
+    static CLIP_DATA = '/dsapp/clipData'; //片库
+    static CLIP_KEY = '/dsapp/getRandByKey'; //关键字随机
+    static CLIP_MAX_PAGE = '/dsapp/getClipPageMax'; //最大页数
+    static LOGIN = '/dsapp/login'; //注册登录
+    static LOGOUT = '/dsapp/logout'; //退出
+    static USER_INFO = '/dsapp/userInfo'; //用户信息
+    static USER_PASSWORD = '/dsapp/updatePassword'; //修改密码
+    static USER_ADDRESS = '/dsapp/getAddress'; //用户地址
+    static UPDATE_ADDRESS = '/dsapp/updateAddress'; //修改用户地址
+    static CHECK_BUY = '/dsapp/checkBuy'; //是否购买
+    static PRODUCT_LIST = '/dsapp/getProductList'; //商品列表
+    static PAY_LIST = '/dsapp/getPayChannel'; //支付通道
+    static PAY_ORDER_NO = '/dsapp/getOrderNo'; //下单
+    static CHECK_ORDER_PAY = '/dsapp/checkOrder'; //订单支付状态
+    static HISTORY_LIST = '/dsapp/getHistoryList'; //购买历史
+    static ADD_FAV = '/dsapp/addFav'; //收藏
+    static DEL_FAV = '/dsapp/delFav'; //取消收藏
+    static CLEAR_FAV = '/dsapp/clearFav'; //清除收藏
+    static FAV_LIST = '/dsapp/getFavList'; //收藏列表
+    static ADD_RECOM = '/dsapp/addRecom'; //点赞
+    static DEL_RECOM = '/dsapp/delRecom'; //点赞
+    static CLEAR_RECOM = '/dsapp/clearRecom'; //清除点赞
+    static RECOM_LIST = '/dsapp/getRecomList'; //点赞列表
+    static CHECK_FAV_RECOM = '/dsapp/checkFavRecom'; //检测点赞收藏
+    static MORE_LIST = '/dsapp/getMoreList'; //推荐播放
+    static TRANS_DIAMOND = '/dsapp/transDiamond'; //转账钻石
+    static EXCHANGE_DIAMOND = '/dsapp/exchangeDiamond'; //APP兑换游戏币
+    static WATER_LIST = '/dsapp/getWaterList'; //钻石流水
+    static MESSAGE_LIST = '/dsapp/getMessageList'; //消息列表
+    static CLEAR_MESSAGE = '/dsapp/clearMessage'; //清除消息列表
+    static READ_ALL_MESSAGE = '/dsapp/readAllMessage'; //全部已读
+    static GIFT_LIST = '/dsapp/getGiftList'; //商品列表
+    static BUY_GIFT = '/dsapp/buyGift'; //兑换商品
+    static DELIVERY_LIST = '/dsapp/getDeliveryList'; //兑换列表
+    static GET_ADV = '/dsapp/getAdv'; //广告
+    static GET_BANK_CARD = '/dsapp/getBankCard'; //银行卡
+    static SAVE_BANK_CARD = '/dsapp/saveBankCard'; //保存银行卡
 
 
     //----------------------------HTTP REQUEST
@@ -210,10 +215,10 @@ export default class Util {
     }
 
     static getVip = (time) => {
-        
+
         let cur = new Date().getTime()
-        console.log("getVip",time);
-        console.log("cur",cur);
+        console.log("getVip", time);
+        console.log("cur", cur);
         time = time || 0
 
         if (time > cur) {
@@ -267,7 +272,7 @@ export default class Util {
     }
 
     static getThumb = (url) => {
-        if (url == null || url.length == 0) {
+        if (url == null || url == "" || url.length == 0) {
             return Util.iconList['loading'];
         } else if (url.indexOf('http') == 0) {
             return { uri: url };

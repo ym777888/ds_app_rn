@@ -50,7 +50,11 @@ const DailyItem = React.memo(({ data = {}, nav = {}, index, btn1Callback, btn2Ca
                         source={Util.getThumb(itemData.thumb)}
                         resizeMode={FastImage.resizeMode.cover}
                     />
-                    <Text style={GlobalStyle.title2} numberOfLines={2}>{itemData.title}</Text>
+                    <Text style={{
+                        fontSize: 14,
+                        color: GlobalStyle.sysFont(),
+                        lineHeight: 22,
+                    }} numberOfLines={2}>{itemData.title}</Text>
                     {priceBadge(itemData.price)}
                 </View>
             </View>
@@ -60,7 +64,12 @@ const DailyItem = React.memo(({ data = {}, nav = {}, index, btn1Callback, btn2Ca
     return (
         <View style={{ marginTop: GlobalStyle.marginTop }}>
             <View style={styles.sectionHeader}>
-                <Text style={GlobalStyle.title1}>{data.title}</Text>
+                <Text style={{
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    color: GlobalStyle.sysFont(),
+                    lineHeight: 24,
+                }}>{data.title}</Text>
                 <TouchableWithoutFeedback onPress={() => { btn1Callback(data.title); }}>
                     <Text style={styles.more}>更多 &gt;</Text>
                 </TouchableWithoutFeedback>

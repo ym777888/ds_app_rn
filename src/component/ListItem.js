@@ -50,7 +50,11 @@ const ListItem = React.memo(({ data = {}, nav = {}, index }) => {
                             source={Util.getThumb(data.thumb)}
                             resizeMode={FastImage.resizeMode.cover}
                         />
-                        <Text style={GlobalStyle.title2} numberOfLines={2}>{data.title}</Text>
+                        <Text style={{
+                                fontSize: 14,
+                                color: GlobalStyle.sysFont(),
+                                lineHeight: 22,
+                        }} numberOfLines={2}>{data.title}</Text>
                         {priceBadge(data.price)}
                     </View>
                 </View>
@@ -81,7 +85,7 @@ const styles = StyleSheet.create({
     },
     listItem: {
         flexDirection: 'column',
-        backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         marginVertical: 8,
         width: width * 0.5,
     },

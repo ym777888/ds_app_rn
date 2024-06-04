@@ -33,7 +33,7 @@ const Address = () => {
         HttpUtil.postReq(Util.USER_ADDRESS, req, (msg, data) => {
             if (data) {
                 setAddress(data.address);
-                setName(data.guestName);
+                setName(data.name);
                 setPhone(data.phone);
             }
 

@@ -102,9 +102,9 @@ const styles = StyleSheet.create({
         padding: 0,
     },
     row: {
-        margin: GlobalStyle.marginTop,
         flexDirection: 'column',
-        marginHorizontal: 10,
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+        flex: 1,
     },
     btn: {
 

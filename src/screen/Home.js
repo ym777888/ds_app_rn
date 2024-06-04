@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Image, View, Text, StyleSheet, TextInput, ImageBackground, TouchableWithoutFeedback } from 'react-native';
+import { Image, View, Text, StyleSheet, TextInput, ImageBackground, TouchableWithoutFeedback,useColorScheme } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useRoute, useNavigation } from '@react-navigation/native';
 
+
 import { GlobalStyle } from "../common/GlobalStyle";
 import { RNStorage } from "../common/RNStorage";
+import { ThemeProvider, useTheme } from '../common/ThemeContext'
+
 import HttpUtil, { BASE_URL } from "../common/HttpUtil";
 import Util from "../common/Util";
 import Settings from "./Settings";
@@ -16,7 +19,7 @@ import Game from "./Game";
 import Book from "./Book";
 import Profile from "./Profile";
 import Splash from "./Splash";
-import VIP from "./VIP";
+import Gift from "./Gift";
 import Novel from "./Novel";
 import Category from "./Category";
 import Player from "./Player";
@@ -34,6 +37,14 @@ import Search from "./Search";
 import Password from "./Password";
 import Address from "./Address";
 import Message from "./Message";
+import WebPage from "./WebPage";
+import Info from "./Info";
+import MyGift from "./MyGift";
+import Share from "./Share";
+import BindBank from "./BindBank";
+import BindAlipay from "./BindAlipay";
+
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,18 +52,18 @@ const TopTab = createMaterialTopTabNavigator();
 
 function loadSiteInfo() {
     const [isGame, setIsGame] = useState(false);
-    const [isVIP, setIsVIP] = useState(false);
+    const [isGift, setIsGift] = useState(false);
     const [dataFetched, setDataFetched] = useState(false);
-
-
+    const [more, setMore] = useState([]);
     useEffect(() => {
         HttpUtil.postFetch(
             BASE_URL + Util.SITE_INFO,
             {},
             (msg, data) => {
                 setIsGame(data.isGame);
-                setIsVIP(data.isVIP);
+                setIsGift(data.isGift);
                 setDataFetched(true);
+                setMore(data.more);
                 RNStorage.info = data;
             },
             (msg) => { },
@@ -62,7 +73,7 @@ function loadSiteInfo() {
 
     }, []);
 
-    return { isGame, isVIP, dataFetched };
+    return { isGame, isGift, dataFetched, more };
 }
 
 
@@ -124,7 +135,7 @@ function MyTopTabs() {
                 screenOptions={{
                     tabBarActiveTintColor: GlobalStyle.sysFont(),
                     tabBarLabelStyle: { fontSize: 16, },
-                    tabBarStyle: { backgroundColor: GlobalStyle.sysBg(), elevation: 0, },
+                    tabBarStyle: { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), elevation: 0, },
                     tabBarIndicatorStyle: { backgroundColor: 'red', },
                 }}
             >
@@ -209,6 +220,30 @@ function ProfileStack() {
                 }}
             />
 
+            <Stack.Screen
+                name="MyGift"
+                component={MyGift}
+                options={{
+                    title: 'MyGift',
+                }}
+            />
+            <Stack.Screen
+                name="BindBank"
+                component={BindBank}
+                options={{
+                    title: 'BindBank',
+                }}
+            />
+
+            <Stack.Screen
+                name="BindAlipay"
+                component={BindAlipay}
+                options={{
+                    title: 'BindAlipay',
+                }}
+            />
+
+
         </Stack.Navigator>
 
     );
@@ -216,8 +251,30 @@ function ProfileStack() {
 
 //底部tab
 function MyTabs() {
+    const isDarkMode = useTheme();
+    const { isGame, isGift, dataFetched, more } = loadSiteInfo();
+    let moreBox = [];
+    for (let i = 0; i < more.length; i++) {
+        let cfg = more[i];
+        moreBox.push(
+            <Tab.Screen
+                key={i}
+                name={"More" + i}
+                component={WebPage}
+                initialParams={{ url: cfg.url }}
+                options={{
+                    tabBarLabel: cfg.name,
+                    tabBarIcon: ({ color, size }) => (
+                        <Image
+                            source={require('../../assets/icon_game.png')} // 替换为您的图片路径
+                            style={{ tintColor: color, width: size, height: size }}
+                        />
+                    ),
 
-    const { isGame, isVIP, dataFetched } = loadSiteInfo();
+                }}
+            />
+        )
+    }
     return (
         <Tab.Navigator
             initialRouteName="Index"
@@ -225,7 +282,7 @@ function MyTabs() {
                 tabBarActiveTintColor: '#e91e63',
                 headerShown: false, // 隐藏顶部标题
                 tabBarLabelStyle: { fontSize: 14, height: 22 }, // 调整字体大小
-                tabBarStyle: { height: 50 }
+                tabBarStyle: { height: 50, backgroundColor: GlobalStyle.setBg(isDarkMode) }
             }}
         >
             <Tab.Screen
@@ -254,21 +311,6 @@ function MyTabs() {
                     )
                 }}
             />
-            {isVIP && (
-                <Tab.Screen
-                    name="VIP"
-                    component={VIP}
-                    options={{
-                        tabBarLabel: 'VIP',
-                        tabBarIcon: ({ color, size }) => (
-                            <Image
-                                source={require('../../assets/icon_vip.png')} // 替换为您的图片路径
-                                style={{ tintColor: color, width: size, height: size }}
-                            />
-                        ),
-                    }}
-                />
-            )}
             {isGame && (
                 <Tab.Screen
                     name="Game"
@@ -284,7 +326,22 @@ function MyTabs() {
                     }}
                 />
             )}
-
+            {isGift && (
+                <Tab.Screen
+                    name="Gift"
+                    component={Gift}
+                    options={{
+                        tabBarLabel: '礼品',
+                        tabBarIcon: ({ color, size }) => (
+                            <Image
+                                source={require('../../assets/icon_vip.png')} // 替换为您的图片路径
+                                style={{ tintColor: color, width: size, height: size }}
+                            />
+                        ),
+                    }}
+                />
+            )}
+            {moreBox}
             <Tab.Screen
                 name="ProfileStack"
                 component={ProfileStack}
@@ -387,6 +444,30 @@ function MyStack() {
                     title: 'All',
                 }}
             />
+            <Stack.Screen
+                name="WebPage"
+                component={WebPage}
+                options={{
+                    title: 'WebPage',
+                }}
+            />
+
+            <Stack.Screen
+                name="Info"
+                component={Info}
+                options={{
+                    title: 'Info',
+                }}
+            />
+
+            <Stack.Screen
+                name="Share"
+                component={Share}
+                options={{
+                    title: 'Share',
+                }}
+            />
+
         </Stack.Navigator>
 
     );
@@ -398,12 +479,13 @@ function MyStack() {
 const styles = StyleSheet.create({
     topBox: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.sysBg(),
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     logoBox: {
         flexDirection: 'row',
         width: 100,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     logo: {
         justifyContent: 'center',
@@ -440,7 +522,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     small: {
-        fontSize: 12, fontWeight: 'bold', color: '#000000'
+        fontSize: 12, fontWeight: 'bold', color: GlobalStyle.sysFont()
     },
     title: {
 

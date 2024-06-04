@@ -41,10 +41,14 @@ const Profile = () => {
     }, []);
 
     const configData = [
-        { id: 1, name: '金币', tip: '免费观看' + userInfo?.user?.coin + '次', value: userInfo?.user?.coin },
-        { id: 2, name: '收货地址', nav: 'Address', value: '' },
-        { id: 3, name: '修改密码', nav: 'Password' },
-        { id: 3, name: '当前版本', value: '1.0' },
+        { id: 1, name: '免费观看', tip: '免费观看' + userInfo?.user?.coin + '次', value: userInfo?.user?.coin },
+        { id: 2, name: '分享好友', nav: 'Share', value: '奖励免费观看' },
+        { id: 3, name: '兑换记录', nav: 'MyGift', value: '' },
+        // { id: 4, name: '收货地址', nav: 'Address', value: '' },
+        { id: 4, name: '绑定银行卡', nav: 'BindBank', value: '' },
+        { id: 5, name: '绑定支付宝', nav: 'BindAlipay', value: '' },
+        { id: 6, name: '修改密码', nav: 'Password' },
+        { id: 7, name: '当前版本', value: '1.0.0' },
     ]
 
     const guestInfo = () => {
@@ -104,7 +108,7 @@ const Profile = () => {
 
     const renderHeader = () => {
         return (
-            <>
+            <View style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark)}}>
                 <View style={[styles.row1, { justifyContent: 'flex-end' }]}>
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate("Message") }}>
                         <View style={{ width: 30, height: 30 }}>
@@ -203,32 +207,32 @@ const Profile = () => {
                     <View style={styles.row}>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'pay', title: '已购' }); }}>
                             <View style={styles.btn2}>
-                                <Image style={styles.btn3Img} source={require('../../assets/icon_cart.png')}></Image>
+                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_cart.png')}></Image>
                                 <Text style={styles.btn2Title}>已购</Text>
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'history', title: '历史' }); }}>
                             <View style={styles.btn2}>
-                                <Image style={styles.btn3Img} source={require('../../assets/icon_history.png')}></Image>
+                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_history.png')}></Image>
                                 <Text style={styles.btn2Title}>历史</Text>
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'recom', title: '点赞' }); }}>
                             <View style={styles.btn2}>
-                                <Image style={styles.btn3Img} source={require('../../assets/icon_heart.png')}></Image>
+                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_heart.png')}></Image>
                                 <Text style={styles.btn2Title}>点赞</Text>
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'fav', title: '收藏' }); }}>
                             <View style={styles.btn2}>
-                                <Image style={styles.btn3Img} source={require('../../assets/icon_star.png')}></Image>
+                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_star.png')}></Image>
                                 <Text style={styles.btn2Title}>收藏</Text>
                             </View>
                         </TouchableWithoutFeedback>
                     </View>
 
                 </View>
-            </>
+            </View>
         );
     };
 
@@ -284,7 +288,8 @@ const styles = StyleSheet.create({
         margin: GlobalStyle.marginTop,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     row2: {
         margin: GlobalStyle.marginTop,
@@ -306,7 +311,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         padding: GlobalStyle.marginTop,
         borderRadius: 15,
-        backgroundColor: RNStorage.isDark ? '#FFFFFF' : '#FFFFFF',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+        borderColor: '#555555',
+        borderWidth: 0.5,
     },
     name: {
         fontSize: 16,

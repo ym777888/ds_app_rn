@@ -46,14 +46,13 @@ const styles = StyleSheet.create({
         height: 40,
         lineHeight: 40,
         marginHorizontal: 15,
-        marginVertical: 5,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 4
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+        borderRadius: 1
     },
 
     lineTitle: {
         fontSize: 14,
-        color: '#000000',
+        color: GlobalStyle.sysFont(),
         marginLeft: 10,
     },
     btn3Img: {

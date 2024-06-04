@@ -147,11 +147,12 @@ const styles = StyleSheet.create({
         lineHeight: 30,
         marginLeft: 5,
         padding: 0,
+        color: GlobalStyle.sysFont(),
     },
     row: {
-        margin: GlobalStyle.marginTop,
         flexDirection: 'column',
-        marginHorizontal: 10,
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+        flex: 1,
     },
     btn: {
 

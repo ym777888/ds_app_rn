@@ -6,6 +6,7 @@ import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
 import DataItem from '../component/DataItem';
 import NavTitle from '../component/NavTitle';
+import { RNStorage } from '../common/RNStorage';
 
 const Water = () => {
     const navigation = useNavigation();
@@ -63,7 +64,9 @@ const Water = () => {
             if (newData.length > 0) {
                 setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
             }
-        })
+        }, (msg, data) => {
+            Util.showToast(msg);
+        }, true)
 
         setRefreshing(false);
     }
@@ -82,7 +85,7 @@ const Water = () => {
         <View style={styles.row}>
             <NavTitle nav={navigation} title={'钻石流水'} />
             <FlatList
-                style={{ backgroundColor: GlobalStyle.sysBg(), }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
                 data={dataList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -105,11 +108,9 @@ export default Water;
 
 const styles = StyleSheet.create({
     row: {
-        padding: GlobalStyle.marginTop,
-        paddingTop: 0,
         flexDirection: 'column',
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
     },
 
 });

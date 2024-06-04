@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         padding: 0,
         flexDirection: 'column',
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
 
     addressBar: {

@@ -6,6 +6,7 @@ import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
 import ListItem from '../component/ListItem';
 import { GlobalStyle } from '../common/GlobalStyle';
+import { RNStorage } from '../common/RNStorage';
 
 const data = [
     { title: '1英冠大结局！莱斯特城成功夺冠，升班马神奇2连跳1英冠大结局！莱斯特城成功夺冠，升班马神奇2连跳1', thumb: '', price: 19 },
@@ -115,7 +116,7 @@ const ClipList = () => {
 
     return (
         <FlatList
-            style={{ backgroundColor: GlobalStyle.sysBg() }}
+            style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }}
             data={data}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}

@@ -47,7 +47,8 @@ const Login = () => {
         let req = {
             phone: phone,
             password: password,
-            code: RNStorage.code ? RNStorage.code : ""
+            code: RNStorage.code ? RNStorage.code : "",
+            puid: RNStorage.puid ? RNStorage.puid : "",
         }
 
         HttpUtil.postReq(Util.LOGIN, req, (msg, data) => {
@@ -114,9 +115,9 @@ const styles = StyleSheet.create({
         padding: 0,
     },
     row: {
-        margin: GlobalStyle.marginTop,
         flexDirection: 'column',
-        marginHorizontal: 10,
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+        flex: 1,
     },
     btn: {
 
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     small: {
-        fontSize: 14, fontWeight: 'bold', color: '#000000', marginVertical: 5
+        fontSize: 14, fontWeight: 'bold', color: GlobalStyle.sysFont(), marginVertical: 5
     },
     small2: {
         fontSize: 12, color: '#555555'

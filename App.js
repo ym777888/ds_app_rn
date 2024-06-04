@@ -4,6 +4,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { XStorage, XHttpConfig } from 'react-native-easy-app';
 import Toast, { DURATION } from 'react-native-easy-toast'
+
+import CodePush from "react-native-code-push";
+
 import EventEmitter from 'eventemitter3';
 
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -14,15 +17,14 @@ import { RNStorage } from './src/common/RNStorage'
 
 import Home from "./src/screen/Home";
 import { GlobalStyle } from './src/common/GlobalStyle';
+import { ThemeProvider, useTheme } from './src/common/ThemeContext'
+
 
 global.eventEmitter = new EventEmitter();
 
 function App() {
     const [isLoading, setIsLoading] = useState(true);
     const isDarkMode = useColorScheme() === 'dark';
-    const backgroundStyle = {
-        backgroundColor: isDarkMode ? GlobalStyle.black : GlobalStyle.white,
-    };
 
     useEffect(() => {
 
@@ -35,39 +37,54 @@ function App() {
             });
         console.log("xhttp initBaseUrl()");
 
-        XStorage.initStorage(RNStorage, AsyncStorage, () => {
-
-            console.log("App initStorage()")
-            // Util.getUniqueId().then((uuid) => {
-            //     RNStorage.uuid = uuid;
-            // });
-
-            if (Platform.OS == "ios" || Platform.OS == "android") {
-
-                // Clipboard.getStringAsync().then((txt) => {
-                //     if (txt.indexOf('SHARE_CODE=') == 0) {
-                //         let shareCode = txt.replace('SHARE_CODE=', '');
-                //         if (shareCode) {
-                //             RNStorage.puid = shareCode
-                //         }
-                //     }
-                // })
-            }
-
-            // RNStorage.appid = Application.applicationId;
-            RNStorage.baseUrl = BASE_URL;
-            RNStorage.isDark = isDarkMode;
-
-        }, (sdata) => {
-            console.log('持久化数据变更:');
-            sdata.map(([keyStr, value]) => {
-                let [, key] = keyStr.split('#');
-                console.log(key, ':', value);
-            });
-            eventEmitter.emit('RNStorageUpdate', sdata);
-        })
 
 
+        const initializeApp = async () => {
+            await XStorage.initStorage(
+                RNStorage,
+                AsyncStorage,
+                async () => {
+                    console.log("App initStorage()");
+
+                    // 设置 RNStorage 参数
+                    if (Platform.OS === "ios" || Platform.OS === "android") {
+                        // 读取剪贴板内容
+                        const clipboardText = await Clipboard.getString();
+                        console.log("clipboardText", clipboardText);
+                        if (clipboardText.indexOf('SHARE_CODE=') === 0) { // SHARE_CODE=600000|13000000000
+                            let shareCode = clipboardText.replace('SHARE_CODE=', '');
+                            if (shareCode.indexOf("|") > 0) {
+                                let arr = shareCode.split("|");
+                                RNStorage.code = arr[0]; //代理邀请码
+                                RNStorage.puid = arr[1]; //推荐人账号
+                            } else {
+                                RNStorage.code = shareCode;
+                                RNStorage.puid = null;
+                            }
+                        }
+                    }
+
+                    // 设置其他 RNStorage 参数
+                    RNStorage.baseUrl = BASE_URL;
+                    RNStorage.isDark = isDarkMode;
+                },
+                (sdata) => {
+                    console.log('持久化数据变更:');
+                    sdata.forEach(([keyStr, value]) => {
+                        let [, key] = keyStr.split('#');
+                        console.log(key, ':', value);
+                    });
+                    eventEmitter.emit('RNStorageUpdate', sdata);
+                }
+            );
+        };
+
+        initializeApp();
+
+        CodePush.sync({
+            installMode: CodePush.InstallMode.IMMEDIATE,
+            updateDialog: true
+        });
 
         // this.getAds(); //闪屏图
         // BugUtil.up('launch|', RNStorage);
@@ -89,18 +106,20 @@ function App() {
 
 
     return (
-        <SafeAreaProvider>
-            <>
-                <StatusBar
-                    barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-                    backgroundColor={backgroundStyle.backgroundColor}
-                />
-                <NavigationContainer>
-                    <Home />
-                </NavigationContainer>
-                <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633'}} style={{ backgroundColor: '#CCFF99'}} />
-            </>
-        </SafeAreaProvider>
+        <ThemeProvider value={isDarkMode}>
+            <SafeAreaProvider>
+                <>
+                    <StatusBar
+                        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                        backgroundColor={GlobalStyle.setBg(RNStorage.isDark)}
+                    />
+                    <NavigationContainer>
+                        <Home />
+                    </NavigationContainer>
+                    <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633' }} style={{ backgroundColor: '#CCFF99' }} />
+                </>
+            </SafeAreaProvider>
+        </ThemeProvider>
     );
 }
 

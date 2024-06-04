@@ -110,7 +110,7 @@ const Search = () => {
             </View>
             <FlatList
                 ref={flatListRef}
-                style={{ backgroundColor: GlobalStyle.sysBg(), }}
+                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
                 data={dataList}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         padding: 0,
         flexDirection: 'column',
         flex: 1,
-        backgroundColor: GlobalStyle.sysBg(),
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     btn: {
         backgroundColor: '#dddddd',
@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 10,
+        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     right: {
         width: 80,
