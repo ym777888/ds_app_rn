@@ -183,7 +183,7 @@ const Player = () => {
                     </View>
                 </TouchableWithoutFeedback>
             </View>
-            <View style={[styles.row,{ justifyContent: 'center'}]}>
+            <View style={[styles.row, { justifyContent: 'center' }]}>
                 {!RNStorage.isLogin && (
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate('Login', { data: {} }); }}>
                         <View style={styles.btn1}><Text style={styles.btn1Title}>注册 | 登录</Text></View>
@@ -232,10 +232,17 @@ const Player = () => {
             )}
 
             <View style={styles.row}>
-                <View style={styles.badge}>
-                    <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')}></Image>
-                    <Text style={styles.money}>{data.price}</Text>
-                </View>
+                {data.price > 0 ? (
+                    <View style={styles.badge}>
+                        <Image style={styles.coin} source={require('../../assets/icon_diamond3.png')}></Image>
+                        <Text style={styles.money}>{data.price}</Text>
+                    </View>
+                ) : (
+                    <View style={styles.badge}>
+                        <Text style={{ fontSize: 12,color: 'white'}}>免费</Text>
+                    </View>
+                )}
+
                 <View style={styles.url}>
                     <Text style={styles.small}>永久网址：</Text>
                     <Text style={styles.small} numberOfLines={1}> {RNStorage.info?.appSite}</Text>

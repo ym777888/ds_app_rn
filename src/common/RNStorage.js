@@ -36,5 +36,6 @@ export const RNStorage = {// 持久化数据列表
     isDark: false,
     info: {}, //站点信息
     minPrice: 0,
-    maxPrice: 0
+    maxPrice: 0,
+    logcat: [],
 };

@@ -20,3 +20,6 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 cd android
 gradlew clean
 gradlew assembleRelease
+
+
+yarn android --mode release

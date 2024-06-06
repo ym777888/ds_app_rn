@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Image, View, Text, StyleSheet, TextInput, ImageBackground, TouchableWithoutFeedback,useColorScheme } from 'react-native';
+import { Image, View, Text, StyleSheet, TextInput, ImageBackground, TouchableWithoutFeedback, useColorScheme } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -10,7 +10,7 @@ import { GlobalStyle } from "../common/GlobalStyle";
 import { RNStorage } from "../common/RNStorage";
 import { ThemeProvider, useTheme } from '../common/ThemeContext'
 
-import HttpUtil, { BASE_URL } from "../common/HttpUtil";
+import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
 import Settings from "./Settings";
 import Index from "./Index";
@@ -43,6 +43,7 @@ import MyGift from "./MyGift";
 import Share from "./Share";
 import BindBank from "./BindBank";
 import BindAlipay from "./BindAlipay";
+import Logcat from "./Logcat";
 
 
 
@@ -56,8 +57,10 @@ function loadSiteInfo() {
     const [dataFetched, setDataFetched] = useState(false);
     const [more, setMore] = useState([]);
     useEffect(() => {
+
+
         HttpUtil.postFetch(
-            BASE_URL + Util.SITE_INFO,
+            RNStorage.baseUrl + Util.SITE_INFO,
             {},
             (msg, data) => {
                 setIsGame(data.isGame);
@@ -243,6 +246,13 @@ function ProfileStack() {
                 }}
             />
 
+            <Stack.Screen
+                name="Logcat"
+                component={Logcat}
+                options={{
+                    title: 'Logcat',
+                }}
+            />
 
         </Stack.Navigator>
 

@@ -5,11 +5,6 @@ import Util from './Util'
 import * as Base64 from 'js-base64'
 import { XHttp } from 'react-native-easy-app';
 
-const DEV_URL = "http://192.168.100.24/api";
-const DIST_URL = "http://api.jmyx01.com/api";
-
-export const BASE_URL = __DEV__ ? DEV_URL : DIST_URL;
-
 export default class HttpUtil {
 
     static postReq = (reqUrl, req={}, callback=null, failCallback=null, isMute=false) => {
@@ -21,7 +16,7 @@ export default class HttpUtil {
 
         if (__DEV__) {
             console.log('-----------------------------------------------------');
-            console.log('request url:', BASE_URL + reqUrl);
+            console.log('request url:', RNStorage.baseUrl + reqUrl);
             console.log('request data:', str);
             console.log('time:',tm);
             console.log('-----------------------------------------------------');

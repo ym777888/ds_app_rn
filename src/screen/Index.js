@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FlatList, Text, View, StyleSheet, RefreshControl, Image, TouchableWithoutFeedback, Dimensions } from 'react-native';
+import { FlatList, Text, View, StyleSheet, RefreshControl, Image, TouchableWithoutFeedback, Dimensions, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { WebView } from 'react-native-webview';
@@ -50,12 +50,28 @@ const Index = () => {
     const [showPop, setShowPop] = useState(false);
     const [ads, setAds] = useState(null);
     const navigation = useNavigation();
+    const [freeClip, setFreeClip] = useState(null);
 
 
     useEffect(() => {
         getAds()
+        getDailyFree();
         queryDataList();
     }, []);
+
+
+    const getDailyFree = (key) => {
+
+        let req = {
+            code: RNStorage.code ? RNStorage.code : ""
+        }
+
+        HttpUtil.postReq(Util.DAILY_FREE, req, (msg, data) => {
+            if (data) {
+                setFreeClip(data);
+            }
+        })
+    }
 
     const getAds = () => {
         let req = {
@@ -63,7 +79,7 @@ const Index = () => {
         }
 
         HttpUtil.postReq(Util.GET_ADV, req, (msg, data) => {
-            if (data != null && data!= "") {
+            if (data != null && data != "") {
                 setShowPop(true);
                 data.content = `<!DOCTYPE html>
                 <html lang="zh">
@@ -75,7 +91,7 @@ const Index = () => {
                     <meta http-equiv="Expires" content="0">
                 </head>
                 <body>`+ data.content + `</body></html>`;
-                
+
                 setAds(data);
             }
         }, (msg, data) => { }, true);
@@ -104,11 +120,6 @@ const Index = () => {
         }, 10000);
     };
 
-    const renderSectionHeader = ({ section }) => (
-        <View style={styles.sectionHeader}>
-            <Text style={{ color: GlobalStyle.black, fontWeight: 'bold', fontSize: GlobalStyle.textFont }}>{section.title}</Text>
-        </View>
-    );
 
     //查看更多
     const btn1Click = (key) => {
@@ -149,7 +160,29 @@ const Index = () => {
     };
 
 
+    const renderHeader = () => {
+        return (freeClip && <TouchableWithoutFeedback onPress={() => { navigation.navigate('Player', { data: freeClip }); }}>
+            <View style={styles.free}>
+                <Text style={{ color: GlobalStyle.sysFont(), fontWeight: 'bold', fontSize: 16 }}>今日免费</Text>
+                <View style={{ width: width }}>
+                    <ImageBackground style={{ width: width, height: width * Util.HEIGHT_RATIO }} source={Util.getThumb(freeClip.thumb)}
+                        resizeMode={FastImage.resizeMode.cover}>
+                        <View style={styles.mask}>
+                            <Image tintColor={'#FFFFFF'} resizeMode='contain' style={{ width: 120, height: 60, opacity: 0.7 }} source={require('../../assets/icon_clip.png')}></Image>
+                        </View>
+                    </ImageBackground>
+                    <View style={styles.box}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: GlobalStyle.sysFont(),
+                            lineHeight: 22,
+                        }} numberOfLines={1}>{freeClip.title}</Text>
+                    </View>
+                </View>
+            </View>
+        </TouchableWithoutFeedback>)
 
+    }
 
 
     return (
@@ -167,6 +200,7 @@ const Index = () => {
                         onRefresh={onRefresh}
                     />
                 }
+                ListHeaderComponent={renderHeader}
             />
             {showPop && (
                 <View style={styles.modalBg}>
@@ -252,7 +286,16 @@ const styles = StyleSheet.create({
 
         borderColor: 'red',
         borderWidth: 1
-    }
+    },
+    free: {
+        marginTop: 15
+    },
+    mask: {
+        backgroundColor: '#00000044',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 });
 
 export default Index;

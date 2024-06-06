@@ -51,6 +51,7 @@ export default class Util {
     static GET_ADV = '/dsapp/getAdv'; //广告
     static GET_BANK_CARD = '/dsapp/getBankCard'; //银行卡
     static SAVE_BANK_CARD = '/dsapp/saveBankCard'; //保存银行卡
+    static DAILY_FREE = '/dsapp/getDailyFree'; //今日免费
 
 
     //----------------------------HTTP REQUEST
@@ -58,6 +59,7 @@ export default class Util {
     static DEVICE_ID = "DEVICE_ID";
     static PAGE_SIZE = 10;
     static HEIGHT_RATIO = 0.53; //图片高度占宽度比例
+    static DEF_CODE = 600000; //默认代理
 
     static iconList = {
         "coin": require('../../assets/icon_coin3.png'),

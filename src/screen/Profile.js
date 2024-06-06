@@ -8,6 +8,8 @@ import HttpUtil from '../common/HttpUtil';
 import Util from "../common/Util";
 import CellItem from '../component/CellItem';
 
+const packageJson = require('../../package.json');
+
 const { width } = Dimensions.get('window');
 
 const Profile = () => {
@@ -15,6 +17,7 @@ const Profile = () => {
     const [isLogin, setIsLogin] = useState(RNStorage.isLogin);
     const [userInfo, setUserInfo] = useState({});
     const subscription = useRef(null);
+    const [showLog,setShowLog] = useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -48,7 +51,7 @@ const Profile = () => {
         { id: 4, name: '绑定银行卡', nav: 'BindBank', value: '' },
         { id: 5, name: '绑定支付宝', nav: 'BindAlipay', value: '' },
         { id: 6, name: '修改密码', nav: 'Password' },
-        { id: 7, name: '当前版本', value: '1.0.0' },
+        { id: 7, name: '当前版本', value: packageJson.version },
     ]
 
     const guestInfo = () => {
@@ -105,6 +108,12 @@ const Profile = () => {
     const renderItem = ({ item, index }) => {
         return <CellItem data={item} nav={navigation} index={index} />
     };
+
+    const renderFooter = () => {
+        return (showLog&&<View>
+            <Text>111</Text>
+        </View>)
+    }
 
     const renderHeader = () => {
         return (
@@ -244,6 +253,7 @@ const Profile = () => {
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
                 ListHeaderComponent={renderHeader}
+                ListFooterComponent={renderFooter}
             />
         </View>
     );
