@@ -7,7 +7,7 @@ import { XHttp } from 'react-native-easy-app';
 
 export default class HttpUtil {
 
-    static postReq = (reqUrl, req={}, callback=null, failCallback=null, isMute=false) => {
+    static postReq = (reqUrl, req = {}, callback = null, failCallback = null, isMute = false) => {
         let params = req;
         let tm = new Date().getTime();
         params.t = tm;
@@ -18,7 +18,7 @@ export default class HttpUtil {
             console.log('-----------------------------------------------------');
             console.log('request url:', RNStorage.baseUrl + reqUrl);
             console.log('request data:', str);
-            console.log('time:',tm);
+            console.log('time:', tm);
             console.log('-----------------------------------------------------');
         }
 
@@ -28,11 +28,6 @@ export default class HttpUtil {
             .header({ 'token': RNStorage.token || '' })
             .param(params).post((result) => {
                 let { success, response, json, status, error } = result
-                // console.log(result)
-                if (__DEV__) {
-                    // console.log('=========================================================== result ===========================================================');
-                    // console.log(result)
-                }
 
                 if (success) {
                     if (json.cipher) {
@@ -44,20 +39,26 @@ export default class HttpUtil {
 
                     if (__DEV__) {
                         console.log("=======================================================>START JSON RESP:" + tm)
-                        console.log(JSON.stringify(ret));
+                        console.log(ret);
                         console.log("=======================================================>END JSON RESP:" + tm);
                     }
 
                     if (ret.code == 200) {
-                        if(callback){
+                        if (callback) {
                             callback(ret.msg, ret.data)
                         }
                     } else {
+
                         if (failCallback) {
                             failCallback(ret.msg, ret.code)
                         }
-                        if(!isMute){
-                            Util.msg(ret.msg)
+
+                        if (!isMute) {
+                            if (ret.msg.indexOf('登录') >= 0) { //全局登录弹窗
+                                Util.showLoginModal();
+                            } else {
+                                Util.showToast(ret.msg);
+                            }
                         }
                     }
 
@@ -65,8 +66,8 @@ export default class HttpUtil {
                     if (failCallback) {
                         failCallback('服务器连接失败', status)
                     }
-                    if(!isMute && ret){
-                        Util.msg(ret.msg)
+                    if (!isMute && ret) {
+                        Util.showToast(ret.msg)
                     }
                 }
             })
@@ -121,7 +122,7 @@ export default class HttpUtil {
                         var rs = JSON.parse(txt);
                         if (rs.cipher) {
                             json = HttpUtil.decrypt(rs.cipher);
-                        }else{
+                        } else {
                             json = rs;
                         }
                     }
@@ -146,7 +147,7 @@ export default class HttpUtil {
                     if (failCallback) {
                         failCallback('服务器连接失败', err)
                     } else if (!isMute) {
-                        Util.msg('服务器连接失败!\n'+fullPath)
+                        Util.msg('服务器连接失败!\n' + fullPath)
                     }
                     reject(err);
                 });

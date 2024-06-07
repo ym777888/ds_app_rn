@@ -5,7 +5,8 @@ import { RNStorage } from './RNStorage'
 import { v4 as uuidv4 } from 'uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
-
+import { ModalManager } from './ModalManager';
+import { navigate } from './NavigationService';
 
 export default class Util {
 
@@ -68,87 +69,11 @@ export default class Util {
         'loading': require('../../assets/loading.png'),
     }
 
-    static msg(txt) {
+    static alert(txt) {
         if (Platform.OS === 'web') {
             alert(txt)
         } else {
             Alert.alert("", txt)
-        }
-    }
-
-    static timer = null;
-    static showModal(root, txt, onClose) {
-        let mv = (
-            <Modal onRequestClose={() => { }} transparent visible={true}>
-                <View style={commonStyle.modalBox}>
-                    <View style={commonStyle.modalStyle}>
-                        <Text style={{ textAlign: 'center' }}>{txt}</Text>
-                    </View>
-                </View>
-            </Modal>
-        )
-
-        root.setState({
-            modalView: mv
-        })
-        this.timer = setTimeout(() => {
-            root.setState({
-                modalView: <View />
-            }, () => {
-                if (onClose != null) {
-                    clearTimeout(this.timer);
-                    this.timer = null;
-                    onClose();
-                }
-            })
-
-        }, 1000);
-    }
-
-    static showIndicator(root, txt, countdown) {
-        if (countdown == null) {
-            countdown = 20000;
-        }
-        let mv = (
-            <Modal onRequestClose={() => { }} transparent visible={true}>
-                <View style={commonStyle.modalBox}>
-                    <View style={commonStyle.modalStyle2}>
-                        <ActivityIndicator size="small" color="white" />
-                        <Text style={commonStyle.indicatorTxt}>{txt != null ? txt : ''}</Text>
-                    </View>
-                </View>
-            </Modal>
-        )
-
-        root.setState({
-            modalView: mv
-        })
-        this.timer = setTimeout(() => {
-            if (root == null) {
-                clearTimeout(this.timer);
-                return;
-            }
-            root.setState({
-                modalView: <View />
-            })
-        }, countdown);
-    }
-
-    static hideIndicator(root, callback) {
-        this.clear();
-        root.setState({
-            modalView: <View />
-        }, () => {
-            if (callback) {
-                callback()
-            }
-        })
-
-    }
-
-    static clear() {
-        if (this.timer) {
-            clearTimeout(this.timer)
         }
     }
 
@@ -306,7 +231,7 @@ export default class Util {
         return str;
     }
 
-    static showToast = (txt, duration = 500, callback) => {
+    static showToast = (txt, duration = 800, callback) => {
         //style={{ backgroundColor: '#009966' }} textStyle={{ color: 'white' }}
         if (global.toastRef) {
             global.toastRef.show(txt, duration, callback);
@@ -331,5 +256,15 @@ export default class Util {
             },
             newMsg: false
         }
+    }
+
+    static showLoginModal = () => {
+        ModalManager.showModal(
+            '当前操作需要登录账号',
+            '确定',
+            ()=>{ navigate("Login") },
+            '关闭',
+            null
+          )
     }
 }

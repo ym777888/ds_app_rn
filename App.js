@@ -4,7 +4,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { XStorage, XHttpConfig } from 'react-native-easy-app';
 import Toast, { DURATION } from 'react-native-easy-toast';
-import { openSettings } from 'react-native-permissions';
 
 import Util from "./src/common/Util";
 import Config from 'react-native-config';
@@ -20,6 +19,10 @@ import { RNStorage } from './src/common/RNStorage';
 import Home from "./src/screen/Home";
 import { GlobalStyle } from './src/common/GlobalStyle';
 import { ThemeProvider, useTheme } from './src/common/ThemeContext';
+
+import { ModalProvider, ModalManager } from "./src/common/ModalManager";
+import ModalDialog from "./src/common/ModalDialog";
+
 
 global.eventEmitter = new EventEmitter();
 //.env 里面设置
@@ -44,7 +47,7 @@ function App() {
         setMsg('正在连接...');
         try {
             // 发起简单的网络请求检测服务器 API 是否正常
-            let url = RNStorage.baseUrl + "/dsapp/online?t=" + Date.now() + "&code=" + (RNStorage.code ? RNStorage.code : Util.DEF_CODE);
+            let url = RNStorage.baseUrl + Util.SITE_INFO + "?t=" + Date.now() + "&code=" + (RNStorage.code ? RNStorage.code : Util.DEF_CODE);
             console.log("req:", url);
             logtxt.current.push("req:" + url);
             const response = await fetch(url);
@@ -66,6 +69,7 @@ function App() {
                 setFail(true);
                 isServerApiAvailable = false;
             } else {
+                RNStorage.info = resp.data;
                 isServerApiAvailable = true;
             }
 
@@ -228,7 +232,7 @@ function App() {
                     )}
 
                 </View>
-                <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633' }} style={{ backgroundColor: '#CCFF99' }} />
+                <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#003300' }} style={{ backgroundColor: '#CCFF99' }} />
             </>
 
         );
@@ -236,17 +240,20 @@ function App() {
 
     return (
         <ThemeProvider value={isDarkMode}>
+
             <SafeAreaProvider>
-                <>
-                    <StatusBar
-                        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-                        backgroundColor={GlobalStyle.setBg(RNStorage.isDark)}
-                    />
-                    <NavigationContainer>
+                <ModalProvider>
+                    <>
+
+                        <StatusBar
+                            barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                            backgroundColor={GlobalStyle.setBg(RNStorage.isDark)}
+                        />
                         <Home />
-                    </NavigationContainer>
-                    <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633' }} style={{ backgroundColor: '#CCFF99' }} />
-                </>
+                        <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633' }} style={{ backgroundColor: '#CCFF99' }} />
+                        <ModalDialog />
+                    </>
+                </ModalProvider>
             </SafeAreaProvider>
         </ThemeProvider>
     );

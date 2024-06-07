@@ -46,13 +46,15 @@ const Gift = () => {
             RNStorage.userInfo = data.user;
             RNStorage.minPrice = data.minPrice;
             RNStorage.maxPrice = data.maxPrice;
-        }, () => {
+
+        }, (msg) => {
             setUserInfo(Util.nouser());
             RNStorage.userInfo = Util.nouser();
             RNStorage.isLogin = false;
             RNStorage.accessToken = '';
             RNStorage.token = '';
-        }, true);
+            Util.showToast(msg);
+        },true);
     }
 
     const getAddress = () => {
@@ -68,7 +70,7 @@ const Gift = () => {
 
         }, (msg) => {
             Util.showToast(msg);
-        }, true);
+        },true);
     }
 
 

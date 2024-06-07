@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
         padding: GlobalStyle.marginTop,
         borderRadius: 15,
         backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
-        borderColor: '#555555',
+        borderColor: '#cccccc',
         borderWidth: 0.5,
     },
     name: {

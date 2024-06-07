@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from 'react';
+import React, { createRef, useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList, ImageBackground } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Video from 'react-native-video-bilibili';
@@ -7,6 +7,7 @@ import GridItem from '../component/GridItem';
 import { RNStorage } from '../common/RNStorage';
 import HttpUtil from '../common/HttpUtil';
 import Util from "../common/Util";
+import { ModalManager } from '../common/ModalManager';
 
 
 const testData = [
@@ -28,6 +29,7 @@ const Player = () => {
     const [isFav, setIsFav] = useState(false);
     const [isRecom, setIsRecom] = useState(false);
     const [dataList, setDataList] = useState([]);
+    const freeDuration = useRef(0);
 
     useEffect(() => {
         getMoreList();
@@ -50,14 +52,15 @@ const Player = () => {
                 setShowPop(true)
             } else {
                 setShowPop(false)
+                if (data.freeDuration && data.freeDuration > 0) {
+                    freeDuration.current = data.freeDuration;
+                }
                 setClipUrl(data.url);
                 if (msg) {
                     Util.showToast(msg, 1000);
                 }
             }
-        }, (msg, data) => {
-            Util.showToast(msg);
-        }, true)
+        })
     }
 
     //推荐
@@ -95,16 +98,12 @@ const Player = () => {
         if (isFav) {
             HttpUtil.postReq(Util.DEL_FAV, req, (msg, data) => {
 
-            }, (msg, data) => {
-                Util.showToast(msg);
-            }, true)
+            })
             setIsFav(false);
         } else {
             HttpUtil.postReq(Util.ADD_FAV, req, (msg, data) => {
 
-            }, (msg, data) => {
-                Util.showToast(msg);
-            }, true)
+            })
             setIsFav(true);
         }
 
@@ -126,16 +125,12 @@ const Player = () => {
         if (isRecom) {
             HttpUtil.postReq(Util.DEL_RECOM, req, (msg, data) => {
 
-            }, (msg, data) => {
-                Util.showToast(msg);
-            }, true)
+            })
             setIsRecom(false);
         } else {
             HttpUtil.postReq(Util.ADD_RECOM, req, (msg, data) => {
 
-            }, (msg, data) => {
-                Util.showToast(msg);
-            }, true)
+            })
             setIsRecom(true);
         }
 
@@ -145,12 +140,15 @@ const Player = () => {
         navigation.navigate('Chat', { data: {} });
     }
 
+    const onFreeTimeout = (e) => {
+        setCanPlay(false);
+        setClipUrl(null);
+        setShowPop(true);
+    }
+
     const HeaderComponent = () => (
         <View>
-            <View style={styles.row}>
-                <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
-                <Text numberOfLines={2} style={styles.title}>{data.title}</Text>
-            </View>
+
             <View style={styles.row2}>
                 <TouchableWithoutFeedback onPress={addRecom}>
                     <View style={styles.btn}>
@@ -214,6 +212,8 @@ const Player = () => {
                     poster={data.thumb}
                     title={data.title}
                     navigation={navigation}
+                    freeTime={freeDuration.current}
+                    onFreeTimeout={onFreeTimeout}
                 />
             ) : (
 
@@ -239,7 +239,7 @@ const Player = () => {
                     </View>
                 ) : (
                     <View style={styles.badge}>
-                        <Text style={{ fontSize: 12,color: 'white'}}>免费</Text>
+                        <Text style={{ fontSize: 12, color: 'white' }}>免费</Text>
                     </View>
                 )}
 
@@ -247,6 +247,10 @@ const Player = () => {
                     <Text style={styles.small}>永久网址：</Text>
                     <Text style={styles.small} numberOfLines={1}> {RNStorage.info?.appSite}</Text>
                 </View>
+            </View>
+            <View style={styles.row}>
+                <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
+                <Text numberOfLines={2} style={styles.title}>{data.title}</Text>
             </View>
 
             <FlatList
@@ -274,6 +278,9 @@ const Player = () => {
                             <View style={[styles.btnBuy, { backgroundColor: '#FF9900' }]}>
                                 <Text style={styles.btnBuyTxt}>购买会员</Text>
                             </View>
+                        </TouchableWithoutFeedback>
+                        <TouchableWithoutFeedback onPress={() => { navigation.navigate('Share', { data: {} }); }}>
+                            <Text style={{ color: 'red', marginTop: 20}}>邀请好友注册，奖励免费观看 &gt;&gt;</Text>
                         </TouchableWithoutFeedback>
                     </View>
                 </View>
@@ -397,7 +404,7 @@ const styles = StyleSheet.create({
         height: 40,
         backgroundColor: '#0099CC',
         justifyContent: 'center',
-        marginVertical: 10,
+        marginVertical: 5,
         alignItems: 'center',
         borderRadius: 10
     },

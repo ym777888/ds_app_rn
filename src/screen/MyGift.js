@@ -61,9 +61,7 @@ const MyGift = () => {
             if (newData.length > 0) {
                 setDataList(prevData => [...prevData, ...newData]); // 使用函数式更新，将新数据添加到原有数据列表中
             }
-        }, (msg) => {
-            Util.showToast(msg);
-        }, true)
+        })
 
         setRefreshing(false);
     }

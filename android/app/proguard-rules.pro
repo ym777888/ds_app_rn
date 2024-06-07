@@ -17,4 +17,8 @@
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
 -keep class retrofit2.** { *; }
+-dontwarn okhttp3.**
 -dontwarn retrofit2.**
+
+-keep class com.google.gson.** { *; }
+-dontwarn com.google.gson.**

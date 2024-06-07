@@ -121,9 +121,7 @@ const BuyDiamond = () => {
             if (data.payUrl) {
                 openLink(data.payUrl);
             }
-        },(msg,data)=>{
-            Util.showToast(msg);
-        },true)
+        })
     }
 
     const checkOrder = () => {

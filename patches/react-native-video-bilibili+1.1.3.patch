@@ -102,10 +102,10 @@ index a0ec6bb..fbb0636 100644
      modal:{
          alignSelf:'center',
 diff --git a/node_modules/react-native-video-bilibili/videoPlayer.js b/node_modules/react-native-video-bilibili/videoPlayer.js
-index b2e1c01..33567c9 100644
+index b2e1c01..42a3d2b 100644
 --- a/node_modules/react-native-video-bilibili/videoPlayer.js
 +++ b/node_modules/react-native-video-bilibili/videoPlayer.js
-@@ -1,85 +1,101 @@
+@@ -1,85 +1,104 @@
 -import React from 'react'
 +import React, { createRef } from 'react'
  import {
@@ -171,6 +171,7 @@ index b2e1c01..33567c9 100644
 +        volume: 1,
 +        paused: false,
 +        currentTime: 0,
++        freeTime: 0,
      };
  
 -    constructor(props){
@@ -212,7 +213,9 @@ index b2e1c01..33567c9 100644
 +            currentTime_copy: 0,
 +            isBuffering: true,
 +            error: undefined,
-+            isFullScreen: false
++            isFullScreen: false,
++            freeTime: this.props.freeTime,
++            stopPlay: false,
          };
      }
  
@@ -251,7 +254,7 @@ index b2e1c01..33567c9 100644
  
          //show component when touch move
          this.showSeekTimerComponent();
-@@ -89,36 +105,36 @@ class VideoPlayer extends React.PureComponent {
+@@ -89,36 +108,36 @@ class VideoPlayer extends React.PureComponent {
          let duration = this.state.duration;
          let currentTime = this.state.currentTime;
  
@@ -306,7 +309,7 @@ index b2e1c01..33567c9 100644
          }
      };
  
-@@ -127,143 +143,167 @@ class VideoPlayer extends React.PureComponent {
+@@ -127,143 +146,177 @@ class VideoPlayer extends React.PureComponent {
  
  
      /******************** custom event *******************/
@@ -341,14 +344,14 @@ index b2e1c01..33567c9 100644
 +            StatusBar.setHidden(false);
 +            this.setState({ orientation: 'portrait', isFullScreen: false });
 +        }
++
++    };
  
 -    render(){
 -        const {pointerEvents,isBuffering,paused} = this.state;
 -        const {children,controls} = this.props;
-+    };
-+
 +    render() {
-+        const { pointerEvents, isBuffering, paused, orientation, isFullScreen } = this.state;
++        const { pointerEvents, isBuffering, paused, orientation, isFullScreen, stopPlay } = this.state;
 +        const { children, controls, title } = this.props;
 +        const videoStyle = isFullScreen ? styles.full : styles.normal;
          return (
@@ -397,32 +400,34 @@ index b2e1c01..33567c9 100644
 -                    handleUpAndDownMoveInLeft={this._handleUpAndDownMoveInLeft}
 -                    handleUpAndDownMoveInRight={this._handleUpAndDownMoveInRight}
 -                >
-+                <View style={[VideoPlayerStyles.container, this.props.containerStyle]}>
-+                    <Video
-+                        resizeMode={"contain"}
-+                        hideShutterView={false}
-+                        {...this.props}
-+                        children={undefined}
-+                        ref={c => {
-+                            this._root = c
-+                        }}
-+                        muted={this.state.muted}
-+                        volume={this.state.volume}
-+                        paused={this.state.paused}
-+                        onLoad={this.onLoad}
-+                        onError={this.onError}
-+                        onBuffer={this.onBuffer}
-+                        onProgress={this.onProgress}
-+                        style={videoStyle}
-+                    />
-                     {/********** loading **********/}
+-                    {/********** loading **********/}
 -
 -                        {isBuffering&&!paused&&<Loading />}
 -
 -                    {/********** center menus **********/}
 -
 -                        <CenterMenus volume={this.state.volume}/>
--
++                <View style={[VideoPlayerStyles.container, this.props.containerStyle]}>
++                    {!stopPlay && (
++                        <Video
++                            resizeMode={"contain"}
++                            hideShutterView={false}
++                            {...this.props}
++                            children={undefined}
++                            ref={c => {
++                                this._root = c
++                            }}
++                            muted={this.state.muted}
++                            volume={this.state.volume}
++                            paused={this.state.paused}
++                            onLoad={this.onLoad}
++                            onError={this.onError}
++                            onBuffer={this.onBuffer}
++                            onProgress={this.onProgress}
++                            style={videoStyle}
++                        />
++                    )}
+ 
 -                    {/********** top menus **********/}
 -
 -                        <TopMenus paused={this.state.paused} ref={'_topMenus'} />
@@ -440,6 +445,7 @@ index b2e1c01..33567c9 100644
 -
 -                </ResponderView>}
 -            </View>
++                    {/********** loading **********/}
 +                    {isBuffering && !paused && <Loading ref={this.loadingRef} />}
 +                    {!controls && <ResponderView
 +                        style={VideoPlayerStyles.touchView}
@@ -527,6 +533,13 @@ index b2e1c01..33567c9 100644
 +        if (this.props.onProgress) {
              this.props.onProgress(e)
          }
++        if (this.state.freeTime && this.state.freeTime > 0 && e.currentTime >= this.state.freeTime) {
++            if (this.props.onFreeTimeout) {
++                this.props.onFreeTimeout(e);
++                this.setState({ paused: true });
++                this.setState({ stopPlay: true });
++            }
++        }
      };
  
 -    setPaused=()=>{
@@ -567,7 +580,7 @@ index b2e1c01..33567c9 100644
      }
  }
  
-@@ -273,42 +313,44 @@ class VideoPlayer extends React.PureComponent {
+@@ -273,42 +326,44 @@ class VideoPlayer extends React.PureComponent {
   * **/
  class CenterMenus extends AnimatedComponent {
  
@@ -640,7 +653,7 @@ index b2e1c01..33567c9 100644
  }
  
  /**
-@@ -317,27 +359,30 @@ class CenterMenus extends AnimatedComponent {
+@@ -317,27 +372,30 @@ class CenterMenus extends AnimatedComponent {
   * **/
  class TopMenus extends AnimatedComponent {
  
@@ -684,7 +697,7 @@ index b2e1c01..33567c9 100644
                              </View>
                          }
                      </Animated.View>
-@@ -353,72 +398,71 @@ class TopMenus extends AnimatedComponent {
+@@ -353,72 +411,71 @@ class TopMenus extends AnimatedComponent {
   * **/
  class BottomMenus extends AnimatedComponent {
  
@@ -793,7 +806,7 @@ index b2e1c01..33567c9 100644
                          }
                      </React.Fragment>
                  }
-@@ -433,19 +477,19 @@ class BottomMenus extends AnimatedComponent {
+@@ -433,19 +490,19 @@ class BottomMenus extends AnimatedComponent {
   * @props renderSeekTime
   * **/
  class SeekTime extends AnimatedComponent {
@@ -820,7 +833,7 @@ index b2e1c01..33567c9 100644
                              </View>}
                      </Animated.View>
                  }
-@@ -461,29 +505,49 @@ class SeekTime extends AnimatedComponent {
+@@ -461,29 +518,49 @@ class SeekTime extends AnimatedComponent {
   * **/
  class Loading extends React.PureComponent {
  
@@ -879,7 +892,7 @@ index b2e1c01..33567c9 100644
                      </View>
                  }
              </MenusContext.Consumer>
-@@ -492,4 +556,18 @@ class Loading extends React.PureComponent {
+@@ -492,4 +569,18 @@ class Loading extends React.PureComponent {
  }
  
  

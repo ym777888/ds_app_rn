@@ -41,9 +41,7 @@ const BindAlipay = () => {
                 setCanSave(true);
             }
 
-        }, (msg) => {
-            Util.showToast(msg);
-        }, true);
+        });
     }
 
 
@@ -67,10 +65,7 @@ const BindAlipay = () => {
             setIsSubmitting(false);
             Util.showToast(msg);
             back();
-        }, (msg, code) => {
-            setIsSubmitting(false);
-            Util.showToast(msg);
-        }, true)
+        })
     }
 
     return (

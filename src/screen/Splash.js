@@ -20,7 +20,7 @@ const Splash = ({ navigation }) => {
             timer = setInterval(() => {
                 sum = sum - 1;
                 setNum(sum);
-                if (sum < 0) {
+                if (sum <= 0) {
                     StatusBar.setHidden(false);
                     navigation.replace("MyTabs");
                 }
@@ -43,10 +43,11 @@ const Splash = ({ navigation }) => {
             {splash ? (
                 <View style={styles.img}>
                     <TouchableWithoutFeedback onPress={() => {
+                        StatusBar.setHidden(false);
                         navigation.replace("MyTabs");
                     }}>
                         <View style={styles.skip}>
-                            <Text style={{ color: 'white' }}>剩余{num}</Text>
+                            <Text style={{ color: 'white' }}>跳过 {num}</Text>
                         </View>
                     </TouchableWithoutFeedback>
                     <FastImage

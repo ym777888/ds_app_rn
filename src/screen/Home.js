@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Image, View, Text, StyleSheet, TextInput, ImageBackground, TouchableWithoutFeedback, useColorScheme } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, NavigationContainer } from '@react-navigation/native';
 
 
 import { GlobalStyle } from "../common/GlobalStyle";
 import { RNStorage } from "../common/RNStorage";
 import { ThemeProvider, useTheme } from '../common/ThemeContext'
+import { setTopLevelNavigator } from "../common/NavigationService";
 
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
@@ -57,22 +58,11 @@ function loadSiteInfo() {
     const [dataFetched, setDataFetched] = useState(false);
     const [more, setMore] = useState([]);
     useEffect(() => {
-
-
-        HttpUtil.postFetch(
-            RNStorage.baseUrl + Util.SITE_INFO,
-            {},
-            (msg, data) => {
-                setIsGame(data.isGame);
-                setIsGift(data.isGift);
-                setDataFetched(true);
-                setMore(data.more);
-                RNStorage.info = data;
-            },
-            (msg) => { },
-            true
-        );
-
+        console.log("loadSiteInfo------------------");
+        setIsGame(RNStorage.info.isGame);
+        setIsGift(RNStorage.info.isGift);
+        setDataFetched(true);
+        setMore(RNStorage.info.more);
 
     }, []);
 
@@ -372,114 +362,120 @@ function MyTabs() {
 //全局路由
 function MyStack() {
 
+    const navigationRef = useRef(null);
+
+    useEffect(() => {
+        setTopLevelNavigator(navigationRef.current);
+    }, []);
+
     return (
+        <NavigationContainer ref={navigationRef}>
+            <Stack.Navigator
+                initialRouteName="Splash"
+                screenOptions={{
+                    headerMode: 'screen',
+                    headerTintColor: 'white',
+                    headerStyle: { backgroundColor: 'tomato' },
+                    headerShown: false, // 隐藏顶部标题
+                }}
+            >
+                <Stack.Screen
+                    name="Splash"
+                    component={Splash}
+                    options={{
+                        title: 'Splash',
+                    }}
+                />
+                <Stack.Screen
+                    name="MyTabs"
+                    component={MyTabs}
+                    options={{
+                        gestureEnabled: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="Player"
+                    component={Player}
+                    options={{
+                        title: 'Player',
+                    }}
+                />
+                <Stack.Screen
+                    name="Login"
+                    component={Login}
+                    options={{
+                        title: 'Login',
+                    }}
+                />
+                <Stack.Screen
+                    name="BuyDiamond"
+                    component={BuyDiamond}
+                    options={{
+                        title: 'BuyDiamond',
+                    }}
+                />
+                <Stack.Screen
+                    name="BuyVip"
+                    component={BuyVip}
+                    options={{
+                        title: 'BuyVip',
+                    }}
+                />
+                <Stack.Screen
+                    name="Chat"
+                    component={Chat}
+                    options={{
+                        title: 'Chat',
+                    }}
+                />
+                <Stack.Screen
+                    name="Search"
+                    component={Search}
+                    options={{
+                        title: 'Search',
+                    }}
+                />
+                <Stack.Screen
+                    name="Message"
+                    component={Message}
+                    options={{
+                        title: 'Message',
+                    }}
+                />
 
-        <Stack.Navigator
-            initialRouteName="Splash"
-            screenOptions={{
-                headerMode: 'screen',
-                headerTintColor: 'white',
-                headerStyle: { backgroundColor: 'tomato' },
-                headerShown: false, // 隐藏顶部标题
-            }}
-        >
-            <Stack.Screen
-                name="Splash"
-                component={Splash}
-                options={{
-                    title: 'Splash',
-                }}
-            />
-            <Stack.Screen
-                name="MyTabs"
-                component={MyTabs}
-                options={{
-                    gestureEnabled: false,
-                }}
-            />
-            <Stack.Screen
-                name="Player"
-                component={Player}
-                options={{
-                    title: 'Player',
-                }}
-            />
-            <Stack.Screen
-                name="Login"
-                component={Login}
-                options={{
-                    title: 'Login',
-                }}
-            />
-            <Stack.Screen
-                name="BuyDiamond"
-                component={BuyDiamond}
-                options={{
-                    title: 'BuyDiamond',
-                }}
-            />
-            <Stack.Screen
-                name="BuyVip"
-                component={BuyVip}
-                options={{
-                    title: 'BuyVip',
-                }}
-            />
-            <Stack.Screen
-                name="Chat"
-                component={Chat}
-                options={{
-                    title: 'Chat',
-                }}
-            />
-            <Stack.Screen
-                name="Search"
-                component={Search}
-                options={{
-                    title: 'Search',
-                }}
-            />
-            <Stack.Screen
-                name="Message"
-                component={Message}
-                options={{
-                    title: 'Message',
-                }}
-            />
+                <Stack.Screen
+                    name="All"
+                    component={Category}
+                    options={{
+                        title: 'All',
+                    }}
+                />
+                <Stack.Screen
+                    name="WebPage"
+                    component={WebPage}
+                    options={{
+                        title: 'WebPage',
+                    }}
+                />
 
-            <Stack.Screen
-                name="All"
-                component={Category}
-                options={{
-                    title: 'All',
-                }}
-            />
-            <Stack.Screen
-                name="WebPage"
-                component={WebPage}
-                options={{
-                    title: 'WebPage',
-                }}
-            />
+                <Stack.Screen
+                    name="Info"
+                    component={Info}
+                    options={{
+                        title: 'Info',
+                    }}
+                />
 
-            <Stack.Screen
-                name="Info"
-                component={Info}
-                options={{
-                    title: 'Info',
-                }}
-            />
+                <Stack.Screen
+                    name="Share"
+                    component={Share}
+                    options={{
+                        title: 'Share',
+                    }}
+                />
 
-            <Stack.Screen
-                name="Share"
-                component={Share}
-                options={{
-                    title: 'Share',
-                }}
-            />
-
-        </Stack.Navigator>
-
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 }
 

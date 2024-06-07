@@ -70,9 +70,7 @@ const History = () => {
             }
             setRefreshing(false);
             setIsOnEndReachedEnabled(true);
-        },(msg,data)=>{
-            Util.showToast(msg);
-        },true)
+        })
     }
 
 

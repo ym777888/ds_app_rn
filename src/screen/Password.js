@@ -43,10 +43,7 @@ const Password = () => {
         HttpUtil.postReq(Util.USER_PASSWORD, req, (msg, data) => {
             setIsSubmitting(false);
             Util.showToast('保存成功');
-        }, (msg) => {
-            setIsSubmitting(false);
-            Util.showToast(msg);
-        },true);
+        });
 
 
 

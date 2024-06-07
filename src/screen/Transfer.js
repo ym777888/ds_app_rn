@@ -31,9 +31,7 @@ const Transfer = () => {
 
         HttpUtil.postReq(Util.USER_INFO, req, (msg, data) => {
             setUserInfo(data);
-        }, (msg) => {
-            Util.showToast(msg);
-        }, true);
+        });
     }
 
 

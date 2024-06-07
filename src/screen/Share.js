@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, StatusBar, ImageBackground, Image, TouchableWithoutFeedback } from 'react-native';
 
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute,useFocusEffect } from '@react-navigation/native';
 import QRCode from 'react-native-qrcode-svg';
 import NavTitle from '../component/NavTitle';
 import { GlobalStyle } from '../common/GlobalStyle';
@@ -15,9 +15,11 @@ const Share = () => {
     const [userInfo, setUserInfo] = useState({});
     const [qrData, setQrData] = useState("http");
 
-    useEffect(() => {
-        guestInfo();
-    }, []); 
+    useFocusEffect(
+        React.useCallback(() => {
+            guestInfo();
+        }, [])
+    );
 
     const guestInfo = () => {
         let req = {
@@ -38,8 +40,7 @@ const Share = () => {
             RNStorage.isLogin = false;
             RNStorage.accessToken = '';
             RNStorage.token = '';
-            Util.showToast(msg);
-        }, true);
+        });
     }
 
     return (

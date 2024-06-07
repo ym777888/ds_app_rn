@@ -48,7 +48,7 @@ const Game = () => {
 
     const openGame = () => {
         if (RNStorage.token == null||RNStorage.token == "") {
-            Util.showToast("请登录");
+            Util.showLoginModal();
             return;
         }
         if (gameUrl == null || gameUrl == "") {
@@ -132,6 +132,12 @@ const Game = () => {
                             <Image tintColor={'#FFFFFF'} style={{ width: 24, height: 24 }} resizeMode='center' source={require('../../assets/icon_arrow.png')}></Image>
                         </View>
                     </TouchableWithoutFeedback>
+                    <TouchableWithoutFeedback onPress={()=>{ setNum('0'); setShowPop(true); }}>
+                        <View style={[styles.btn,{ backgroundColor: '#FFFFCC'}]}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#996600' }}>换游戏币</Text>
+                            <Image tintColor={'#996600'} style={{ width: 24, height: 24 }} resizeMode='center' source={require('../../assets/icon_arrow.png')}></Image>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
 
 
@@ -208,7 +214,8 @@ const styles = StyleSheet.create({
     },
     btnCharge: {
         fontSize: 14,
-        color: '#003333', fontWeight: 'bold'
+        color: '#003333', fontWeight: 'bold',
+
     },
     btn: {
         flexDirection: 'row',
@@ -218,6 +225,7 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: 'center',
         borderRadius: 10,
+        marginVertical: 5,
     },
     exchange: {
         borderRadius: 10,

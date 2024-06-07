@@ -23,3 +23,10 @@ gradlew assembleRelease
 
 
 yarn android --mode release
+
+
+
+--------------------------
+补丁
+
+npx patch-package react-native-video-bilibili

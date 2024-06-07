@@ -43,9 +43,7 @@ const BindBank = () => {
                 setCanSave(true);
             }
 
-        }, (msg) => {
-            Util.showToast(msg);
-        }, true);
+        });
     }
 
 
@@ -70,10 +68,7 @@ const BindBank = () => {
             setIsSubmitting(false);
             Util.showToast(msg);
             back();
-        }, (msg, code) => {
-            setIsSubmitting(false);
-            Util.showToast(msg);
-        }, true)
+        })
     }
 
     return (
