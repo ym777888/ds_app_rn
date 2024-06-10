@@ -5,28 +5,31 @@ code push dsapp android
 Production:DkVyWDx1hlCflxc8KeTYo92brg074ksvOXqog
 Staging:0WgIrsHkbftSZ4HShYfI7nH9sr4W4ksvOXqog
 
+
 教程
 https://blog.csdn.net/zcmain/article/details/89517634
 
+---------------------------------------------------------------------------
 
-发布热更新
-code-push release-react dsapp android -d Production -m true -t 1.0.0 -des 新版本
-
-发布apk
-
-npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+发布热更新:
+code-push release-react dsapp android -d Production -m true
 
 
+发布apk:
 cd android
 gradlew clean
 gradlew assembleRelease
 
 
-yarn android --mode release
+查看远程更新:
+code-push deployment history dsapp Production
 
+清除更新:
+code-push deployment clear dsapp Production
 
-
---------------------------
+----------------------------------------------------------------------------
 补丁
 
 npx patch-package react-native-video-bilibili
+
+

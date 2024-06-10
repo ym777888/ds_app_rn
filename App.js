@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { XStorage, XHttpConfig } from 'react-native-easy-app';
 import Toast, { DURATION } from 'react-native-easy-toast';
+import NavigationBar from 'react-native-system-navigation-bar';
 
 import Util from "./src/common/Util";
 import Config from 'react-native-config';
@@ -24,6 +25,7 @@ import { ModalProvider, ModalManager } from "./src/common/ModalManager";
 import ModalDialog from "./src/common/ModalDialog";
 
 
+
 global.eventEmitter = new EventEmitter();
 //.env 里面设置
 global.siteName = Config.SITE_NAME;
@@ -40,6 +42,9 @@ function App() {
     const [fail, setFail] = useState(false); //链接失败
     const [show, setShow] = useState(false); //显示日志
     const logtxt = useRef([]);
+
+    NavigationBar.navigationHide();
+
     const retry = async () => {
         let isServerApiAvailable = false;
         logtxt.current.push('retry:');
@@ -119,7 +124,15 @@ function App() {
         deploymentKey: Config.CODEPUSH_DEPLOYMENT_KEY,
         serverUrl: Config.CODEPUSH_SERVER_URL,
         installMode: CodePush.InstallMode.IMMEDIATE,
-        updateDialog: true
+        updateDialog: {
+            appendReleaseDescription: true,  // 是否追加发布描述
+            title: '更新提示',  // 对话框标题
+            optionalUpdateMessage: '有新的更新可用，是否立即安装？',  // 可选更新消息
+            mandatoryUpdateMessage: '有新的更新可用，是否立即安装？',  // 强制更新消息
+            optionalIgnoreButtonLabel: '忽略',  // 可选更新对话框中“忽略”按钮的标签
+            optionalInstallButtonLabel: '安装',  // 可选更新对话框中“安装”按钮的标签
+            mandatoryContinueButtonLabel: '继续',  // 强制更新对话框中“继续”按钮的标签
+        }
     };
 
     useEffect(() => {
@@ -129,7 +142,6 @@ function App() {
             logtxt.current.push(global.siteUrl);
             logtxt.current.push("DEV:" + __DEV__);
             logtxt.current.push('initializeApp start');
-            let isServerApiAvailable = false;
             logtxt.current.push('initStorage start');
             logtxt.current.push(Config);
             await XStorage.initStorageSync(RNStorage, AsyncStorage, (sdata) => {
@@ -143,7 +155,7 @@ function App() {
             logtxt.current.push('initStorage end');
             console.log("App initStorage()");
 
-            const API_URL = __DEV__ ? global.siteUrl : global.siteUrl;
+            const API_URL = __DEV__ ? DEV_URL : global.siteUrl;
 
             RNStorage.baseUrl = API_URL;
             RNStorage.isDark = isDarkMode;
@@ -160,27 +172,37 @@ function App() {
 
             // 设置 RNStorage 参数
             if (Platform.OS === "ios" || Platform.OS === "android") {
-                logtxt.current.push('clipboardText:');
-                logtxt.current.push(clipboardText);
                 // 读取剪贴板内容
                 const clipboardText = await Clipboard.getString();
+                logtxt.current.push('clipboardText:');
+                logtxt.current.push(clipboardText);
+
                 console.log("clipboardText: ", clipboardText);
-                if (clipboardText.indexOf('SHARE_CODE=') === 0) { // SHARE_CODE=600000|13000000000
+                if (clipboardText.indexOf('SHARE_CODE=') === 0) { // SHARE_CODE=jx|600000|13000000000
                     let shareCode = clipboardText.replace('SHARE_CODE=', '');
                     if (shareCode.indexOf("|") > 0) {
                         let arr = shareCode.split("|");
-                        if (RNStorage.code == null) {
-                            RNStorage.code = arr[0]; //代理邀请码
+                        
+                        if (arr[0] != null && arr[0] != '') {
+                            RNStorage.site = arr[0]; //站点
                         }
 
-                        if (RNStorage.puid) {
-                            RNStorage.puid = arr[1]; //推荐人账号
+                        if (arr[1] != null && arr[1] != '') {
+                            if (RNStorage.code == null || RNStorage.code == '') {
+                                RNStorage.code = arr[1]; //代理邀请码
+                            }
                         }
 
-                    } else {
-                        RNStorage.code = shareCode;
-                        RNStorage.puid = null;
+                        if (arr[2] != null && arr[2] != '') {
+                            if(RNStorage.puid == null || RNStorage.puid == ''){
+                                RNStorage.puid = Util.decryptPhoneNumber(arr[2]); //推荐人账号
+                            }
+                        }
+
+
                     }
+
+
                 }
             }
 
@@ -189,6 +211,7 @@ function App() {
         };
 
         initializeApp();
+        
 
     }, []);
 
@@ -238,6 +261,8 @@ function App() {
         );
     }
 
+
+
     return (
         <ThemeProvider value={isDarkMode}>
 
@@ -249,7 +274,9 @@ function App() {
                             barStyle={isDarkMode ? 'light-content' : 'dark-content'}
                             backgroundColor={GlobalStyle.setBg(RNStorage.isDark)}
                         />
+
                         <Home />
+
                         <Toast ref={(ref) => { global.toastRef = ref }} position='center' textStyle={{ color: '#006633' }} style={{ backgroundColor: '#CCFF99' }} />
                         <ModalDialog />
                     </>

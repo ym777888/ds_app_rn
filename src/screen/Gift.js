@@ -51,7 +51,6 @@ const Gift = () => {
             setUserInfo(Util.nouser());
             RNStorage.userInfo = Util.nouser();
             RNStorage.isLogin = false;
-            RNStorage.accessToken = '';
             RNStorage.token = '';
             Util.showToast(msg);
         },true);
@@ -279,7 +278,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: '#FFFFFF',
-        width: '70%',
+        width: '80%',
         height: 330,
         borderRadius: 14,
         justifyContent: 'flex-start',

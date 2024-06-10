@@ -51,7 +51,7 @@ const Profile = () => {
         { id: 4, name: '绑定银行卡', nav: 'BindBank', value: '' },
         { id: 5, name: '绑定支付宝', nav: 'BindAlipay', value: '' },
         { id: 6, name: '修改密码', nav: 'Password' },
-        { id: 7, name: '当前版本', value: packageJson.version },
+        { id: 7, name: '版本号', value: packageJson.version },
     ]
 
     const guestInfo = () => {
@@ -68,7 +68,6 @@ const Profile = () => {
             setUserInfo(Util.nouser());
             RNStorage.userInfo = Util.nouser();
             RNStorage.isLogin = false;
-            RNStorage.accessToken = '';
             RNStorage.token = '';
         }, true);
     }
@@ -76,7 +75,6 @@ const Profile = () => {
     const login = () => {
         if (RNStorage.isLogin) {
             RNStorage.isLogin = false;
-            RNStorage.accessToken = '';
             RNStorage.token = '';
         } else {
             navigation.navigate('Login', { data: {} });
@@ -98,7 +96,6 @@ const Profile = () => {
         }, true)
 
         RNStorage.isLogin = false;
-        RNStorage.accessToken = '';
         RNStorage.token = '';
         RNStorage.userInfo = {};
         setUserInfo(Util.nouser());
@@ -118,9 +115,9 @@ const Profile = () => {
     const renderHeader = () => {
         return (
             <View style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark)}}>
-                <View style={[styles.row1, { justifyContent: 'flex-end' }]}>
+                <View style={[styles.row1, { justifyContent: 'flex-end', margin: 0 }]}>
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate("Message") }}>
-                        <View style={{ width: 30, height: 30 }}>
+                        <View style={{ width: 34, height: 20 }}>
                             <Image tintColor={'#999999'} style={styles.corner} source={require('../../assets/icon_mail2.png')}></Image>
                             {userInfo.newMsg ? (
                                 <View style={styles.dot}></View>
@@ -380,8 +377,8 @@ const styles = StyleSheet.create({
         marginLeft: 3
     },
     corner: {
-        width: 26,
-        height: 26,
+        width: 22,
+        height: 22,
         marginRight: 10
     },
     dot: {

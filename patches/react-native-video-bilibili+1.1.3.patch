@@ -102,10 +102,10 @@ index a0ec6bb..fbb0636 100644
      modal:{
          alignSelf:'center',
 diff --git a/node_modules/react-native-video-bilibili/videoPlayer.js b/node_modules/react-native-video-bilibili/videoPlayer.js
-index b2e1c01..42a3d2b 100644
+index b2e1c01..66e1410 100644
 --- a/node_modules/react-native-video-bilibili/videoPlayer.js
 +++ b/node_modules/react-native-video-bilibili/videoPlayer.js
-@@ -1,85 +1,104 @@
+@@ -1,85 +1,105 @@
 -import React from 'react'
 +import React, { createRef } from 'react'
  import {
@@ -136,6 +136,7 @@ index b2e1c01..42a3d2b 100644
 -import {styles as VideoPlayerStyles} from "./lib/style";
 +import { styles as VideoPlayerStyles } from "./lib/style"
 +import Orientation from 'react-native-orientation-locker'
++
  
  const MenusContext = React.createContext({});
  
@@ -254,7 +255,7 @@ index b2e1c01..42a3d2b 100644
  
          //show component when touch move
          this.showSeekTimerComponent();
-@@ -89,36 +108,36 @@ class VideoPlayer extends React.PureComponent {
+@@ -89,36 +109,36 @@ class VideoPlayer extends React.PureComponent {
          let duration = this.state.duration;
          let currentTime = this.state.currentTime;
  
@@ -309,7 +310,7 @@ index b2e1c01..42a3d2b 100644
          }
      };
  
-@@ -127,143 +146,177 @@ class VideoPlayer extends React.PureComponent {
+@@ -127,143 +147,177 @@ class VideoPlayer extends React.PureComponent {
  
  
      /******************** custom event *******************/
@@ -407,6 +408,21 @@ index b2e1c01..42a3d2b 100644
 -                    {/********** center menus **********/}
 -
 -                        <CenterMenus volume={this.state.volume}/>
+-
+-                    {/********** top menus **********/}
+-
+-                        <TopMenus paused={this.state.paused} ref={'_topMenus'} />
+-
+-                    {/********** bottom menus **********/}
+-                    <View style={VideoPlayerStyles.bottomMenusContainer}>
+-                        <SeekTime ref={'_seekTime'} />
+-                        <BottomMenus paused={this.state.paused} ref={'_bottomMenus'} />
+-                    </View>
+-
+-                    {/********** custom view **********/}
+-                    {!!children&&<MenusContext.Consumer>
+-                        {children}
+-                    </MenusContext.Consumer>}
 +                <View style={[VideoPlayerStyles.container, this.props.containerStyle]}>
 +                    {!stopPlay && (
 +                        <Video
@@ -428,21 +444,6 @@ index b2e1c01..42a3d2b 100644
 +                        />
 +                    )}
  
--                    {/********** top menus **********/}
--
--                        <TopMenus paused={this.state.paused} ref={'_topMenus'} />
--
--                    {/********** bottom menus **********/}
--                    <View style={VideoPlayerStyles.bottomMenusContainer}>
--                        <SeekTime ref={'_seekTime'} />
--                        <BottomMenus paused={this.state.paused} ref={'_bottomMenus'} />
--                    </View>
--
--                    {/********** custom view **********/}
--                    {!!children&&<MenusContext.Consumer>
--                        {children}
--                    </MenusContext.Consumer>}
--
 -                </ResponderView>}
 -            </View>
 +                    {/********** loading **********/}
@@ -580,7 +581,7 @@ index b2e1c01..42a3d2b 100644
      }
  }
  
-@@ -273,42 +326,44 @@ class VideoPlayer extends React.PureComponent {
+@@ -273,42 +327,44 @@ class VideoPlayer extends React.PureComponent {
   * **/
  class CenterMenus extends AnimatedComponent {
  
@@ -653,7 +654,7 @@ index b2e1c01..42a3d2b 100644
  }
  
  /**
-@@ -317,27 +372,30 @@ class CenterMenus extends AnimatedComponent {
+@@ -317,27 +373,30 @@ class CenterMenus extends AnimatedComponent {
   * **/
  class TopMenus extends AnimatedComponent {
  
@@ -697,7 +698,7 @@ index b2e1c01..42a3d2b 100644
                              </View>
                          }
                      </Animated.View>
-@@ -353,72 +411,71 @@ class TopMenus extends AnimatedComponent {
+@@ -353,72 +412,71 @@ class TopMenus extends AnimatedComponent {
   * **/
  class BottomMenus extends AnimatedComponent {
  
@@ -806,7 +807,7 @@ index b2e1c01..42a3d2b 100644
                          }
                      </React.Fragment>
                  }
-@@ -433,19 +490,19 @@ class BottomMenus extends AnimatedComponent {
+@@ -433,19 +491,19 @@ class BottomMenus extends AnimatedComponent {
   * @props renderSeekTime
   * **/
  class SeekTime extends AnimatedComponent {
@@ -833,7 +834,7 @@ index b2e1c01..42a3d2b 100644
                              </View>}
                      </Animated.View>
                  }
-@@ -461,29 +518,49 @@ class SeekTime extends AnimatedComponent {
+@@ -461,29 +519,49 @@ class SeekTime extends AnimatedComponent {
   * **/
  class Loading extends React.PureComponent {
  
@@ -892,7 +893,7 @@ index b2e1c01..42a3d2b 100644
                      </View>
                  }
              </MenusContext.Consumer>
-@@ -492,4 +569,18 @@ class Loading extends React.PureComponent {
+@@ -492,4 +570,17 @@ class Loading extends React.PureComponent {
  }
  
  
@@ -903,10 +904,9 @@ index b2e1c01..42a3d2b 100644
 +        backgroundColor: 'black',
 +    },
 +    full: {
-+        width: Dimensions.get('window').height,
-+        height: Dimensions.get('window').width,
++        width: '100%',
++        height: '100%',
 +        backgroundColor: 'black',
-+
 +    },
 +});
 +

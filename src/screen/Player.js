@@ -1,6 +1,6 @@
 import React, { createRef, useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, Image, TouchableWithoutFeedback, FlatList, ImageBackground } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Video from 'react-native-video-bilibili';
 import { GlobalStyle } from '../common/GlobalStyle';
 import GridItem from '../component/GridItem';
@@ -36,6 +36,12 @@ const Player = () => {
         checkFavRecom();
     }, [])
 
+    useFocusEffect(
+        React.useCallback(() => {
+            checkBuy();
+        }, [])
+    );
+
     const renderItem = ({ item, index }) => {
         return <GridItem data={item} nav={navigation} index={index} />
     };
@@ -54,6 +60,8 @@ const Player = () => {
                 setShowPop(false)
                 if (data.freeDuration && data.freeDuration > 0) {
                     freeDuration.current = data.freeDuration;
+                } else {
+                    freeDuration.current = 0;
                 }
                 setClipUrl(data.url);
                 if (msg) {
@@ -182,6 +190,9 @@ const Player = () => {
                 </TouchableWithoutFeedback>
             </View>
             <View style={[styles.row, { justifyContent: 'center' }]}>
+            <TouchableWithoutFeedback onPress={() => { navigation.goBack(); }}>
+                    <View style={[styles.btn1,{backgroundColor: '#eeeeee'}]}><Text style={{ color: '#555555'}}>返回首页</Text></View>
+                </TouchableWithoutFeedback>
                 {!RNStorage.isLogin && (
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate('Login', { data: {} }); }}>
                         <View style={styles.btn1}><Text style={styles.btn1Title}>注册 | 登录</Text></View>
@@ -194,10 +205,14 @@ const Player = () => {
                 <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyVip', { data: {} }); }}>
                     <View style={styles.btn1}><Text style={styles.btn1Title}>充值会员</Text></View>
                 </TouchableWithoutFeedback>
+
             </View>
             <View style={styles.row}>
-                <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
-                <Text style={styles.title}>为你推荐</Text>
+                <View style={{ flexDirection: 'row', width: 100}}>
+                    <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
+                    <Text style={styles.title}>为你推荐</Text>
+                </View>
+
             </View>
         </View>
     );
@@ -214,6 +229,7 @@ const Player = () => {
                     navigation={navigation}
                     freeTime={freeDuration.current}
                     onFreeTimeout={onFreeTimeout}
+                    containerStyle={{ backgroundColor: 'red' }}
                 />
             ) : (
 
@@ -280,7 +296,7 @@ const Player = () => {
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('Share', { data: {} }); }}>
-                            <Text style={{ color: 'red', marginTop: 20}}>邀请好友注册，奖励免费观看 &gt;&gt;</Text>
+                            <Text style={{ color: 'red', marginTop: 20 }}>邀请好友注册，奖励免费观看 &gt;&gt;</Text>
                         </TouchableWithoutFeedback>
                     </View>
                 </View>
@@ -306,7 +322,7 @@ const styles = StyleSheet.create({
     },
     btn1: {
         backgroundColor: '#993333',
-        width: 110,
+        width: '20%',
         height: 30,
         justifyContent: 'center',
         alignItems: 'center',
@@ -393,7 +409,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: '#FFFFFF',
-        width: '65%',
+        width: '80%',
         height: 400,
         borderRadius: 14,
         justifyContent: 'center',

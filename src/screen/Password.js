@@ -13,6 +13,9 @@ const Password = () => {
     const [password1, setPassword1] = useState(null);
     const [password2, setPassword2] = useState(null);
 
+    const back = () => {
+        navigation.goBack();
+    }
 
     const save = () => {
         if (isSubmitting) {
@@ -43,6 +46,9 @@ const Password = () => {
         HttpUtil.postReq(Util.USER_PASSWORD, req, (msg, data) => {
             setIsSubmitting(false);
             Util.showToast('保存成功');
+            back();
+        },(msg)=>{
+            setIsSubmitting(false);
         });
 
 

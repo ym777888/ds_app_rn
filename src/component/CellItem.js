@@ -10,7 +10,7 @@ const { width } = Dimensions.get('window');
 const CellItem = React.memo(({ data = {}, nav = {}, index }) => {
     let num = 1;
     const handlePress = useCallback(() => {
-        if (data.name.indexOf('版本') > 0) {
+        if (data.name.indexOf('版本') >= 0) {
             num = num + 1;
             if (num > 10) {
                 num = 1;

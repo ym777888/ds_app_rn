@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StatusBar, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StatusBar, Image, StyleSheet, TouchableWithoutFeedback, ImageBackground } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { GlobalStyle } from '../common/GlobalStyle';
 import { RNStorage } from '../common/RNStorage';
@@ -8,9 +8,17 @@ import Util from '../common/Util';
 const Splash = ({ navigation }) => {
     const [splash, setSplash] = useState(null);
     const [num, setNum] = useState(5);
+    const [hasNavigated, setHasNavigated] = useState(false);
 
     let sum = 5;
     let timer = null;
+
+    const skip = () => {
+        if (!hasNavigated) {
+            setHasNavigated(true);
+            navigation.replace("BottomTabs");
+        }
+    }
 
     useEffect(() => {
 
@@ -21,31 +29,30 @@ const Splash = ({ navigation }) => {
                 sum = sum - 1;
                 setNum(sum);
                 if (sum <= 0) {
-                    StatusBar.setHidden(false);
-                    navigation.replace("MyTabs");
+                    sum = 0;
+                    skip();
                 }
 
             }, 1000);
         } else {
-            navigation.replace("MyTabs");
+            skip();
         }
 
 
         return () => {
+            StatusBar.setHidden(false);
             if (timer) {
                 clearInterval(timer);
             }
         }
-    }, []); // useEffect 依赖项为空数组，表示只在组件挂载时执行一次
+    }, [navigation, hasNavigated]); // useEffect 依赖项为空数组，表示只在组件挂载时执行一次
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
-            {splash ? (
+
+        <View style={{ flex: 1, width: '100%', backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
+            {(splash && !hasNavigated) ? (
                 <View style={styles.img}>
-                    <TouchableWithoutFeedback onPress={() => {
-                        StatusBar.setHidden(false);
-                        navigation.replace("MyTabs");
-                    }}>
+                    <TouchableWithoutFeedback onPress={skip}>
                         <View style={styles.skip}>
                             <Text style={{ color: 'white' }}>跳过 {num}</Text>
                         </View>
@@ -58,7 +65,7 @@ const Splash = ({ navigation }) => {
                 </View>
 
             ) : (
-                <Text style={{ color: GlobalStyle.red }}>正在进入</Text>
+                <Text style={{ color: GlobalStyle.gray }}>正在进入</Text>
             )}
 
         </View>

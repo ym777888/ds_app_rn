@@ -39,7 +39,6 @@ const Game = () => {
             setUserInfo(Util.nouser());
             RNStorage.userInfo = Util.nouser();
             RNStorage.isLogin = false;
-            RNStorage.accessToken = '';
             RNStorage.token = '';
         }, true);
     }
@@ -110,8 +109,8 @@ const Game = () => {
                     </>
                 </View>
                 <View style={styles.warn}>
-                    <Text style={styles.warnTxt}>旨在为会员提供休闲娱乐消遣</Text>
-                    <Text style={styles.warnTxt}>诚信经营 绿色公平 小赌怡情 谨防沉迷</Text>
+                    <Text style={styles.warnTxt}>为会员提供休闲娱乐消遣</Text>
+                    <Text style={styles.warnTxt}>诚信经营 绿色公平</Text>
                 </View>
 
                 <View style={{ marginVertical: 3, justifyContent: 'center', alignItems: 'center' }}>
@@ -250,7 +249,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: '#FFFFFF',
-        width: '70%',
+        width: '80%',
         height: 400,
         borderRadius: 14,
         justifyContent: 'flex-start',

@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
         width: 34,
         height: 34,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginRight: 5,
     },
     rightBtn: {
         fontSize: 14,

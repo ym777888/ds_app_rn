@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, FlatList, TouchableWithoutFeedback, Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, TouchableWithoutFeedback, Linking, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Toast, { DURATION } from 'react-native-easy-toast'
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { GlobalStyle } from '../common/GlobalStyle';
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
@@ -15,6 +16,7 @@ const BuyVip = () => {
     const [productId, setProductId] = useState(null);
     const [orderNo, setOrderNo] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
+    const [loading, setLoading] = useState(false);
     const timerRef = useRef(null);
 
     const guestInfo = () => {
@@ -71,16 +73,54 @@ const BuyVip = () => {
         }
     }
 
-    const openLink = (url) => {
+    const openLink = async (url) => {
+        try {
+            const isAvailable = await InAppBrowser.isAvailable();
+            if (isAvailable) {
+                // 使用InAppBrowser打开链接
+                await InAppBrowser.open(url, {
+                    // 这是打开系统浏览器的选项
+                    showTitle: true,
+                    toolbarColor: 'black',
+                    secondaryToolbarColor: 'black',
+                    navigationBarColor: 'black',
+                    navigationBarDividerColor: 'white',
+                    enableUrlBarHiding: true,
+                    enableDefaultShare: true,
+                    forceCloseOnRedirection: false,
+                });
+            } else {
+                // 如果InAppBrowser不可用，则使用Linking作为后备
+                openLink2(url);
+            }
+        } catch (error) {
+            console.error('链接错误', error);
+        }
+    };
+
+
+    const openLink2 = (url) => {
+        // 确保 URL 以 http:// 或 https:// 开头
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            Alert.alert('错误', '无效的链接');
+            return;
+        }
+
+        
+
         Linking.canOpenURL(url)
             .then((supported) => {
                 if (supported) {
                     return Linking.openURL(url);
                 } else {
+                    Alert.alert('错误', '无法识别链接: ' + url);
                     console.log("无法识别链接: " + url);
                 }
             })
-            .catch((err) => console.error('链接错误', err));
+            .catch((err) => {
+                Alert.alert('错误', '链接错误');
+                console.error('链接错误', err);
+            });
     };
 
     const getProduct = () => {
@@ -122,6 +162,8 @@ const BuyVip = () => {
                 openLink(data.payUrl);
             }
         })
+
+        setLoading(true);
     }
 
     const checkOrder = () => {
@@ -137,6 +179,7 @@ const BuyVip = () => {
             if (data) { //已支付
                 setOrderNo(null);
                 setShowPop(false);
+                setLoading(false);
                 if (msg) {
                     this.toast.show(msg, 1000);
                 }
@@ -173,13 +216,13 @@ const BuyVip = () => {
             <TouchableWithoutFeedback onPress={() => { getPayList(item) }}>
                 <View style={styles.itemCard}>
                     <View style={{ backgroundColor: '#FFCC00', height: 24, width: '100%', borderRadius: 10, justifyContent: 'center' }}>
-                        <Text style={{ marginLeft: 10, fontWeight: 'bold', color: 'black'}}>{item.name}</Text>
+                        <Text style={{ marginLeft: 10, fontWeight: 'bold', color: 'black' }}>{item.name}</Text>
                         <View style={{ height: 15, width: '100%', backgroundColor: '#FFCC00', position: 'absolute', left: 0, bottom: 0, zIndex: -1 }}></View>
                     </View>
                     <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center', padding: 10 }}>
                         <Text style={styles.price2}>¥{item.price}</Text>
-                        <Text style={{ color: '#FFFF99', fontSize: 14}}>{item.remark}</Text>
-                        {item.plusDiamond > 0 ? (<Text style={{ color: '#FFFF99', fontSize: 14, marginLeft: 10}}>多送<Text style={{ color: '#FFFFCC', fontSize: 14}}>{item.plusDiamond}</Text><Image resizeMode='contain' style={{ width: 12, height: 12 }} source={require('../../assets/icon_diamond3.png')}></Image></Text>) : <View><Text> </Text></View>}
+                        <Text style={{ color: '#FFFF99', fontSize: 14 }}>{item.remark}</Text>
+                        {item.plusDiamond > 0 ? (<Text style={{ color: '#FFFF99', fontSize: 14, marginLeft: 10 }}>多送<Text style={{ color: '#FFFFCC', fontSize: 14 }}>{item.plusDiamond}</Text><Image resizeMode='contain' style={{ width: 12, height: 12 }} source={require('../../assets/icon_diamond3.png')}></Image></Text>) : <View><Text> </Text></View>}
                     </View>
 
                 </View>
@@ -264,20 +307,27 @@ const BuyVip = () => {
             {showPop && (
                 <View style={styles.modalBg}>
                     <View style={styles.modal}>
-                        <TouchableWithoutFeedback onPress={() => { setShowPop(false) }}>
+                        <TouchableWithoutFeedback onPress={() => { setShowPop(false); setLoading(false) }}>
                             <Image resizeMode='contain' style={{ width: 34, height: 34, opacity: 0.4, position: 'absolute', right: 0, top: 0 }} source={require('../../assets/icon_close.png')}></Image>
                         </TouchableWithoutFeedback>
                         <View style={styles.popTitle}><Text style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}>选择支付方式:</Text></View>
-                        <FlatList
-                            style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), marginTop: 20 }}
-                            data={payListData}
-                            renderItem={renderPayItem}
-                            keyExtractor={(item, index) => index.toString()}
-                            numColumns={2}
-                            columnWrapperStyle={styles.flatListContent2}
-                            ListFooterComponent={renderPayFoot}
-                        />
+                        {loading ? (
+                            <>
+                                <ActivityIndicator size="large" color="#000000" style={{ marginTop: 20, }} />
+                                <Text style={{ fontSize: 14, color: 'black' }}>等待支付</Text>
+                            </>
 
+                        ) : (
+                            <FlatList
+                                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), marginTop: 20 }}
+                                data={payListData}
+                                renderItem={renderPayItem}
+                                keyExtractor={(item, index) => index.toString()}
+                                numColumns={2}
+                                columnWrapperStyle={styles.flatListContent2}
+                                ListFooterComponent={renderPayFoot}
+                            />
+                        )}
                     </View>
                 </View>
             )}
@@ -390,7 +440,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: '#FFFFFF',
-        width: '70%',
+        width: '80%',
         height: 400,
         borderRadius: 14,
         justifyContent: 'flex-start',

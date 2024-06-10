@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, StatusBar, ImageBackground, Image, TouchableWithoutFeedback } from 'react-native';
 
-import { useNavigation, useRoute,useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
+
 import QRCode from 'react-native-qrcode-svg';
 import NavTitle from '../component/NavTitle';
 import { GlobalStyle } from '../common/GlobalStyle';
@@ -21,6 +23,14 @@ const Share = () => {
         }, [])
     );
 
+    const copyLink = () => {
+        if (qrData) {
+            Util.showToast("复制成功");
+            Clipboard.setString(qrData);
+        }
+
+    }
+
     const guestInfo = () => {
         let req = {
             code: RNStorage.code ? RNStorage.code : ""
@@ -31,14 +41,13 @@ const Share = () => {
             RNStorage.userInfo = data.user;
             RNStorage.minPrice = data.minPrice;
             RNStorage.maxPrice = data.maxPrice;
-            let downloadUrl = RNStorage.baseUrl + '/dsapp/download?code=' + (RNStorage.code?RNStorage.code:"600000") + '&phone=' + data.user.phone;
+            let downloadUrl = RNStorage.baseUrl + '/dsapp/download?code=' + (RNStorage.code ? RNStorage.code : Util.DEF_CODE) + '&phone=' + Util.encryptPhoneNumber(data.user.phone);
             setQrData(downloadUrl);
-            console.log("downloadUrl",downloadUrl);
-        }, (msg,data) => {
+            console.log("downloadUrl", downloadUrl);
+        }, (msg, data) => {
             setUserInfo(Util.nouser());
             RNStorage.userInfo = Util.nouser();
             RNStorage.isLogin = false;
-            RNStorage.accessToken = '';
             RNStorage.token = '';
         });
     }
@@ -64,14 +73,20 @@ const Share = () => {
                             logo={require('../../assets/app_icon.png')} // 替换为你的 logo 路径
                             logoSize={30}
                         />
+
                         <View>
                             <Text style={styles.title}>分享给好友</Text>
                             <Text style={styles.title}>扫码安装APP</Text>
-
                         </View>
 
                     </View>
+                    <TouchableWithoutFeedback onPress={() => { copyLink() }}>
+                        <View style={styles.btnCopy}>
+                            <Text style={{ color: 'white' }}>复制链接</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </ImageBackground>
+
             </View>
         </ImageBackground>
     );
@@ -132,6 +147,15 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 14, color: '#000000', margin: 10
+    },
+    btnCopy: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#993333',
+        borderRadius: 10,
+        width: 80,
+        height: 24,
+        marginVertical: 10,
     }
 });
 

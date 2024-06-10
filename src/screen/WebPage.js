@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet, Text, StatusBar } from 'react-nati
 import { WebView } from 'react-native-webview';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Orientation from 'react-native-orientation-locker';
+import NavigationBar from 'react-native-system-navigation-bar';
 import NavTitle from '../component/NavTitle';
 import { GlobalStyle } from '../common/GlobalStyle';
 import { RNStorage } from '../common/RNStorage';
@@ -26,6 +27,7 @@ const WebPage = () => {
     enterFullScreen = () => {
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
+        NavigationBar.navigationHide();
     };
 
     exitFullScreen = () => {

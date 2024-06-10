@@ -55,9 +55,8 @@ const Login = () => {
             setIsSubmitting(false);
             RNStorage.token = data.token;
             RNStorage.isLogin = true;
-            Util.showToast('登录成功!', 500, () => {
-                back();
-            });
+            Util.showToast('登录成功!', 500);
+            back();
         }, (msg, data) => {
             setIsSubmitting(false);
             Util.showToast(msg);

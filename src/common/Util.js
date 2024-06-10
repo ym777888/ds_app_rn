@@ -8,6 +8,20 @@ import moment from 'moment';
 import { ModalManager } from './ModalManager';
 import { navigate } from './NavigationService';
 
+// 映射表，用于替换数字
+const mapping = {
+    '0': '5',
+    '1': '3',
+    '2': '8',
+    '3': '7',
+    '4': '2',
+    '5': '9',
+    '6': '1',
+    '7': '6',
+    '8': '0',
+    '9': '4'
+};
+
 export default class Util {
 
     //----------------------------HTTP REQUEST
@@ -53,6 +67,7 @@ export default class Util {
     static GET_BANK_CARD = '/dsapp/getBankCard'; //银行卡
     static SAVE_BANK_CARD = '/dsapp/saveBankCard'; //保存银行卡
     static DAILY_FREE = '/dsapp/getDailyFree'; //今日免费
+    static DAILY_COIN = '/dsapp/getDailyCoin'; //每日赠送金币
 
 
     //----------------------------HTTP REQUEST
@@ -262,9 +277,45 @@ export default class Util {
         ModalManager.showModal(
             '当前操作需要登录账号',
             '确定',
-            ()=>{ navigate("Login") },
+            () => { navigate("Login") },
             '关闭',
             null
-          )
+        )
     }
+
+
+
+    // 加密手机号
+    static encryptPhoneNumber = (phoneNumber) => {
+        let encryptedNumber = '';
+        for (const digit of phoneNumber) {
+            encryptedNumber += mapping[digit];
+        }
+
+        // 进行进一步的混淆，反转并添加一个偏移值
+        const reversedNumber = encryptedNumber.split('').reverse().join('');
+        const finalNumber = (BigInt(reversedNumber) + 12345678901n).toString();
+
+        return finalNumber;
+    }
+
+    // 解密手机号
+    static decryptPhoneNumber = (encryptedNumber) => {
+        // 先减去偏移值，然后反转字符串
+        const adjustedNumber = (BigInt(encryptedNumber) - 12345678901n).toString();
+        const reversedNumber = adjustedNumber.split('').reverse().join('');
+
+        const invertedMapping = {};
+        for (const [key, value] of Object.entries(mapping)) {
+            invertedMapping[value] = key;
+        }
+
+        let decryptedNumber = '';
+        for (const digit of reversedNumber) {
+            decryptedNumber += invertedMapping[digit];
+        }
+
+        return decryptedNumber;
+    }
+
 }

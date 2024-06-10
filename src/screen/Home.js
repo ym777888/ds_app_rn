@@ -52,28 +52,12 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const TopTab = createMaterialTopTabNavigator();
 
-function loadSiteInfo() {
-    const [isGame, setIsGame] = useState(false);
-    const [isGift, setIsGift] = useState(false);
-    const [dataFetched, setDataFetched] = useState(false);
-    const [more, setMore] = useState([]);
-    useEffect(() => {
-        console.log("loadSiteInfo------------------");
-        setIsGame(RNStorage.info.isGame);
-        setIsGift(RNStorage.info.isGift);
-        setDataFetched(true);
-        setMore(RNStorage.info.more);
-
-    }, []);
-
-    return { isGame, isGift, dataFetched, more };
-}
-
 
 //顶部Tab
-function MyTopTabs() {
+const MyTopTabs = React.memo(() => {
 
     const navigation = useNavigation();
+
     const openChat = () => {
         navigation.navigate('Chat');
     };
@@ -140,7 +124,7 @@ function MyTopTabs() {
             </TopTab.Navigator>
         </>
     );
-}
+})
 
 //用户路由
 function ProfileStack() {
@@ -250,9 +234,12 @@ function ProfileStack() {
 }
 
 //底部tab
-function MyTabs() {
+const BottomTabs = React.memo(() => {
     const isDarkMode = useTheme();
-    const { isGame, isGift, dataFetched, more } = loadSiteInfo();
+    const isGame = RNStorage.info.isGame;
+    const isGift = RNStorage.info.isGift;
+    const more = RNStorage.info.more || [];
+
     let moreBox = [];
     for (let i = 0; i < more.length; i++) {
         let cfg = more[i];
@@ -275,6 +262,7 @@ function MyTabs() {
             />
         )
     }
+
     return (
         <Tab.Navigator
             initialRouteName="Index"
@@ -331,7 +319,7 @@ function MyTabs() {
                     name="Gift"
                     component={Gift}
                     options={{
-                        tabBarLabel: '礼品',
+                        tabBarLabel: '商城',
                         tabBarIcon: ({ color, size }) => (
                             <Image
                                 source={require('../../assets/icon_vip.png')} // 替换为您的图片路径
@@ -357,10 +345,10 @@ function MyTabs() {
             />
         </Tab.Navigator>
     );
-}
+})
 
 //全局路由
-function MyStack() {
+const MyStack = React.memo(() => {
 
     const navigationRef = useRef(null);
 
@@ -387,10 +375,10 @@ function MyStack() {
                     }}
                 />
                 <Stack.Screen
-                    name="MyTabs"
-                    component={MyTabs}
+                    name="BottomTabs"
+                    component={BottomTabs}
                     options={{
-                        gestureEnabled: false,
+                        title: 'BottomTabs',
                     }}
                 />
                 <Stack.Screen
@@ -477,7 +465,7 @@ function MyStack() {
             </Stack.Navigator>
         </NavigationContainer>
     );
-}
+})
 
 
 

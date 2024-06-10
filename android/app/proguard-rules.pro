@@ -22,3 +22,8 @@
 
 -keep class com.google.gson.** { *; }
 -dontwarn com.google.gson.**
+
+-keepattributes *Annotation*
+-keepclassmembers class ** {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}

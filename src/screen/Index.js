@@ -9,6 +9,7 @@ import Util from "../common/Util";
 import DailyItem from '../component/DailyItem';
 import { GlobalStyle } from '../common/GlobalStyle';
 import { RNStorage } from '../common/RNStorage';
+import { ModalManager } from '../common/ModalManager';
 
 const { width } = Dimensions.get('window');
 
@@ -55,9 +56,28 @@ const Index = () => {
 
     useEffect(() => {
         getAds()
+        getDailyCoin();
         getDailyFree();
         queryDataList();
     }, []);
+
+    const getDailyCoin = () => {
+        let req = {
+            code: RNStorage.code ? RNStorage.code : ""
+        }
+
+        HttpUtil.postReq(Util.DAILY_COIN, req, (msg, data) => {
+            if (data>0) {
+                ModalManager.showModal(
+                    '恭喜获得免费观看:'+data+'次',
+                    '确定',
+                    null,
+                    '关闭',
+                    null
+                  )
+            }
+        })
+    }
 
 
     const getDailyFree = (key) => {
@@ -259,7 +279,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: '#FFFFFF',
-        width: width * 0.7,
+        width: width * 0.8,
         height: 400,
         borderRadius: 5,
         justifyContent: 'flex-start',
@@ -276,13 +296,13 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     img: {
-        width: width * 0.7 - 10,
-        height: width * 0.7 / 1.8,
+        width: width * 0.8 - 10,
+        height: width * 0.8 / 1.8,
         marginTop: 5
     },
     webview: {
         flex: 1,
-        width: width * 0.7 - 10,
+        width: width * 0.8 - 10,
 
         borderColor: 'red',
         borderWidth: 1

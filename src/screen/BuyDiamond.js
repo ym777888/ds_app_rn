@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, FlatList, TouchableWithoutFeedback, Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, TouchableWithoutFeedback, Linking, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import Toast, { DURATION } from 'react-native-easy-toast'
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { GlobalStyle } from '../common/GlobalStyle';
 import HttpUtil from "../common/HttpUtil";
 import Util from "../common/Util";
@@ -15,6 +16,7 @@ const BuyDiamond = () => {
     const [productId, setProductId] = useState(null);
     const [orderNo, setOrderNo] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
+    const [loading, setLoading] = useState(false);
     const timerRef = useRef(null);
 
     const guestInfo = () => {
@@ -71,16 +73,53 @@ const BuyDiamond = () => {
         }
     }
 
-    const openLink = (url) => {
+    const openLink = async (url) => {
+        try {
+            const isAvailable = await InAppBrowser.isAvailable();
+            if (isAvailable) {
+                // 使用InAppBrowser打开链接
+                await InAppBrowser.open(url, {
+                    // 这是打开系统浏览器的选项
+                    showTitle: true,
+                    toolbarColor: '#6200EE',
+                    secondaryToolbarColor: 'black',
+                    navigationBarColor: 'black',
+                    navigationBarDividerColor: 'white',
+                    enableUrlBarHiding: true,
+                    enableDefaultShare: true,
+                    forceCloseOnRedirection: false,
+                });
+            } else {
+                // 如果InAppBrowser不可用，则使用Linking作为后备
+                openLink2(url);
+            }
+        } catch (error) {
+            console.error('链接错误', error);
+        }
+    };
+
+    const openLink2 = (url) => {
+        // 确保 URL 以 http:// 或 https:// 开头
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            Alert.alert('错误', '无效的链接');
+            return;
+        }
+
+        
+
         Linking.canOpenURL(url)
             .then((supported) => {
                 if (supported) {
                     return Linking.openURL(url);
                 } else {
+                    Alert.alert('错误', '无法识别链接: ' + url);
                     console.log("无法识别链接: " + url);
                 }
             })
-            .catch((err) => console.error('链接错误', err));
+            .catch((err) => {
+                Alert.alert('错误', '链接错误');
+                console.error('链接错误', err);
+            });
     };
 
     const getProduct = () => {
@@ -122,6 +161,8 @@ const BuyDiamond = () => {
                 openLink(data.payUrl);
             }
         })
+
+        setLoading(true);
     }
 
     const checkOrder = () => {
@@ -137,12 +178,23 @@ const BuyDiamond = () => {
             if (data) { //已支付
                 setOrderNo(null);
                 setShowPop(false);
+                setLoading(false);
                 if (msg) {
                     this.toast.show(msg, 1000);
                 }
                 guestInfo();
             }
         })
+    }
+
+    const coinNum = () => {
+        if (userInfo != null && userInfo.diamond != null) {
+            return userInfo.diamond;
+        }
+        if (RNStorage.userInfo != null && RNStorage.userInfo.diamond != null) {
+            return RNStorage.userInfo.diamond
+        }
+        return 0;
     }
 
     useEffect(() => {
@@ -240,7 +292,7 @@ const BuyDiamond = () => {
                         {/* <Text style={{ color: 'white', fontSize: 12 }}>消费明细 &gt;</Text> */}
                     </View>
                 </View>
-                <Text style={styles.num}>{userInfo != null ? userInfo.diamond : RNStorage.userInfo.diamond}</Text>
+                <Text style={styles.num}>{coinNum()}</Text>
             </View>
             <FlatList
                 style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }}
@@ -256,20 +308,27 @@ const BuyDiamond = () => {
             {showPop && (
                 <View style={styles.modalBg}>
                     <View style={styles.modal}>
-                        <TouchableWithoutFeedback onPress={() => { setShowPop(false) }}>
+                        <TouchableWithoutFeedback onPress={() => { setShowPop(false); setLoading(false) }}>
                             <Image resizeMode='contain' style={{ width: 34, height: 34, opacity: 0.4, position: 'absolute', right: 0, top: 0 }} source={require('../../assets/icon_close.png')}></Image>
                         </TouchableWithoutFeedback>
                         <View style={styles.popTitle}><Text style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}>选择支付方式:</Text></View>
-                        <FlatList
-                            style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), marginTop: 20 }}
-                            data={payListData}
-                            renderItem={renderPayItem}
-                            keyExtractor={(item, index) => index.toString()}
-                            numColumns={2}
-                            columnWrapperStyle={styles.flatListContent2}
-                            ListFooterComponent={renderPayFoot}
-                        />
 
+                        {loading ? (
+                            <>
+                                <ActivityIndicator size="large" color="#000000" style={{ marginTop: 20, }} />
+                                <Text style={{ fontSize: 14, color: 'black' }}>等待支付</Text>
+                            </>
+                        ) : (
+                            <FlatList
+                                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), marginTop: 20 }}
+                                data={payListData}
+                                renderItem={renderPayItem}
+                                keyExtractor={(item, index) => index.toString()}
+                                numColumns={2}
+                                columnWrapperStyle={styles.flatListContent2}
+                                ListFooterComponent={renderPayFoot}
+                            />
+                        )}
                     </View>
                 </View>
             )}
@@ -301,7 +360,7 @@ const styles = StyleSheet.create({
 
     },
     itemCard: {
-        width: '22%',
+        width: '25%',
         height: 120,
         backgroundColor: '#FFFFCC',
         borderColor: '#FF6600',
@@ -377,7 +436,7 @@ const styles = StyleSheet.create({
     },
     modal: {
         backgroundColor: '#FFFFFF',
-        width: '70%',
+        width: '80%',
         height: 400,
         borderRadius: 14,
         justifyContent: 'flex-start',
