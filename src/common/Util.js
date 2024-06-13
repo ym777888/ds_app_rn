@@ -8,7 +8,7 @@ import moment from 'moment';
 import { ModalManager } from './ModalManager';
 import { navigate } from './NavigationService';
 
-// 映射表，用于替换数字
+// 映射表，用于加密和解密
 const mapping = {
     '0': '5',
     '1': '3',
@@ -288,33 +288,24 @@ export default class Util {
     // 加密手机号
     static encryptPhoneNumber = (phoneNumber) => {
         let encryptedNumber = '';
-        for (const digit of phoneNumber) {
+        for (let digit of phoneNumber) {
             encryptedNumber += mapping[digit];
         }
-
-        // 进行进一步的混淆，反转并添加一个偏移值
-        const reversedNumber = encryptedNumber.split('').reverse().join('');
-        const finalNumber = (BigInt(reversedNumber) + 12345678901n).toString();
-
-        return finalNumber;
+        return encryptedNumber;
     }
 
     // 解密手机号
     static decryptPhoneNumber = (encryptedNumber) => {
-        // 先减去偏移值，然后反转字符串
-        const adjustedNumber = (BigInt(encryptedNumber) - 12345678901n).toString();
-        const reversedNumber = adjustedNumber.split('').reverse().join('');
-
-        const invertedMapping = {};
-        for (const [key, value] of Object.entries(mapping)) {
-            invertedMapping[value] = key;
-        }
-
         let decryptedNumber = '';
-        for (const digit of reversedNumber) {
-            decryptedNumber += invertedMapping[digit];
+        for (let digit of encryptedNumber) {
+            // 反向映射回原始数字
+            for (let key in mapping) {
+                if (mapping[key] === digit) {
+                    decryptedNumber += key;
+                    break;
+                }
+            }
         }
-
         return decryptedNumber;
     }
 

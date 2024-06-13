@@ -144,6 +144,7 @@ const Gift = () => {
             setIsSubmitting(false);
             Util.showToast(msg);
             setShowPop(false);
+            guestInfo();
         }, (msg, code) => {
             setIsSubmitting(false);
             Util.showToast(msg);

@@ -2730,6 +2730,11 @@ base64-js@^1.3.1, base64-js@^1.5.1:
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
+base64-utf8@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/base64-utf8/-/base64-utf8-1.0.0.tgz#e0c4bc32231fec672569b6ed4c97b855bf19ca89"
+  integrity sha512-RjxANunhAToR4qYoQRar+OYKHz/IMCNAeFqCRJR8D5sr23iVu9Lh6goSAYRpdgef0McIEXEgfLYCWjSgEAXZEw==
+
 basic-ftp@^5.0.2:
   version "5.0.5"
   resolved "https://registry.yarnpkg.com/basic-ftp/-/basic-ftp-5.0.5.tgz#14a474f5fffecca1f4f406f1c26b18f800225ac0"

@@ -15,6 +15,8 @@ const WebPage = () => {
 
     const { url, isLandsacpe=false } = route.params;
 
+    console.log("open",url);
+
     useEffect(() => {
         if (isLandsacpe) {
             enterFullScreen();

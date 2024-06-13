@@ -23,7 +23,7 @@ import { ThemeProvider, useTheme } from './src/common/ThemeContext';
 
 import { ModalProvider, ModalManager } from "./src/common/ModalManager";
 import ModalDialog from "./src/common/ModalDialog";
-
+import { encode, decode } from 'base64-utf8';
 
 
 global.eventEmitter = new EventEmitter();
@@ -135,6 +135,17 @@ function App() {
         }
     };
 
+    const initHttp = () => {
+        XHttpConfig().initLogOn(Platform.OS === "web" ? false : false).initBaseUrl(RNStorage.baseUrl)
+        .initHeaderSetFunc((headers, request) => {
+            headers.device = 'app';
+        }).initParseDataFunc((result, request, callback) => {
+            callback(result);
+        });
+        logtxt.current.push('xhttp initBaseUrl()');
+        console.log("xhttp initBaseUrl()");
+    }
+
     useEffect(() => {
 
         const initializeApp = async () => {
@@ -161,14 +172,6 @@ function App() {
             RNStorage.isDark = isDarkMode;
             RNStorage.logcat = [];
 
-            XHttpConfig().initLogOn(Platform.OS === "web" ? false : false).initBaseUrl(API_URL)
-                .initHeaderSetFunc((headers, request) => {
-                    headers.device = 'app';
-                }).initParseDataFunc((result, request, callback) => {
-                    callback(result);
-                });
-            logtxt.current.push('xhttp initBaseUrl()');
-            console.log("xhttp initBaseUrl()");
 
             // 设置 RNStorage 参数
             if (Platform.OS === "ios" || Platform.OS === "android") {
@@ -178,13 +181,18 @@ function App() {
                 logtxt.current.push(clipboardText);
 
                 console.log("clipboardText: ", clipboardText);
-                if (clipboardText.indexOf('SHARE_CODE=') === 0) { // SHARE_CODE=jx|600000|13000000000
-                    let shareCode = clipboardText.replace('SHARE_CODE=', '');
+                if (clipboardText.indexOf('SHARE_CODE') === 0) { // SHARE_CODE + base64(appDomain|600000|13000000000)
+                    let shareCode = clipboardText.replace('SHARE_CODE', '');
+                    shareCode = decode(shareCode);
                     if (shareCode.indexOf("|") > 0) {
                         let arr = shareCode.split("|");
                         
                         if (arr[0] != null && arr[0] != '') {
-                            RNStorage.site = arr[0]; //站点
+                            if(RNStorage.site == null || RNStorage.site == ''){
+                                RNStorage.site = arr[0]; //站点
+                                RNStorage.baseUrl = RNStorage.site;
+                                console.log("SHARE_CODE 更新了 RNStorage.baseUrl",RNStorage.baseUrl);
+                            }
                         }
 
                         if (arr[1] != null && arr[1] != '') {
@@ -205,6 +213,8 @@ function App() {
 
                 }
             }
+
+            initHttp();
 
             retry();
 

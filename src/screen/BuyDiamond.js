@@ -159,10 +159,11 @@ const BuyDiamond = () => {
             setOrderNo(data.orderNo);
             if (data.payUrl) {
                 openLink(data.payUrl);
+                setLoading(true);
             }
         })
 
-        setLoading(true);
+        
     }
 
     const checkOrder = () => {

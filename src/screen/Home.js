@@ -319,7 +319,7 @@ const BottomTabs = React.memo(() => {
                     name="Gift"
                     component={Gift}
                     options={{
-                        tabBarLabel: '商城',
+                        tabBarLabel: '兑换',
                         tabBarIcon: ({ color, size }) => (
                             <Image
                                 source={require('../../assets/icon_vip.png')} // 替换为您的图片路径

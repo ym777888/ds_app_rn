@@ -31,8 +31,8 @@ const Game = () => {
             RNStorage.userInfo = data.user;
             RNStorage.minPrice = data.minPrice;
             RNStorage.maxPrice = data.maxPrice;
-            if (RNStorage.info.gameH5 != '' && RNStorage.info.gameH5 != null) {
-                let url = RNStorage.info.gameH5 + "?phone=" + data.user.phone + "&password=" + data.user.password + "&t=" + Date.now();
+            if (RNStorage.info.gameH5 != '' && RNStorage.info.gameH5 != null && RNStorage.info.appDomain != null && RNStorage.info.appDomain != '') {
+                let url = RNStorage.info.gameH5 + "?phone=" + data.user.phone + "&password=" + data.user.password + "&appDomain=" + RNStorage.info.appDomain + "&t=" + Date.now();
                 setGameUrl(url);
             }
         }, () => {
@@ -46,7 +46,7 @@ const Game = () => {
 
 
     const openGame = () => {
-        if (RNStorage.token == null||RNStorage.token == "") {
+        if (RNStorage.token == null || RNStorage.token == "") {
             Util.showLoginModal();
             return;
         }
@@ -131,8 +131,8 @@ const Game = () => {
                             <Image tintColor={'#FFFFFF'} style={{ width: 24, height: 24 }} resizeMode='center' source={require('../../assets/icon_arrow.png')}></Image>
                         </View>
                     </TouchableWithoutFeedback>
-                    <TouchableWithoutFeedback onPress={()=>{ setNum('0'); setShowPop(true); }}>
-                        <View style={[styles.btn,{ backgroundColor: '#FFFFCC'}]}>
+                    <TouchableWithoutFeedback onPress={() => { setNum('0'); setShowPop(true); }}>
+                        <View style={[styles.btn, { backgroundColor: '#FFFFCC' }]}>
                             <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#996600' }}>换游戏币</Text>
                             <Image tintColor={'#996600'} style={{ width: 24, height: 24 }} resizeMode='center' source={require('../../assets/icon_arrow.png')}></Image>
                         </View>
@@ -148,7 +148,7 @@ const Game = () => {
                             <Image resizeMode='contain' style={{ width: 34, height: 34, opacity: 0.4, position: 'absolute', right: 0, top: 0 }} source={require('../../assets/icon_close.png')}></Image>
                         </TouchableWithoutFeedback>
                         <View style={styles.popTitle}><Text style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}>钻石兑换游戏币</Text></View>
-
+                        <View style={styles.popTitle2}><Text style={{ color: '#777777', fontSize: 12 }}>1钻石 = 1游戏币</Text></View>
                         <View style={styles.box2}>
                             <Text style={{ color: '#000000' }}>数量:</Text>
                             <TextInput style={styles.searchTxt} placeholder="钻石数量" numberOfLines={1} maxLength={20} value={num} onChangeText={setNum} />
@@ -160,10 +160,16 @@ const Game = () => {
                         </View>
                         <TouchableWithoutFeedback onPress={exchangeDiamond}>
                             <View style={styles.btnSubmit}>
-                                <Text style={{ color: '#FFFFFF' }}>兑换</Text>
+                                <Text style={{ color: '#FFFFFF' }}>确定兑换</Text>
                             </View>
                         </TouchableWithoutFeedback>
-                        <View style={styles.popTitle2}><Text style={{ color: '#555555', fontSize: 14 }}>1钻石 = 1游戏币</Text></View>
+
+                        <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start', width: '70%', marginTop: 30 }}>
+                            <Text style={{ color: 'red', fontSize: 12 }}>钻石不足？</Text>
+                            <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond') }}>
+                                <View style={[styles.btnSubmit, { backgroundColor: '#FFFFCC', width: '100%' }]}><Text style={{ color: 'black' }}>购买钻石</Text></View>
+                            </TouchableWithoutFeedback>
+                        </View>
                     </View>
                 </View>
             )}
@@ -257,7 +263,7 @@ const styles = StyleSheet.create({
         paddingTop: 20
     },
     popTitle: {
-        backgroundColor: '#FF9933', borderRadius: 20, width: '70%', height: 30, justifyContent: 'center', alignItems: 'center', marginTop: 10
+        borderRadius: 20, width: '70%', height: 30, justifyContent: 'center', alignItems: 'center', marginTop: 10
     },
     popTitle2: {
         backgroundColor: '#ffffff', borderRadius: 5, width: '70%', height: 20, justifyContent: 'center', alignItems: 'center', marginTop: 10
