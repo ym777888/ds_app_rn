@@ -20,4 +20,5 @@ export const RNStorage = {// 持久化数据列表
     maxPrice: 0,
     logcat: [],
     site: '', //站点缩写
+    init: false
 };

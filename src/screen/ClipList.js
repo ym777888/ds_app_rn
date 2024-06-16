@@ -77,7 +77,8 @@ const ClipList = () => {
         let req = {
             k: category,
             p: pageArr.current[currentPageRef.current],
-            pageSize: 10
+            pageSize: 10,
+            code: RNStorage.code ? RNStorage.code : Util.DEF_CODE
         };
 
         HttpUtil.postReq(Util.CLIP_DATA, req, (msg, newData) => {

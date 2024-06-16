@@ -62,7 +62,8 @@ const Search = () => {
         let req = {
             k: keyword.current,
             p: currentPageRef.current,
-            pageSize: Util.PAGE_SIZE
+            pageSize: Util.PAGE_SIZE,
+            code: RNStorage.code ? RNStorage.code : Util.DEF_CODE
         };
 
         HttpUtil.postReq(Util.CLIP_DATA, req, (msg, newData) => {

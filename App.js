@@ -42,6 +42,7 @@ function App() {
     const [fail, setFail] = useState(false); //链接失败
     const [show, setShow] = useState(false); //显示日志
     const logtxt = useRef([]);
+    const errCount = useRef(0);
 
     NavigationBar.navigationHide();
 
@@ -96,7 +97,88 @@ function App() {
             let s = 'Server API is not available';
             console.log(s);
             logtxt.current.push(s);
+            
+            errCount.current = errCount.current + 1;
+            console.log("errCount:",errCount.current);
+            if (errCount.current > 3) {
+                errCount.current = 0;
+                tryLand();
+            }
         } else {
+
+            initHttp(RNStorage.baseUrl);
+            // 如果服务器 API 可用，则继续进行后续初始化工作
+            // CodePush 同步等操作
+            CodePush.sync(codePushOptions);
+
+            console.log(global.siteName);
+            console.log(global.siteUrl);
+
+            setIsLoading(false);
+        }
+
+    }
+
+    //尝试使用落地登录
+    const tryLand = async () => {
+        console.log("tryLand");
+        if (RNStorage.info == null || RNStorage.info.dsLand == null || RNStorage.info.dsLand == '') {
+            console.log('tryLand: no land');
+            logtxt.current.push('tryLand: no land');
+            return;
+        }
+        let isServerApiAvailable = false;
+        logtxt.current.push('tryLand:');
+
+        setMsg('正在连接...');
+        try {
+            // 发起简单的网络请求检测服务器 API 是否正常
+            let url = RNStorage.info.dsLand + Util.SITE_INFO + "?t=" + Date.now() + "&code=" + (RNStorage.code ? RNStorage.code : Util.DEF_CODE);
+            console.log("req:", url);
+            logtxt.current.push("req:" + url);
+            const response = await fetch(url);
+            console.log("Response:", response);
+            RNStorage.logcat.push(url);
+            RNStorage.logcat.push(response);
+
+            if (!response.ok) {
+                setMsg("服务器连接失败");
+                setFail(true);
+                isServerApiAvailable = false;
+            }
+
+            const resp = await response.json();
+            console.log("json:", resp);
+            logtxt.current.push(resp);
+            if (resp.code == 500) {
+                setMsg(resp.msg);
+                setFail(true);
+                isServerApiAvailable = false;
+            } else {
+                RNStorage.info = resp.data;
+                isServerApiAvailable = true;
+            }
+
+        } catch (error) {
+            console.log("error:", error.message);
+            logtxt.current.push(error.message);
+            setMsg("网络连接失败，请稍后重试");
+            setFail(true);
+            isServerApiAvailable = false;
+        }
+
+        logtxt.current.push('isServerApiAvailable:');
+        logtxt.current.push(isServerApiAvailable);
+
+        console.log("isServerApiAvailable", isServerApiAvailable);
+
+        if (!isServerApiAvailable) {
+            // 如果服务器 API 不可用，则保持在加载页面
+            let s = 'Server API is not available';
+            console.log(s);
+            logtxt.current.push(s);
+        } else {
+            initHttp(RNStorage.info.dsLand);
             // 如果服务器 API 可用，则继续进行后续初始化工作
             // CodePush 同步等操作
             CodePush.sync(codePushOptions);
@@ -135,13 +217,13 @@ function App() {
         }
     };
 
-    const initHttp = () => {
-        XHttpConfig().initLogOn(Platform.OS === "web" ? false : false).initBaseUrl(RNStorage.baseUrl)
-        .initHeaderSetFunc((headers, request) => {
-            headers.device = 'app';
-        }).initParseDataFunc((result, request, callback) => {
-            callback(result);
-        });
+    const initHttp = (apiUrl) => {
+        XHttpConfig().initLogOn(Platform.OS === "web" ? false : false).initBaseUrl(apiUrl)
+            .initHeaderSetFunc((headers, request) => {
+                headers.device = 'app';
+            }).initParseDataFunc((result, request, callback) => {
+                callback(result);
+            });
         logtxt.current.push('xhttp initBaseUrl()');
         console.log("xhttp initBaseUrl()");
     }
@@ -168,7 +250,11 @@ function App() {
 
             const API_URL = __DEV__ ? DEV_URL : global.siteUrl;
 
-            RNStorage.baseUrl = API_URL;
+            if (RNStorage.baseUrl == null || RNStorage.baseUrl == '') {
+                RNStorage.baseUrl = API_URL;
+            }
+
+
             RNStorage.isDark = isDarkMode;
             RNStorage.logcat = [];
 
@@ -186,12 +272,12 @@ function App() {
                     shareCode = decode(shareCode);
                     if (shareCode.indexOf("|") > 0) {
                         let arr = shareCode.split("|");
-                        
+
                         if (arr[0] != null && arr[0] != '') {
-                            if(RNStorage.site == null || RNStorage.site == ''){
+                            if (RNStorage.site == null || RNStorage.site == '') {
                                 RNStorage.site = arr[0]; //站点
                                 RNStorage.baseUrl = RNStorage.site;
-                                console.log("SHARE_CODE 更新了 RNStorage.baseUrl",RNStorage.baseUrl);
+                                console.log("SHARE_CODE 更新了 RNStorage.baseUrl", RNStorage.baseUrl);
                             }
                         }
 
@@ -202,7 +288,7 @@ function App() {
                         }
 
                         if (arr[2] != null && arr[2] != '') {
-                            if(RNStorage.puid == null || RNStorage.puid == ''){
+                            if (RNStorage.puid == null || RNStorage.puid == '') {
                                 RNStorage.puid = Util.decryptPhoneNumber(arr[2]); //推荐人账号
                             }
                         }
@@ -214,14 +300,12 @@ function App() {
                 }
             }
 
-            initHttp();
-
             retry();
 
         };
 
         initializeApp();
-        
+
 
     }, []);
 

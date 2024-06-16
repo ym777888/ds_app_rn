@@ -44,7 +44,7 @@ const Profile = () => {
     }, []);
 
     const configData = [
-        { id: 1, name: '免费观看', tip: '免费观看' + userInfo?.user?.coin + '次', value: userInfo?.user?.coin },
+        { id: 1, name: '剩余免费观看', tip: '免费观看' + userInfo?.user?.coin + '次,每日登录可获取', value: userInfo?.user?.coin },
         { id: 2, name: '分享好友', nav: 'Share', value: '奖励免费观看' },
         { id: 3, name: '兑换记录', nav: 'MyGift', value: '' },
         // { id: 4, name: '收货地址', nav: 'Address', value: '' },

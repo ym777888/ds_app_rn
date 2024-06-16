@@ -42,7 +42,7 @@ const GiftItem = React.memo(({ data = {}, nav = {}, index, cb = null }) => {
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={() => { handlePress1(data) }} >
                     <View style={styles.right}>
-                        <Text style={styles.title3} numberOfLines={2}>{data.name}</Text>
+                        <Text style={styles.title3} numberOfLines={1}>{data.alias}</Text>
                     </View>
                 </TouchableWithoutFeedback>
 
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
     listItem: {
         flexDirection: 'column',
         backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
-        marginVertical: 10,
-        height: 260,
+        marginVertical: 6,
+        height: 230,
         width: width * 0.5 - 10,
         justifyContent: 'flex-start',
         alignItems: 'center',

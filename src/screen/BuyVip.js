@@ -310,7 +310,7 @@ const BuyVip = () => {
                         <TouchableWithoutFeedback onPress={() => { setShowPop(false); setLoading(false) }}>
                             <Image resizeMode='contain' style={{ width: 34, height: 34, opacity: 0.4, position: 'absolute', right: 0, top: 0 }} source={require('../../assets/icon_close.png')}></Image>
                         </TouchableWithoutFeedback>
-                        <View style={styles.popTitle}><Text style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}>选择支付方式:</Text></View>
+                        <View style={styles.popTitle}><Text style={{ fontSize: 14, fontWeight: 'bold', color: 'black' }}>选择支付方式</Text></View>
                         {loading ? (
                             <>
                                 <ActivityIndicator size="large" color="#000000" style={{ marginTop: 20, }} />
@@ -466,12 +466,12 @@ const styles = StyleSheet.create({
         height: 34,
     },
     iconPay: {
-        width: 30,
-        height: 30,
-        marginHorizontal: 5
+        width: 24,
+        height: 24,
+        marginHorizontal: 3
     },
     popTitle: {
-        backgroundColor: '#FF9933', borderRadius: 20, width: '70%', height: 30, justifyContent: 'center', alignItems: 'center', marginTop: 10
+        borderRadius: 20, width: '70%', height: 30, justifyContent: 'center', alignItems: 'center', marginTop: 10
     },
     tip: {
         color: '#FF6666',

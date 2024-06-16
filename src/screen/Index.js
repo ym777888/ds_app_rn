@@ -67,14 +67,14 @@ const Index = () => {
         }
 
         HttpUtil.postReq(Util.DAILY_COIN, req, (msg, data) => {
-            if (data>0) {
+            if (data > 0) {
                 ModalManager.showModal(
-                    '恭喜获得免费观看:'+data+'次',
+                    '恭喜获得免费观看:' + data + '次',
                     '确定',
                     null,
                     '关闭',
                     null
-                  )
+                )
             }
         })
     }
@@ -120,7 +120,8 @@ const Index = () => {
     const queryDataList = () => {
         let req = {
             num: 6,
-            pageSize: 5
+            pageSize: 5,
+            code: RNStorage.code ? RNStorage.code : Util.DEF_CODE
         }
 
         HttpUtil.postReq(Util.CLIP_TYPE_DATA, req, (msg, data) => {
@@ -152,7 +153,8 @@ const Index = () => {
 
         let req = {
             key: key,
-            pageSize: 5
+            pageSize: 5,
+            code: RNStorage.code ? RNStorage.code : Util.DEF_CODE
         }
 
         HttpUtil.postReq(Util.CLIP_KEY, req, (msg, data) => {
