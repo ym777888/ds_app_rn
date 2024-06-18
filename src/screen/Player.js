@@ -30,8 +30,10 @@ const Player = () => {
     const [isRecom, setIsRecom] = useState(false);
     const [dataList, setDataList] = useState([]);
     const freeDuration = useRef(0);
+    const clipData = useRef({});
 
     useEffect(() => {
+        clipData.current = data;
         getMoreList();
         checkFavRecom();
     }, [])
@@ -42,14 +44,25 @@ const Player = () => {
         }, [])
     );
 
+    const click = (newData) => {
+        console.log("click newData", newData);
+        clipData.current = newData;
+        checkBuy();
+    }
+
     const renderItem = ({ item, index }) => {
-        return <GridItem data={item} nav={navigation} index={index} />
+        return <GridItem data={item} nav={navigation} index={index} action={click} />
     };
 
     const checkBuy = () => {
+
+        setCanPlay(false);
+        setClipUrl(null);
+
+
         let req = {
-            clipKey: data.uuid,
-            price: data.price
+            clipKey: clipData.current.uuid,
+            price: clipData.current.price
         }
 
         HttpUtil.postReq(Util.CHECK_BUY, req, (msg, data) => {
@@ -161,19 +174,19 @@ const Player = () => {
                 <TouchableWithoutFeedback onPress={addRecom}>
                     <View style={styles.btn}>
                         <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={isRecom ? require('../../assets/icon_heart2.png') : require('../../assets/icon_heart.png')}></Image>
-                        <Text style={styles.btnTitle}>点赞</Text>
+                        <Text style={[styles.btnTitle, { color: GlobalStyle.sysFont() }]}>点赞</Text>
                     </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={addFav}>
                     <View style={styles.btn}>
                         <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={isFav ? require('../../assets/icon_star2.png') : require('../../assets/icon_star.png')}></Image>
-                        <Text style={styles.btnTitle}>收藏</Text>
+                        <Text style={[styles.btnTitle, { color: GlobalStyle.sysFont() }]}>收藏</Text>
                     </View>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback onPress={share}>
                     <View style={styles.btn}>
                         <Image tintColor={GlobalStyle.sysFont()} style={styles.btnImg} source={require('../../assets/icon_share.png')}></Image>
-                        <Text style={styles.btnTitle}>分享</Text>
+                        <Text style={[styles.btnTitle, { color: GlobalStyle.sysFont() }]}>分享</Text>
                     </View>
                 </TouchableWithoutFeedback>
                 {/* <TouchableWithoutFeedback>
@@ -190,8 +203,8 @@ const Player = () => {
                 </TouchableWithoutFeedback>
             </View>
             <View style={[styles.row, { justifyContent: 'center' }]}>
-            <TouchableWithoutFeedback onPress={() => { navigation.goBack(); }}>
-                    <View style={[styles.btn1,{backgroundColor: '#eeeeee'}]}><Text style={{ color: '#555555'}}>返回首页</Text></View>
+                <TouchableWithoutFeedback onPress={() => { navigation.goBack(); }}>
+                    <View style={[styles.btn1, { backgroundColor: '#eeeeee' }]}><Text style={{ color: '#555555' }}>返回首页</Text></View>
                 </TouchableWithoutFeedback>
                 {!RNStorage.isLogin && (
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate('Login', { data: {} }); }}>
@@ -208,7 +221,7 @@ const Player = () => {
 
             </View>
             <View style={styles.row}>
-                <View style={{ flexDirection: 'row', width: 100}}>
+                <View style={{ flexDirection: 'row', width: 100 }}>
                     <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
                     <Text style={styles.title}>为你推荐</Text>
                 </View>
@@ -218,7 +231,7 @@ const Player = () => {
     );
 
     return (
-        <View style={styles.topBox}>
+        <View style={[styles.topBox, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             {canPlay && clipUrl ? (
                 <Video
                     ref={playerRef}
@@ -259,14 +272,17 @@ const Player = () => {
                     </View>
                 )}
 
-                <View style={styles.url}>
-                    <Text style={styles.small}>永久网址：</Text>
-                    <Text style={styles.small} numberOfLines={1}> {RNStorage.info?.appSite}</Text>
-                </View>
+                {(RNStorage.info && RNStorage.info?.appSite) && (
+                    <View style={styles.url}>
+                        <Text style={[styles.small, { color: GlobalStyle.sysFont(), }]}>永久网址：</Text>
+                        <Text style={[styles.small, { color: GlobalStyle.sysFont(), }]} numberOfLines={1}> {RNStorage.info?.appSite}</Text>
+                    </View>
+                )}
+
             </View>
             <View style={styles.row}>
                 <View style={{ width: 5, height: 20, backgroundColor: '#CC0033' }}></View>
-                <Text numberOfLines={2} style={styles.title}>{data.title}</Text>
+                <Text numberOfLines={2} style={[styles.title, { color: GlobalStyle.sysFont(), }]}>{data.title}</Text>
             </View>
 
             <FlatList
@@ -347,11 +363,10 @@ const styles = StyleSheet.create({
     },
     btnTitle: {
         fontSize: 14,
-        color: GlobalStyle.sysFont()
+
     },
     topBox: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         flex: 1,
     },
     coin: {
@@ -382,11 +397,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
     title: {
-        overflow: 'hidden', color: GlobalStyle.sysFont(), fontSize: 14, flex: 1, marginHorizontal: 10, lineHeight: 22
+        overflow: 'hidden', fontSize: 14, flex: 1, marginHorizontal: 10, lineHeight: 22
     },
     small: {
         fontSize: 14,
-        color: GlobalStyle.sysFont(),
+
         fontWeight: 'bold'
     },
     normal: {

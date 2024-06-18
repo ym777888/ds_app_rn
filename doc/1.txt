@@ -9,6 +9,9 @@ Staging:0WgIrsHkbftSZ4HShYfI7nH9sr4W4ksvOXqog
 教程
 https://blog.csdn.net/zcmain/article/details/89517634
 
+启动code-push-server
+nohup node /www/code-push-server/bin/www &
+
 ---------------------------------------------------------------------------
 
 发布热更新:

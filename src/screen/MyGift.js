@@ -77,7 +77,7 @@ const MyGift = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={'兑换记录'} />
             <FlatList
                 style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}

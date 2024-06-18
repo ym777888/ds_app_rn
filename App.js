@@ -97,9 +97,9 @@ function App() {
             let s = 'Server API is not available';
             console.log(s);
             logtxt.current.push(s);
-            
+
             errCount.current = errCount.current + 1;
-            console.log("errCount:",errCount.current);
+            console.log("errCount:", errCount.current);
             if (errCount.current > 3) {
                 errCount.current = 0;
                 tryLand();
@@ -228,6 +228,33 @@ function App() {
         console.log("xhttp initBaseUrl()");
     }
 
+    const readShareCode = (shareCode) => {
+        console.log("readShareCode", shareCode);
+        if (shareCode.indexOf("|") > 0) {
+            let arr = shareCode.split("|");
+
+            if (arr[0] != null && arr[0] != '') {
+                if (RNStorage.site == null || RNStorage.site == '') {
+                    RNStorage.site = arr[0]; //站点
+                    RNStorage.baseUrl = RNStorage.site;
+                    console.log("SHARE_CODE 更新了 RNStorage.baseUrl", RNStorage.baseUrl);
+                }
+            }
+
+            if (arr[1] != null && arr[1] != '') {
+                if (RNStorage.code == null || RNStorage.code == '') {
+                    RNStorage.code = arr[1]; //代理邀请码
+                }
+            }
+
+            if (arr[2] != null && arr[2] != '') {
+                if (RNStorage.puid == null || RNStorage.puid == '') {
+                    RNStorage.puid = Util.decryptPhoneNumber(arr[2]); //推荐人账号
+                }
+            }
+        }
+    }
+
     useEffect(() => {
 
         const initializeApp = async () => {
@@ -267,34 +294,34 @@ function App() {
                 logtxt.current.push(clipboardText);
 
                 console.log("clipboardText: ", clipboardText);
-                if (clipboardText.indexOf('SHARE_CODE') === 0) { // SHARE_CODE + base64(appDomain|600000|13000000000)
+                if (clipboardText.indexOf('SHARE_CODE') === 0) { // SHARE_CODE + base64(appDomain|600000|13000000000)  SHARE_CODEaHR0cDovLzE5Mi4xNjguMTAwLjI0L2FwaXw2MDA0Njh8
+                    console.log("YES paste");
+                    RNStorage.logcat.push("YES paste");
                     let shareCode = clipboardText.replace('SHARE_CODE', '');
                     shareCode = decode(shareCode);
-                    if (shareCode.indexOf("|") > 0) {
-                        let arr = shareCode.split("|");
-
-                        if (arr[0] != null && arr[0] != '') {
-                            if (RNStorage.site == null || RNStorage.site == '') {
-                                RNStorage.site = arr[0]; //站点
-                                RNStorage.baseUrl = RNStorage.site;
-                                console.log("SHARE_CODE 更新了 RNStorage.baseUrl", RNStorage.baseUrl);
-                            }
+                    readShareCode(shareCode);
+                } else { //没有粘贴板内容，从http读取
+                    console.log("NO paste");
+                    RNStorage.logcat.push("NO paste");
+                    let url = "http://apk.jmyx01.com:10088/load";
+                    const response = await fetch(url);
+                    console.log("url:", url);
+                    console.log("Response:", response);
+                    if (response.ok) {
+                        const jsonData = await response.json();
+                        console.log("Response json:", jsonData);
+                        RNStorage.logcat.push(url);
+                        RNStorage.logcat.push(jsonData);
+                        let shareCode = jsonData.data
+                        if (shareCode != null && shareCode != '') {
+                            shareCode = shareCode.replace('SHARE_CODE', '');
+                            shareCode = decode(shareCode);
+                            readShareCode(shareCode);
                         }
-
-                        if (arr[1] != null && arr[1] != '') {
-                            if (RNStorage.code == null || RNStorage.code == '') {
-                                RNStorage.code = arr[1]; //代理邀请码
-                            }
-                        }
-
-                        if (arr[2] != null && arr[2] != '') {
-                            if (RNStorage.puid == null || RNStorage.puid == '') {
-                                RNStorage.puid = Util.decryptPhoneNumber(arr[2]); //推荐人账号
-                            }
-                        }
-
-
+                    } else {
+                        console.error('Network response was not ok.');
                     }
+
 
 
                 }

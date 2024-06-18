@@ -77,7 +77,7 @@ const Message = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={'消息'} rightTxt={'清除'} rightAction={doClear} />
             <FlatList
                 style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}

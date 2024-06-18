@@ -25,7 +25,7 @@ const ListItemSmall = React.memo(({ data = {}, nav = {}, index }) => {
 
     return (
         <TouchableWithoutFeedback onPress={handlePress} key={index}>
-            <View style={styles.listItem}>
+            <View style={[styles.listItem,{backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
                 <View style={styles.box}>
                     <FastImage
                         style={styles.img}
@@ -33,7 +33,7 @@ const ListItemSmall = React.memo(({ data = {}, nav = {}, index }) => {
                         resizeMode='stretch'
                     />
                     <View style={styles.right}>
-                        <Text style={styles.title2} numberOfLines={2}>{data.clipTitle}</Text>
+                        <Text style={[styles.title2,{color: GlobalStyle.setFont(RNStorage.isDark)}]} numberOfLines={2}>{data.clipTitle}</Text>
                         <Text style={styles.date} numberOfLines={2}>{data.createTime}</Text>
                     </View>
                 </View>
@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
     },
     title2: {
         fontSize: 14,
-        color: '#000000',
         width: width * 0.6,
         lineHeight: 20,
     },

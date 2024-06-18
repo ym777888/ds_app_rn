@@ -25,12 +25,12 @@ const priceBadge = (price) => {
     return null;
 };
 
-const GridItem = ({ data = {}, nav = {}, index }) => {
+const GridItem = ({ data = {}, nav = {}, index, action = null }) => {
     const isRight = (index % 2 !== 0);
 
     return (
-        <TouchableWithoutFeedback onPress={() => { nav.navigate('Player', { data: data }) }} key={index}>
-            <View style={[styles.listItem, { width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
+        <TouchableWithoutFeedback onPress={() => { if (action != null) { action(data) } else { nav.navigate('Player', { data: data }) } }} key={index}>
+            <View style={[styles.listItem, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), width: width * 0.5 - 4 }, isRight ? { marginLeft: 8 } : { marginLeft: 0 }]}>
                 <View style={styles.box}>
                     <FastImage
                         style={[
@@ -41,9 +41,9 @@ const GridItem = ({ data = {}, nav = {}, index }) => {
                         resizeMode={FastImage.resizeMode.cover}
                     />
                     <Text style={{
-                            fontSize: 14,
-                            color: GlobalStyle.sysFont(),
-                            lineHeight: 22,
+                        fontSize: 14,
+                        color: GlobalStyle.sysFont(),
+                        lineHeight: 22,
                     }} numberOfLines={2}>{data.title}</Text>
                     {priceBadge(data.price)}
                 </View>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
 
     listItem: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
         marginVertical: 8,
         width: width * 0.5,
     },

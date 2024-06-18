@@ -39,7 +39,7 @@ const DailyItem = React.memo(({ data = {}, nav = {}, index, btn1Callback, btn2Ca
         <TouchableWithoutFeedback onPress={() => { handlePress(itemData); }} key={i}>
             <View style={[
                 styles.listItem,
-                i === 0 ? { width: width } : { width: width * 0.5 - 4 }
+                i === 0 ? { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), width: width } : { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), width: width * 0.5 - 4 }
             ]}>
                 <View style={styles.box}>
                     <FastImage
@@ -75,7 +75,7 @@ const DailyItem = React.memo(({ data = {}, nav = {}, index, btn1Callback, btn2Ca
                 </TouchableWithoutFeedback>
             </View>
 
-            <View style={styles.main}>
+            <View style={[styles.main,{backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
                 {items}
             </View>
 
@@ -104,11 +104,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
     },
     listItem: {
         flexDirection: 'column',
-        backgroundColor: RNStorage.isDark ? '#000' : '#FFF',
         marginVertical: 8,
         width: width * 0.5,
     },

@@ -67,16 +67,19 @@ const MyTopTabs = React.memo(() => {
     };
 
     return (
-        <>
-            <View style={styles.topBox}>
-                <View style={styles.row}>
-                    <View style={styles.logoBox}>
+        <View style={{ flex: 1, backgroundColor:  GlobalStyle.setBg(RNStorage.isDark)}}>
+            <View style={{backgroundColor:  GlobalStyle.setBg(RNStorage.isDark)}}>
+                <View style={[styles.row,{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
+                    <View style={[styles.logoBox,{        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
                         <View style={styles.logo}>
                             <Image style={{ width: 28, height: 28, borderRadius: 5 }} source={require('../../assets/app_icon.png')} ></Image>
                         </View>
                         <View style={styles.title}>
-                            <Text style={styles.small}>{RNStorage.info?.appName}</Text>
-                            <Text style={styles.small} numberOfLines={1}> {RNStorage.info?.appSite}</Text>
+                            <Text style={[styles.small,{color: GlobalStyle.sysFont()}]}>{RNStorage.info?.appName}</Text>
+                            {(RNStorage.info&&RNStorage.info?.appSite)&&(
+                                <Text style={[styles.small,{color: GlobalStyle.sysFont()}]} numberOfLines={1}> {RNStorage.info?.appSite}</Text>
+                            )}
+                            
                         </View>
                     </View>
                     <View style={styles.search}>
@@ -122,7 +125,7 @@ const MyTopTabs = React.memo(() => {
                 <Tab.Screen name="Europe" component={ClipList} options={{ tabBarLabel: '欧美' }} initialParams={{ category: '欧美' }} />
                 <Tab.Screen name="Category" component={Category} options={{ tabBarLabel: '全部' }} />
             </TopTab.Navigator>
-        </>
+        </View>
     );
 })
 
@@ -472,14 +475,12 @@ const MyStack = React.memo(() => {
 
 const styles = StyleSheet.create({
     topBox: {
-        flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
     },
     logoBox: {
         flexDirection: 'row',
         width: 100,
         overflow: 'hidden',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
     },
     logo: {
         justifyContent: 'center',
@@ -488,7 +489,8 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        marginTop: 3
+        marginTop: 3,
+
     },
     search: {
         flex: 3,
@@ -516,10 +518,11 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     small: {
-        fontSize: 12, fontWeight: 'bold', color: GlobalStyle.sysFont()
+        fontSize: 12, fontWeight: 'bold', 
     },
     title: {
-
+        justifyContent: 'center',
+        alignItems: 'flex-start'
     },
     quick: {
         marginHorizontal: 5,

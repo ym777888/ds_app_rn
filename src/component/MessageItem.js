@@ -15,7 +15,7 @@ const MessageItem = React.memo(({ data = {}, nav = {}, index }) => {
         <View style={styles.listItem}>
             <View style={styles.box}>
                 <View style={styles.line}>
-                    <Text style={styles.title}>{data.content}</Text>
+                    <Text style={[styles.title,{ color: GlobalStyle.setFont(RNStorage.isDark) }]}>{data.content}</Text>
                 </View>
                 <View style={[styles.line,{ justifyContent: 'flex-end'}]}>
                     <Text style={styles.txt} numberOfLines={2}>{data.createTime}</Text>
@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 14,
-        color: '#000000',
         lineHeight: 22
     },
     title2: {

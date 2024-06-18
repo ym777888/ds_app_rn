@@ -94,8 +94,8 @@ const Search = () => {
     }
 
     return (
-        <View style={styles.row}>
-            <View style={styles.navBox}>
+        <View style={[styles.row,{backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
+            <View style={[styles.navBox,{        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
                 <TouchableWithoutFeedback onPress={()=>{ navigation.goBack()}}>
                 <Image source={require('../../assets/icon_back.png')} style={styles.back} tintColor="#888888" />
                 </TouchableWithoutFeedback>
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
         padding: 0,
         flexDirection: 'column',
         flex: 1,
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+        
     },
     btn: {
         backgroundColor: '#dddddd',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 10,
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
     },
     right: {
         width: 80,

@@ -17,7 +17,7 @@ const Profile = () => {
     const [isLogin, setIsLogin] = useState(RNStorage.isLogin);
     const [userInfo, setUserInfo] = useState({});
     const subscription = useRef(null);
-    const [showLog,setShowLog] = useState(false);
+    const [showLog, setShowLog] = useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -107,14 +107,14 @@ const Profile = () => {
     };
 
     const renderFooter = () => {
-        return (showLog&&<View>
+        return (showLog && <View>
             <Text>111</Text>
         </View>)
     }
 
     const renderHeader = () => {
         return (
-            <View style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark)}}>
+            <View style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }}>
                 <View style={[styles.row1, { justifyContent: 'flex-end', margin: 0 }]}>
                     <TouchableWithoutFeedback onPress={() => { navigation.navigate("Message") }}>
                         <View style={{ width: 34, height: 20 }}>
@@ -129,13 +129,13 @@ const Profile = () => {
 
                     </TouchableWithoutFeedback>
                 </View>
-                <View style={styles.row}>
+                <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }]}>
                     <View style={styles.avatar}>
                         <Image resizeMode='contain' style={{ height: 50, width: 50, borderRadius: 90 }} source={require('../../assets/app_icon.png')} ></Image>
                     </View>
                     <View style={{ flex: 1, marginLeft: 5 }}>
-                        <Text style={styles.name}>{Util.getNickName(userInfo?.user?.nickname)}</Text>
-                        <Text style={styles.name2}>账号:{Util.getNickName(userInfo?.user?.phone)}</Text>
+                        <Text style={[styles.name, { color: GlobalStyle.sysFont(), }]}>{Util.getNickName(userInfo?.user?.nickname)}</Text>
+                        <Text style={[styles.name2, { color: GlobalStyle.sysFont(), }]}>账号:{Util.getNickName(userInfo?.user?.phone)}</Text>
                     </View>
                     {isLogin ? (
 
@@ -177,7 +177,7 @@ const Profile = () => {
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
-                <View style={styles.col}>
+                <View style={[styles.col]}>
 
                     <View style={styles.row}>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('BuyDiamond', { data: {} }); }}>
@@ -213,25 +213,25 @@ const Profile = () => {
                     <View style={styles.row}>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'pay', title: '已购' }); }}>
                             <View style={styles.btn2}>
-                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_cart.png')}></Image>
+                                <Image tintColor={'#000000'} style={styles.btn3Img} source={require('../../assets/icon_cart.png')}></Image>
                                 <Text style={styles.btn2Title}>已购</Text>
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('History', { type: 'history', title: '历史' }); }}>
                             <View style={styles.btn2}>
-                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_history.png')}></Image>
+                                <Image tintColor={'#000000'} style={styles.btn3Img} source={require('../../assets/icon_history.png')}></Image>
                                 <Text style={styles.btn2Title}>历史</Text>
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'recom', title: '点赞' }); }}>
                             <View style={styles.btn2}>
-                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_heart.png')}></Image>
+                                <Image tintColor={'#000000'} style={styles.btn3Img} source={require('../../assets/icon_heart.png')}></Image>
                                 <Text style={styles.btn2Title}>点赞</Text>
                             </View>
                         </TouchableWithoutFeedback>
                         <TouchableWithoutFeedback onPress={() => { navigation.navigate('Fav', { type: 'fav', title: '收藏' }); }}>
                             <View style={styles.btn2}>
-                                <Image tintColor={GlobalStyle.sysFont()} style={styles.btn3Img} source={require('../../assets/icon_star.png')}></Image>
+                                <Image tintColor={'#000000'} style={styles.btn3Img} source={require('../../assets/icon_star.png')}></Image>
                                 <Text style={styles.btn2Title}>收藏</Text>
                             </View>
                         </TouchableWithoutFeedback>
@@ -243,7 +243,7 @@ const Profile = () => {
     };
 
     return (
-        <View style={styles.topBox}>
+        <View style={[styles.topBox, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark) }]}>
             <FlatList
                 style={{ flex: 1 }}
                 data={configData}
@@ -259,7 +259,6 @@ const Profile = () => {
 const styles = StyleSheet.create({
     topBox: {
         flexDirection: 'column',
-        backgroundColor: RNStorage.isDark ? '#000000' : '#f9f9f9',
         flex: 1,
     },
     btn: {
@@ -296,7 +295,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
     },
     row2: {
         margin: GlobalStyle.marginTop,
@@ -318,13 +317,13 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         padding: GlobalStyle.marginTop,
         borderRadius: 15,
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         borderColor: '#cccccc',
         borderWidth: 0.5,
+        backgroundColor: 'white'
     },
     name: {
         fontSize: 16,
-        color: GlobalStyle.sysFont(),
+
         marginVertical: 2
     },
     name2: {

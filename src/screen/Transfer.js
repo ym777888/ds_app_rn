@@ -82,7 +82,7 @@ const Transfer = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={'转账'} />
             <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row' }}>
                 <Text style={{ color: '#993333', fontSize: 12 }}>将钻石转给其他用户</Text>
@@ -91,11 +91,11 @@ const Transfer = () => {
                 <Text>
                     收款账号
                 </Text>
-                <TextInput style={styles.searchTxt} placeholder="输入对方手机号" numberOfLines={1} maxLength={20} value={phone} onChangeText={setPhone} />
+                <TextInput style={[styles.searchTxt, { color: GlobalStyle.sysFont(), }]} placeholder="输入对方手机号" numberOfLines={1} maxLength={20} value={phone} onChangeText={setPhone} />
             </View>
             <View style={styles.search}>
                 <Text>转账金额</Text>
-                <TextInput style={styles.searchTxt} placeholder="输入转账金额" secureTextEntry={false} numberOfLines={1} maxLength={20} value={amount} onChangeText={setAmount} />
+                <TextInput style={[styles.searchTxt, { color: GlobalStyle.sysFont(), }]} placeholder="输入转账金额" secureTextEntry={false} numberOfLines={1} maxLength={20} value={amount} onChangeText={setAmount} />
                 <TouchableWithoutFeedback onPress={showhand}>
                     <View style={{ width: 80, height: 26, justifyContent: 'center', alignItems: 'center', backgroundColor: '#CC0033', borderRadius: 10 }}>
                         <Text style={{ color: 'white' }}>全部</Text>
@@ -106,7 +106,7 @@ const Transfer = () => {
                 <Text>
                     备注留言
                 </Text>
-                <TextInput style={styles.searchTxt} placeholder="输入备注" numberOfLines={1} maxLength={200} value={message} onChangeText={setMessage} />
+                <TextInput style={[styles.searchTxt, { color: GlobalStyle.sysFont(), }]} placeholder="输入备注" numberOfLines={1} maxLength={200} value={message} onChangeText={setMessage} />
             </View>
             <View style={styles.balance}>
                 <Text>钻石余额: <Text style={{ color: '#993333' }}>{userInfo?.user?.diamond}</Text></Text>
@@ -145,11 +145,11 @@ const styles = StyleSheet.create({
         lineHeight: 30,
         marginLeft: 5,
         padding: 0,
-        color: GlobalStyle.sysFont(),
+
     },
     row: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
         flex: 1,
     },
     btn: {

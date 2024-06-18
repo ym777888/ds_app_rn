@@ -20,19 +20,19 @@ const DataItem = React.memo(({ data = {}, nav = {}, index }) => {
         <View style={styles.listItem}>
             <View style={styles.box}>
                 <View style={styles.line}>
-                    <Text style={styles.title}>{data.remark}</Text>
+                    <Text style={[styles.title, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>{data.remark}</Text>
                     <Text style={styles.txt} numberOfLines={2}>{data.createTime}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title2}>交易方</Text>
+                    <Text style={[styles.title2, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>交易方</Text>
                     <Text style={styles.txt}>{trader}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title2}>数量</Text>
+                    <Text style={[styles.title2, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>数量</Text>
                     <Text style={sign === "+" ? styles.txt1 : styles.txt2}>{sign}{data.amount}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title2}>剩余</Text>
+                    <Text style={[styles.title2, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>剩余</Text>
                     <Text style={styles.txt3}>{data.balanceAfter}</Text>
                 </View>
             </View>
@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 14,
-        color: '#000000',
         fontWeight: 'bold',
     },
     title2: {

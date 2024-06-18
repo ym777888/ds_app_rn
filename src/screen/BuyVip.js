@@ -140,7 +140,8 @@ const BuyVip = () => {
 
         let req = {
             code: RNStorage.code ? RNStorage.code : "",
-            price: item.price
+            price: item.price,
+            code: RNStorage.code ? RNStorage.code : Util.DEF_CODE
         }
 
         HttpUtil.postReq(Util.PAY_LIST, req, (msg, data) => {
@@ -274,7 +275,7 @@ const BuyVip = () => {
     }
 
     return (
-        <View style={styles.box}>
+        <View style={[styles.box,{        backgroundColor: GlobalStyle.setBg(RNStorage.isDark)}]}>
             <TouchableWithoutFeedback onPress={() => { navigation.goBack() }}>
                 <View>
                     <Image source={require('../../assets/icon_back.png')} style={{ width: 34, height: 34 }} tintColor="#888888" />
@@ -319,7 +320,7 @@ const BuyVip = () => {
 
                         ) : (
                             <FlatList
-                                style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), marginTop: 20 }}
+                                style={{ marginTop: 20 }}
                                 data={payListData}
                                 renderItem={renderPayItem}
                                 keyExtractor={(item, index) => index.toString()}

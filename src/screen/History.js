@@ -75,7 +75,7 @@ const History = () => {
 
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={title} />
             <FlatList
                 style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}

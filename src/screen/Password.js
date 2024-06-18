@@ -56,7 +56,7 @@ const Password = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={'修改密码'} />
             <View style={styles.search}>
                 <Text>

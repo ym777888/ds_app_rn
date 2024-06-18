@@ -72,7 +72,7 @@ const BindBank = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={'绑定银行卡'} />
             <View style={{ margin: 10, justifyContent: 'center', flexDirection: 'row' }}>
 

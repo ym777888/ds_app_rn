@@ -24,7 +24,7 @@ const Gift = () => {
     const [address, setAddress] = useState(null);
     const [name, setName] = useState(null);
     const [gift, setGift] = useState(null);
-    
+
 
     useEffect(() => {
         queryDataList();
@@ -53,7 +53,7 @@ const Gift = () => {
             RNStorage.isLogin = false;
             RNStorage.token = '';
             Util.showToast(msg);
-        },true);
+        }, true);
     }
 
     const getAddress = () => {
@@ -69,7 +69,7 @@ const Gift = () => {
 
         }, (msg) => {
             Util.showToast(msg);
-        },true);
+        }, true);
     }
 
 
@@ -152,7 +152,7 @@ const Gift = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <View style={styles.box1}>
                 <View style={styles.balance}>
                     <Image style={{ width: 18, height: 18, marginHorizontal: 3 }} source={require('../../assets/icon_diamond3.png')}></Image>
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
         paddingTop: 0,
         flexDirection: 'column',
         flex: 1,
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
     },
 
     listContainer: {

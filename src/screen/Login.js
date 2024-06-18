@@ -64,14 +64,17 @@ const Login = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row,{        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
             <NavTitle nav={navigation} />
 
             <View style={{ justifyContent: 'center', alignItems: 'center', marginVertical: 10, }}>
                 <Image resizeMode='contain' source={require('../../assets/app_icon.png')} style={{ width: 54, height: 54, borderRadius: 90, borderWidth: 2, borderColor: 'white' }} />
                 <View style={styles.title}>
                     <Text style={styles.small}>{RNStorage.info?.appName}</Text>
-                    <Text style={styles.small2} numberOfLines={1}>永久网址:{RNStorage.info?.appSite}</Text>
+                    {(RNStorage.info&&RNStorage.info?.appSite)&&(
+                        <Text style={styles.small2} numberOfLines={1}>永久网址:{RNStorage.info?.appSite}</Text>
+                    )}
+                    
                 </View>
             </View>
 
@@ -115,7 +118,7 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
         flex: 1,
     },
     btn: {

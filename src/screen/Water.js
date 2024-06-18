@@ -80,7 +80,7 @@ const Water = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={'钻石流水'} />
             <FlatList
                 style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}
@@ -107,7 +107,7 @@ export default Water;
 const styles = StyleSheet.create({
     row: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
         flex: 1,
     },
 

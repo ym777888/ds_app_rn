@@ -31,8 +31,8 @@ const CellItem = React.memo(({ data = {}, nav = {}, index }) => {
 
     return (
         <TouchableWithoutFeedback onPress={handlePress} key={index}>
-            <View style={[styles.line]}>
-                <Text style={styles.lineTitle}>{data.name}</Text>
+            <View style={[styles.line, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
+                <Text style={[styles.lineTitle, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>{data.name}</Text>
                 <View style={styles.right}>
                     <Text>{data.value}</Text>
                     <Image tintColor={'#CCCCCC'} style={styles.btn3Img} source={require('../../assets/icon_arrow.png')}></Image>
@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
         height: 40,
         lineHeight: 40,
         marginHorizontal: 15,
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
+
         borderRadius: 1
     },
 
     lineTitle: {
         fontSize: 14,
-        color: GlobalStyle.sysFont(),
+
         marginLeft: 10,
     },
     btn3Img: {

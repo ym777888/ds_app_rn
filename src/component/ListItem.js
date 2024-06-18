@@ -34,12 +34,12 @@ const ListItem = React.memo(({ data = {}, nav = {}, index }) => {
     };
 
     return (
-        <View style={isOddRow ? styles.rowContainerOdd : styles.rowContainerEven}>
+        <View style={[isOddRow ? styles.rowContainerOdd : styles.rowContainerEven,{backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}]}>
             <TouchableWithoutFeedback onPress={handlePress} key={index}>
                 <View style={[
                     styles.listItem,
                     isOddRow ? { width: width } : { width: width * 0.5 - 4 },
-                    isRight ? { marginLeft: 8 } : { marginLeft: 0 }
+                    isRight ? { marginLeft: 8 } : { marginLeft: 0 }, {        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),}
                 ]}>
                     <View style={styles.box}>
                         <FastImage
@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
     },
     listItem: {
         flexDirection: 'column',
-        backgroundColor: GlobalStyle.setBg(RNStorage.isDark),
         marginVertical: 8,
         width: width * 0.5,
     },

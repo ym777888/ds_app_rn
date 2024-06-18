@@ -93,7 +93,7 @@ const Fav = () => {
     }
 
     return (
-        <View style={styles.row}>
+        <View style={[styles.row, { backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }]}>
             <NavTitle nav={navigation} title={title} rightTxt={'清除'} rightAction={doClear} />
             <FlatList
                 style={{ backgroundColor: GlobalStyle.setBg(RNStorage.isDark), }}

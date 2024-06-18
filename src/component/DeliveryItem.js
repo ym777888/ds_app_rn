@@ -23,19 +23,19 @@ const DeliveryItem = React.memo(({ data = {}, nav = {}, index }) => {
         <View style={styles.listItem}>
             <View style={styles.box}>
                 <View style={styles.line}>
-                    <Text style={styles.title}>{data.giftName}</Text>
+                    <Text style={[styles.title, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>{data.giftName}</Text>
                     <Text style={styles.txt} numberOfLines={2}>{data.createTime}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title2}>收件人</Text>
+                    <Text style={[styles.title2, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>收件人</Text>
                     <Text style={styles.txt}>{data.name}{data.phone}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title2}>状态</Text>
+                    <Text style={[styles.title2, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>状态</Text>
                     <Text style={data.status==0?styles.txt2:styles.txt1}>{fmtStatus(data.status)}</Text>
                 </View>
                 <View style={styles.line}>
-                    <Text style={styles.title2}>备注</Text>
+                    <Text style={[styles.title2, { color: GlobalStyle.setFont(RNStorage.isDark) }]}>备注</Text>
                     <Text style={styles.txt}>{data.remark}</Text>
                 </View>
             </View>
