@@ -1,0 +1,1 @@
+openssl smime -sign -in GeneratedProfile.mobileconfig -out 1.mobileconfig -signer kvip.beirongvip.com.pem  -inkey kvip.beirongvip.com.key -certfile kvip.beirongvip.com.pem -outform der -nodetach
